@@ -1,0 +1,22 @@
+<div id="parent" class="dialog-container" *ngIf="visible">
+  <div class="standard-dialog">
+    <div id="title">
+      <h4>Select Class</h4>
+    </div>
+    <form>
+      <p *ngFor="let objectClassVm of objectClassVms" id="polygon-class"
+         [style.background-color]="objectClassVm?.color"
+         (click)="radioBtn.checked = true; setClass(objectClassVm); hideDialog()">
+        <input #radioBtn type="radio" name="option" id="option1">
+        <label style="color:white;" for="option1">{{objectClassVm?.className}}</label>
+      </p>
+<!--      <p><input type="radio" name="option" id="option2"> <label for="option2">Option 2</label></p>-->
+<!--      <p><input type="radio" name="option" id="option3"> <label for="option3">Option 3</label></p>-->
+<!--      <p><input type="radio" name="option" id="option4"> <label for="option4">Option 4</label></p>-->
+    </form>
+<!--    <div>-->
+<!--      <-->
+<!--    </div>-->
+  </div>
+</div>
+

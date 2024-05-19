@@ -1,0 +1,37 @@
+<div id="parent">
+  <!--Side Panel-->
+  <div id="left-panel">
+
+  </div>
+  <!--Main Window-->
+  <div id="main-window">
+    <!--Account Menu-->
+    <div id="account-menu">
+
+    </div>
+    <!--Annotation Window-->
+    <div id="annotation-window">
+      <div id="title-image-window">
+        <h4>Select PolygonViewModel</h4>
+        <div id="image-window">
+          <app-multi-polygon
+          (polygonClicked)="assignDialog.hideDialog();assignDialog.polygonVm = $event;assignDialog.showDialog()"></app-multi-polygon>
+        </div>
+      </div>
+      <!--Detail Window-->
+      <div id="detail-window">
+        <!--Selection Details-->
+        <div>
+          <div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Dialogs -->
+  <div>
+    <app-assign-class-dialog #assignDialog></app-assign-class-dialog>
+  </div>
+</div>

@@ -7,16 +7,16 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
     x: number;
     y: number;
   }
-  
+
   class Polygon {
     points: Point[] = [];
-  
+
     constructor(private ctx: CanvasRenderingContext2D,public savedPolygons: Point[][] = []) {}
-  
+
     addPoint(p: Point) {
       this.points.push({ x: p.x, y: p.y });
     }
-  
+
     draw() {
       if (this.points.length === 0) return;
       this.ctx.lineWidth = 2;
@@ -45,12 +45,12 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
       this.ctx.closePath();
       // this.ctx.rect(this.startX, this.startY, width, height);
       this.ctx.rect(337,337,1100,12);
-      
+
       this.ctx.stroke();
 
     }
-  
-  
+
+
     closest(pos: Point, dist: number = 8): Point | undefined {
       let minDist = dist * dist;
       let closestPoint: Point | undefined;
@@ -96,7 +96,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
       for (let i = 0, j = currentPoint.length - 1; i < currentPoint.length; j = i++) {
         let xi = currentPoint[i].x, yi = currentPoint[i].y;
         let xj = currentPoint[j].x, yj = currentPoint[j].y;
-  
+
         let intersect = ((yi > y) !== (yj > y))
             && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) inside = !inside;
@@ -105,13 +105,13 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
       if(inside) {
         result.push(currentPoint);
       }
-        
+
 
     }
     return result;
   }
   }
-  
+
   @Component({
     selector: 'app-canvas-area-draw',
     templateUrl: './canvas-area-draw.component.html',
@@ -125,7 +125,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
     private activePoint?: Point;
     private dragging = false;
     private mouse = { x: 0, y: 0, button: false, lx: 0, ly: 0, update: false ,rectangles:false};
-    // private currentpolygon!: Polygon;
+    // private currentpolygon!: PolygonViewModel;
     private image = new Image();
     private imageLoaded = false;//set after image loaded
     private labelpointer=false;//set after label clicked
@@ -140,7 +140,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
       this.currentpolygon = new Polygon(this.ctx);
       requestAnimationFrame(() => this.update());
     }
-  
+
     mouseEvents(event: MouseEvent) {
 
       if(this.labelpointer)return;
@@ -154,7 +154,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
       // }
 
       // else{
-      
+
       const rect = this.drawingCanvas.nativeElement.getBoundingClientRect();
       this.mouse.x = event.clientX - rect.left ;
       this.mouse.y = event.clientY - rect.top ;
@@ -166,11 +166,11 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
         this.mouse.rectangles=true
         console.log("inside rect")
       }
-      
+
     }
-  
+
     update() {
-     
+
 
       if (this.mouse.update && !this.mouse.rectangles) {
         // this.ctx.clearRect(0, 0, this.drawingCanvas.nativeElement.width, this.drawingCanvas.nativeElement.height);
@@ -178,16 +178,16 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
         // console.log(this.drawingCanvas.nativeElement.height)
 
         this.ctx.drawImage(this.image, 0, 0,this.drawingCanvas.nativeElement.width, this.drawingCanvas.nativeElement.height );
-        
+
         // this.ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
         this.currentpolygon.drawAllSavedPolygons();
-       
+
         if (!this.dragging) {
           this.activePoint = this.currentpolygon.closest({ x: this.mouse.x, y: this.mouse.y });
         }
         if (this.activePoint && this.mouse.button) {
           if (this.dragging) {
-            
+
             this.activePoint.x += this.mouse.x - this.mouse.lx;
             this.activePoint.y += this.mouse.y - this.mouse.ly;
             console.log(this.activePoint)
@@ -209,21 +209,21 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
         this.drawingCanvas.nativeElement.style.cursor = this.activePoint ? 'move' : 'crosshair';
         this.mouse.update = false;
         this.mouse.rectangles=false
-        
+
       }
       // else{
 
       //   this.ctx.drawImage(this.image, 0, 0,this.drawingCanvas.nativeElement.width, this.drawingCanvas.nativeElement.height );
-        
+
       //   // this.ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
       //   this.currentpolygon.drawAllSavedPolygons();
-       
+
       //   if (!this.dragging) {
       //     this.activePoint = this.currentpolygon.closest({ x: this.mouse.x, y: this.mouse.y });
       //   }
       //   if (this.activePoint && this.mouse.button) {
       //     if (this.dragging) {
-            
+
       //       this.activePoint.x += this.mouse.x - this.mouse.lx;
       //       this.activePoint.y += this.mouse.y - this.mouse.ly;
       //       console.log(this.activePoint)
@@ -249,7 +249,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
 
       requestAnimationFrame(() => this.update());
     }
-  
+
     drawCircle(pos: Point, color: string = 'red', size: number = 8) {
       this.ctx.strokeStyle = color;
       this.ctx.beginPath();
@@ -263,7 +263,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
             reader.onload = e => {
               this.image.onload = () => {
                 this.imageLoaded = true;
-                
+
                 // this.width=this.image.width
                 // this.height=this.image.height
                 // console.log(this.width)
@@ -275,8 +275,8 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
             };
             reader.readAsDataURL(file);
           }
-        
-      
+
+
         }
   //   mouseClick(event: MouseEvent) {
   //   if (this.labelpointer) return;
@@ -295,8 +295,8 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
     // this.ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
 
     this.currentpolygon.drawAllSavedPolygons();  // Draw all saved polygons
-  
- 
+
+
   }
 
   onClickButton() {
@@ -313,7 +313,7 @@ import {ElementRef, ViewChild, AfterViewInit,OnInit, Input, OnDestroy, NgZone,On
   findpolygon(){
   this.labelpointer=true
   this.rectanglepointer=false
-} 
+}
 forLables(event: MouseEvent): void {
   if(!this.labelpointer) return;
   if (!this.imageLoaded) return;
@@ -332,8 +332,8 @@ forLables(event: MouseEvent): void {
 downloadCanvas(): void {
   const canvas = this.drawingCanvas.nativeElement;
   canvas.toBlob(blob => {
-      if (blob) { 
-     
+      if (blob) {
+
         // Ensure blob is not null
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');

@@ -22,7 +22,7 @@ import {Utils} from "../utils";
 export class MultiPolygonComponent implements AfterViewInit {
   // @ViewChild('canvas', { static: false , read: ElementRef}) canvasRef: ElementRef | undefined;
   @ViewChild('imgCanvas') imgCanvas!: ElementRef<HTMLCanvasElement>;
-  // @ViewChild('canvas') imgCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('polygonCanvas') polygonCanvas!: ElementRef<HTMLCanvasElement>;
   //   private canvasRef!: HTMLCanvasElement;
   @ViewChild('parent', {static: true}) parentRef: ElementRef<HTMLDivElement> | undefined;
   // private context: CanvasRenderingContext2D | null | undefined;
@@ -45,14 +45,15 @@ export class MultiPolygonComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.onDocumentLoaded(this.imgCanvas.nativeElement, undefined);
+    // this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
   }
 
-  onDocumentLoaded(imgCanvas: HTMLCanvasElement, polygonCanvas: HTMLCanvasElement | undefined): void {
+  onDocumentLoaded(imgCanvas: HTMLCanvasElement, polygonCanvas: HTMLCanvasElement): void {
     console.log("loaded");
     const img: HTMLImageElement = new Image();
     img.onload = () => {
-      this.displayImage(img, imgCanvas, 400);
+      this.displayImage(img, imgCanvas, 100);
+      this.getPolygonDataAsync(polygonCanvas).then(r => {});
       console.log("display")
     };
     img.src = 'http://localhost:4200/assets/images/Fort.jpg';
@@ -94,38 +95,43 @@ export class MultiPolygonComponent implements AfterViewInit {
   //   // Draw the image zoomed and centered
   //   ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, dx, dy, newWidth, newHeight);
   // }
-
+//979512232
   displayImage(image: HTMLImageElement, canvas: HTMLCanvasElement, zoomPer: number): void {
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if (!ctx) return;
 
     // Canvas dimensions
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
+    // const canvasWidth: number = canvas.width;
+    // const canvasHeight: number = canvas.height;
 
     // Image dimensions and zoom factor
-    const zoomFactor = zoomPer / 100;
-    const zoomedWidth = image.naturalWidth * zoomFactor;
-    const zoomedHeight = image.naturalHeight * zoomFactor;
+    const zoomFactor: number = zoomPer / 100;
+    const newWidth: number = image.naturalWidth / zoomFactor;
+    const newHeight: number = image.naturalHeight / zoomFactor;
+    const scaledNewWidth: number = (newWidth / image.naturalWidth) * canvas.width;
+    const scaledNewHeight: number = (newHeight / image.naturalHeight) * canvas.height;
+    // const zoomedWidth = image.naturalWidth * zoomFactor;
+    // const zoomedHeight = image.naturalHeight * zoomFactor;
 
     // Calculate the scaling needed to fit the image within the canvas
-    const scaleWidth = canvasWidth / zoomedWidth;
-    const scaleHeight = canvasHeight / zoomedHeight;
-    const scale = Math.min(scaleWidth, scaleHeight);
+    // const scaleWidth = canvasWidth / zoomedWidth;
+    // const scaleHeight = canvasHeight / zoomedHeight;
+    // const scale = Math.min(scaleWidth, scaleHeight);
+    //
+    // // Calculate final dimensions after scaling
+    // const finalWidth = zoomedWidth * scale;
+    // const finalHeight = zoomedHeight * scale;
 
-    // Calculate final dimensions after scaling
-    const finalWidth = zoomedWidth * scale;
-    const finalHeight = zoomedHeight * scale;
-
-    // Calculate centered position
-    const dx = (canvasWidth - finalWidth) / 2;
-    const dy = (canvasHeight - finalHeight) / 2;
+    //   // Calculate the position to center the zoomed image
+    const dx: number = (image.naturalWidth - newWidth) / 2;
+    const dy: number = (image.naturalHeight - newHeight) / 2;
 
     // Clear the canvas
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.clearRect(0, 0, canvas.width,  canvas.height);
 
     // Draw the image zoomed and centered
-    ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, dx, dy, finalWidth, finalHeight);
+    // ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, dx, dy, finalWidth, finalHeight);
+    ctx.drawImage(image, dx, dy, newWidth, newHeight, 0, 0, canvas.width, canvas.height);
   }
 
 

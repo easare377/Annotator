@@ -1,10 +1,10 @@
-<div id="parent" #parent (load)="onDocumentLoaded(imgCanvas, undefined)">
-<!--  <img id="image" #image src="assets/images/Fort.jpg">-->
-  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"></canvas>
-<!--  <canvas style="display: none" id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"-->
-<!--          (click)="onCanvasClicked($event)"-->
-<!--          (mousemove)="onCanvasHover($event)">-->
-<!--  </canvas>-->
+<div id="parent" #parent>
+  <img id="image" #image src="assets/images/Fort.jpg" (load)="onCanvasLoaded(polygonCanvas)" >
+<!--  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}" ></canvas>-->
+  <canvas id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"
+          (click)="onCanvasClicked($event)"
+          (mousemove)="onCanvasHover($event)">
+  </canvas>
 <!--  <canvas #canvas (click)="onCanvasClicked($event)"></canvas>-->
 </div>
-
+<!--<div><input style="height: 100px; width: 50px;" type="text" [innerText]="dis" [(ngModel)]=""></div>-->

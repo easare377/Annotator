@@ -1,3 +1,5 @@
+import {PolygonViewModel} from "../models/polygon-view-model";
+
 export abstract class Utils {
 
   static generateUUID(): string {
@@ -25,4 +27,19 @@ export abstract class Utils {
   static convertOpacityToHex(opacity: number): string {
     return Math.floor(opacity * 255).toString(16).padStart(2, '0');
   }
+
+  static cropPolygons(polygons: PolygonViewModel[], x: number, y: number, width: number, height: number) {
+    const croppedPolygons: PolygonViewModel[] = [];
+    polygons.forEach((p:PolygonViewModel)=>{
+      const croppedPoints = Array<Array<number>>
+      p.points.forEach((point: Array<number>) => {
+        let pointX:number = point[0];
+        const pointY:number = point[1];
+        if (pointX < x){
+          pointX = x;
+        }
+      });
+    });
+  }
+
 }

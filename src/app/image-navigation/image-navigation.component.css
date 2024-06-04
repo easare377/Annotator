@@ -1,0 +1,24 @@
+#parent{
+  display: flex;
+  /*height: 70px;*/
+  /*width: 100%;*/
+  /*background-color: brown;*/
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+#parent:hover{
+  background-color: lightblue;
+}
+
+img{
+  width: 118px;
+  height: 74px;
+  border-radius: 4px;
+}
+
+.active{
+  border: dodgerblue 3px solid;
+}

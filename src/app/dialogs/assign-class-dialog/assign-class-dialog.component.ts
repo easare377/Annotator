@@ -10,19 +10,19 @@ import {PolygonViewModel} from "../../../models/polygon-view-model";
   templateUrl: './assign-class-dialog.component.html',
   styleUrls: ['./assign-class-dialog.component.css', '../dialog.css']
 })
-export class AssignClassDialogComponent extends Dialog implements OnInit{
-  public objectClassVms: Array<ObjectClassViewModel | undefined>;
+export class AssignClassDialogComponent extends Dialog implements OnInit {
+  @Input() objectClassVms!: Array<ObjectClassViewModel>;
   @Input() polygonVm: PolygonViewModel | undefined;
   @Output() objectClassSelected: EventEmitter<ObjectClassViewModel> | undefined
 
   constructor() {
     super();
-    const colors: string[] = ['#E91E63', '#FFBB86', '#000187', '#8A2BE2'];
-    this.objectClassVms = new Array<ObjectClassViewModel>();
-    this.objectClassVms.push(new ObjectClassViewModel('','Tree', colors[0]));
-    this.objectClassVms.push(new ObjectClassViewModel('','Charcoal', colors[1]));
-    this.objectClassVms.push(new ObjectClassViewModel('','Road', colors[2]));
-    this.objectClassVms.push(new ObjectClassViewModel('','Building', colors[3]));
+    // const colors: string[] = ['#E91E63', '#FFBB86', '#000187', '#8A2BE2'];
+    // this.objectClassVms = new Array<ObjectClassViewModel>();
+    // this.objectClassVms.push(new ObjectClassViewModel('', 'Tree', colors[0]));
+    // this.objectClassVms.push(new ObjectClassViewModel('', 'Charcoal', colors[1]));
+    // this.objectClassVms.push(new ObjectClassViewModel('', 'Road', colors[2]));
+    // this.objectClassVms.push(new ObjectClassViewModel('', 'Building', colors[3]));
     // this.polygonVm ? this.polygonVm.objectClassVm  = this.objectClassVms[0]:''
   }
 
@@ -31,9 +31,8 @@ export class AssignClassDialogComponent extends Dialog implements OnInit{
   }
 
   setClass(objectClassVm: any): void {
-    if (this.polygonVm){
-      this.polygonVm.objectClassVm= objectClassVm;
+    if (this.polygonVm) {
+      this.polygonVm.objectClassVm = objectClassVm;
     }
   }
-
 }

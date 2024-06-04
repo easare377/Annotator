@@ -1,0 +1,6 @@
+<div id="polygon-class"
+   [style.background-color]="active?objectClassVm.color:Utils.lightenColor(objectClassVm.color, 0.7)">
+  <span [style.background-color]="objectClassVm.color"></span>
+<!--  <input #radioBtn type="radio" name="option" id="option1">-->
+  <label [class]="active? 'label-active': 'label-inactive'">{{ objectClassVm.className }}</label>
+</div>

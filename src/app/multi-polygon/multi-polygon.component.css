@@ -23,6 +23,7 @@ canvas {
   /*height: 100vh;*/
   /*width: 100vw;*/
   /*background: #1abc9c;*/
+  cursor: pointer;
 }
 
 #image{

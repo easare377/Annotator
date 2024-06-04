@@ -15,6 +15,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign-class-dialog.component';
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
+import { CustomScrollDirective } from './custom-scroll.directive';
+import { ImageNavigationComponent } from './image-navigation/image-navigation.component';
+import { ObjectClassComponent } from './object-class/object-class.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +28,10 @@ import {ClickOutsideDirective} from "./click-outside.directive";
     SidenavComponent,
     MultiPolygonComponent,
     AssignClassDialogComponent,
-    AnnotateComponent
+    AnnotateComponent,
+    CustomScrollDirective,
+    ImageNavigationComponent,
+    ObjectClassComponent
   ],
   imports: [
     BrowserModule,

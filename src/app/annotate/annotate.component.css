@@ -6,9 +6,15 @@
 
 /* Side Panel Styling */
 #left-panel {
-  width: 300px; /* Fixed width for the side panel */
+  width: 164px; /* Fixed width for the side panel */
   /*background-color: red; !* Red background for visibility *!*/
   border-right: 1px solid black;
+}
+
+#image-nav-container{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* Main Window Styling */
@@ -47,6 +53,15 @@
   width: 400px; /* Fixed width for the detail window */
   /*background-color: yellow; !* Yellow background for visibility *!*/
   border-left: 1px solid black;
+}
+
+#object-class-container{
+  margin-left: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 /* Documentation */

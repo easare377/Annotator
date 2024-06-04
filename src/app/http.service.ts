@@ -6,7 +6,7 @@ import { Observable, firstValueFrom } from 'rxjs';
   providedIn: 'root'
 })
 export class HttpService {
-  private readonly dataUrl = 'assets/data/polygons.json';  // Path to the JSON file
+  private readonly dataUrl = 'assets/data/DJI_0183_AS_0320_03.json';  // Path to the JSON file
   constructor(private http: HttpClient) {
 
   }

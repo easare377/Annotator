@@ -1,6 +1,6 @@
-<div id="parent" #parent>
-  <img id="image" #image src="assets/images/Fort.jpg" (load)="onCanvasLoaded(polygonCanvas)" >
-<!--  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}" ></canvas>-->
+<div id="parent" #parent (wheel)="onWheel($event)">
+<!--  <img id="image" #image src="assets/images/Fort.jpg" (load)="onCanvasLoaded(polygonCanvas)" >-->
+  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"></canvas>
   <canvas id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"
           (click)="onCanvasClicked($event)"
           (mousemove)="onCanvasHover($event)">

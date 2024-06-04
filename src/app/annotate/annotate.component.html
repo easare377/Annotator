@@ -1,7 +1,19 @@
 <div id="parent">
   <!--Side Panel-->
   <div id="left-panel">
+    <div style="height: 80px;">
 
+    </div>
+    <div id="image-nav-container">
+      <!--      <div>-->
+      <!--        -->
+      <!--      </div>-->
+      <app-image-navigation *ngFor="let imageInfo of imageInfos"
+                            [imageInfo]="imageInfo"
+                            [active]="currentImageInfo === imageInfo"
+                            (click)="currentImageInfo = imageInfo"
+      ></app-image-navigation>
+    </div>
   </div>
   <!--Main Window-->
   <div id="main-window">
@@ -14,8 +26,17 @@
       <div id="title-image-window">
         <h4>Select PolygonViewModel</h4>
         <div id="image-window">
-          <app-multi-polygon
-          (polygonClicked)="assignDialog.hideDialog();assignDialog.polygonVm = $event;assignDialog.showDialog()"></app-multi-polygon>
+          <app-multi-polygon *ngIf="currentImageInfo && currentImageInfo.polygonVms"
+                             [imageInfo]="currentImageInfo"
+                             [thickness]="2"
+                             (polygonClicked)="assignDialog.polygonVm = $event; currentObjectClassVm?$event.objectClassVm =currentObjectClassVm:assignDialog.showDialog()"
+                             [zoomFactor]="10"></app-multi-polygon>
+        </div>
+        <div id="object-class-container">
+          <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
+                            [objectClassVm]="objectClassVm"
+                            [active]="objectClassVm === currentObjectClassVm"
+                            (click)="objectClass.active? currentObjectClassVm = undefined: currentObjectClassVm = objectClassVm"></app-object-class>
         </div>
       </div>
       <!--Detail Window-->
@@ -32,6 +53,7 @@
   </div>
   <!-- Dialogs -->
   <div>
-    <app-assign-class-dialog #assignDialog></app-assign-class-dialog>
+    <app-assign-class-dialog #assignDialog
+                             [objectClassVms]="objectClassVms"></app-assign-class-dialog>
   </div>
 </div>

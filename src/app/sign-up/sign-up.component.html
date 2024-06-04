@@ -1,0 +1,69 @@
+<div class="signup-container">
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'signUp'" (click)="setActiveTab('signUp')">SIGN UP</button>
+      <button class="tab" [class.active]="activeTab === 'logIn'" (click)="setActiveTab('logIn')">LOG IN</button>
+    </div>
+    <form *ngIf="activeTab === 'signUp'" [formGroup]="signInForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <input type="email" placeholder="example@mail.com" class="form-control" formControlName="gmail"
+          [class.invalid]="signInForm.get('gmail')?.invalid &&
+          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)"
+          
+          />
+          <!-- <mat-icon class="placeholder" (click)="myFunction()">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon> -->
+          <!-- <div class="input-group-append">
+            <span class="input-group-text">
+              <i
+                class="fa"
+                [ngClass]="{
+                  'fa-eye-slash': !fieldTextType,
+                  'fa-eye': fieldTextType
+                }"
+                (click)="toggleFieldTextType()"
+              ></i>
+            </span>
+          </div> -->
+          <span class="error" *ngIf="signInForm.get('gmail')?.hasError('required') &&
+          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)">This field is required</span>
+          <span class="error" *ngIf="signInForm.get('gmail')?.hasError('pattern') &&
+          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)">Enter valid Email</span>
+       
+      </div>
+      <div class="form-group">
+        <input   type='password' placeholder="PASSWORD" class="form-control" formControlName="password" 
+        [class.invalid]="signInForm.get('password')?.invalid &&
+          (signInForm.get('password')?.dirty || signInForm.get('password')?.touched || isSubmitted)"
+        />
+        <span class="error" *ngIf="signInForm.get('password')?.hasError('required') &&
+        (signInForm.get('password')?.dirty || signInForm.get('password')?.touched || isSubmitted)">This field is required</span>
+        <span class="error" *ngIf="signInForm.get('password')?.hasError('pattern')"> Invalid</span>
+      </div>
+
+      <button id="createButton" type="submit"  class="btn-primary">CREATE ACCOUNT</button>
+    </form>
+    <!-- <div id="message">
+      <h3>Password must contain the following:</h3>
+      <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+      <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+      <p id="number" class="invalid">A <b>number</b></p>
+      <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+    </div> -->
+
+
+
+
+    <form *ngIf="activeTab === 'logIn'">
+        <div class="form-group">
+          <input type="email" placeholder="EMAIL" class="form-control" />
+        </div>
+        <div class="form-group">
+          <input type="password" placeholder="PASSWORD" class="form-control" />
+        </div>
+  
+        <button type="submit" class="btn-primary">LOGIN</button>
+      </form>
+    
+
+  </div>
+  
+

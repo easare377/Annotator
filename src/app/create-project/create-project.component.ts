@@ -22,6 +22,7 @@ export class CreateProjectComponent implements OnInit {
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
+    
   }
 
   onDrop(event: DragEvent): void {

@@ -19,10 +19,10 @@ export class HttpService {
   }
 
   // Method to fetch data
-  async getJsonDataAsync(): Promise<Promise<Array<Array<Array<number>>>>> {
+  async getJsonDataAsync(dataUrl: string): Promise<Promise<Array<Array<Array<number>>>>> {
     // return await this.http.get<Array<Array<number>>>(this.dataUrl);
     try {
-      return await firstValueFrom(this.http.get<Array<Array<Array<number>>>>(this.dataUrl));
+      return await firstValueFrom(this.http.get<Array<Array<Array<number>>>>(dataUrl));
     } catch (error) {
       console.error('Error fetching JSON data:', error);
       return [];

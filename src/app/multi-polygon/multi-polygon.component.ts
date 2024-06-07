@@ -65,7 +65,6 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.imageInfo.polygonVms) {
       throw new Error('Polygon view models are not defined.');
     }
-    this.currentPolygonVms = this.imageInfo.polygonVms;
   }
 
   /**
@@ -105,14 +104,22 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
   onDocumentLoaded(imgCanvas: HTMLCanvasElement, polygonCanvas: HTMLCanvasElement): void {
     const img: HTMLImageElement = new Image();
     this.image = img;
-    img.onload = () => {
-      this.displayImage(img, imgCanvas, 100); // Display the image on the canvas with default zoom level
-      this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-        this.setupPolygonVms(p, polygonCanvas, this.imageInfo); // Set up each polygon view model
-        this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.color, 1, this.thickness); // Draw each polygon
-      });
-    };
-    img.src = this.imageInfo.imageUrl; // Set the image source URL
+    if (this.imageInfo.polygonVms){
+      this.currentPolygonVms = this.imageInfo.polygonVms;
+      img.onload = () => {
+        this.displayImage(img, imgCanvas, 100); // Display the image on the canvas with default zoom level
+        this.clearCanvas(polygonCanvas); //clears the canvas
+        this.currentPolygonVms.forEach((p: PolygonViewModel) => {
+          this.setupPolygonVms(p, polygonCanvas, this.imageInfo); // Set up each polygon view model
+          if (p.objectClassVm){
+            this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
+          }else{
+            this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.color, 1.0, this.thickness); // Draw each polygon
+          }
+        });
+      };
+      img.src = this.imageInfo.imageUrl; // Set the image source URL
+    }
   }
 
   /**
@@ -213,17 +220,17 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
       }
     };
     polygonVm.onMouseOver = () => {
-      for (let p of this.currentPolygonVms){
+      for (let p of this.currentPolygonVms) {
         if (p.objectClassVm) {
           this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
           this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
         } else {
           if (p !== polygonVm) {
             // if (p.mouseOver || Utils.bBoxIntercepts(p.bbox, polygonVm.bbox)) {
-            this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-            this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 0, this.thickness, false); // Redraw without fill
-            p.mouseOver = false;
-            // console.log('intercepts');
+              this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
+              this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 1.0, this.thickness, false); // Redraw without fill
+              p.mouseOver = false;
+              // console.log('intercepts');
             // }
           } else {
             // this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill

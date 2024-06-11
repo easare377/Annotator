@@ -20,6 +20,7 @@ import { CustomScrollDirective } from './custom-scroll.directive';
 import { CreateProjectComponent } from './create-project/create-project.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { ProjectsComponent } from './projects/projects.component';
+import { LabelingSetupComponent } from './create-project/labeling-setup/labeling-setup.component';
 
 
 
@@ -37,6 +38,7 @@ import { ProjectsComponent } from './projects/projects.component';
     CreateProjectComponent,
     SignUpComponent,
     ProjectsComponent,
+    LabelingSetupComponent,
 
   ],
   imports: [

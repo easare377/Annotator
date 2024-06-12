@@ -1,0 +1,10 @@
+.label {
+    position: absolute;
+    padding: 5px;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+  }
+  

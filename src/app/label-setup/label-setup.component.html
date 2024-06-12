@@ -1,0 +1,19 @@
+<mat-toolbar color="primary">
+    <span>Label Studio</span>
+  </mat-toolbar>
+  
+  <div class="container">
+    <mat-tab-group>
+      <mat-tab label="Labeling Setup">
+        <div class="labeling-setup">
+          <app-add-label-form (labelsAdded)="addLabels($event)"></app-add-label-form>
+          <app-label-list [labels]="labels" (labelRemoved)="removeLabel($event)"></app-label-list>
+          <app-image-preview [labels]="labels"></app-image-preview>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  
+  <button mat-button color="primary" (click)="save()">Save</button>
+  <button mat-button color="warn" (click)="delete()">Delete</button>
+  

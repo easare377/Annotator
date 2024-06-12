@@ -1,0 +1,11 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>Add label names</mat-card-title>
+      <mat-card-subtitle>Use new line as a separator to add multiple labels</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <textarea matInput placeholder="Label names" [(ngModel)]="newLabels"></textarea>
+      <button mat-button color="primary" (click)="addLabels()">Add</button>
+    </mat-card-content>
+  </mat-card>
+  

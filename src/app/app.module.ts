@@ -20,16 +20,21 @@ import { CustomScrollDirective } from './custom-scroll.directive';
 import { CreateProjectComponent } from './create-project/create-project.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { ProjectsComponent } from './projects/projects.component';
-import { LabelSetupComponent } from './label-setup/label-setup.component';
-import { AddLabelFormComponent } from './label-setup/add-label-form/add-label-form.component';
-import { LabelListComponent } from './label-setup/label-list/label-list.component';
-import { ImagePreviewComponent } from './label-setup/image-preview/image-preview.component';
-// import { NgxPinchZoomModule } from 'ngx-pinch-zoom';
-// import { MatToolbarModule } from '@angular/material/toolbar';
-// import { MatButtonModule } from '@angular/material/button';
-// import { MatInputModule } from '@angular/material/input';
-// import { MatCardModule } from '@angular/material/card';
-// import { MatChipsModule } from '@angular/material/chips';
+
+// import { PinchZoomModule} from 'ngx-pinch-zoom';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
+import { LabelingSetupComponent } from './create-project/labeling-setup/labeling-setup.component';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { ColorPickerComponent } from './create-project/labeling-setup/color-picker/color-picker.component';
+
+
+
+
 
 
 
@@ -48,11 +53,9 @@ import { ImagePreviewComponent } from './label-setup/image-preview/image-preview
     CreateProjectComponent,
     SignUpComponent,
     ProjectsComponent,
-    LabelSetupComponent,
-    AddLabelFormComponent,
-    LabelListComponent,
-    ImagePreviewComponent,
-
+    LabelingSetupComponent,
+    ColorPickerComponent,
+    
   
 
   ],
@@ -63,8 +66,17 @@ import { ImagePreviewComponent } from './label-setup/image-preview/image-preview
     NgOptimizedImage,
     HttpClientModule,
     ClickOutsideDirective,
-    ReactiveFormsModule,
-  
+    ReactiveFormsModule,  
+    MatToolbarModule,
+    MatButtonModule,
+    MatInputModule,
+    MatCardModule,
+    MatChipsModule,
+    MatTabsModule,
+    ColorPickerModule,
+    
+
+    
 
   ],
   providers: [],

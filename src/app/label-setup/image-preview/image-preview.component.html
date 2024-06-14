@@ -1,7 +1,0 @@
-<ngx-pinch-zoom>
-    <img src="assets/your-image.jpg" alt="Preview Image" (click)="onImageClick($event)">
-    <div *ngFor="let label of placedLabels" class="label" [style.left.px]="label.x" [style.top.px]="label.y" [style.background]="label.color">
-      {{ label.name }}
-    </div>
-  </ngx-pinch-zoom>
-  

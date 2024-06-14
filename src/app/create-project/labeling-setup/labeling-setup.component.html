@@ -1,0 +1,25 @@
+<div class="card">
+  <div class="card-header">
+    <h2>Add Label Names</h2>
+    <p>Use new line as a separator to add multiple labels</p>
+  </div>
+  <div class="card-content">
+    <textarea placeholder="Label names" [(ngModel)]="newLabels"></textarea>
+    <button (click)="addLabels()">Add</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Labels ({{ labels.length }})</h2>
+  </div>
+  <div class="card-content1">
+    <!-- <div  [(colorPicker)]="color" class="chip" *ngFor="let label of labels" [style.background]="label.color" > -->
+      <div  [(colorPicker)]="label.color" class="chip" *ngFor="let label of labels" [style.background]="label.color" >
+      {{ label.name }}
+      <span class="closebtn" (click)="removeLabel(label)">&times;</span>
+    </div>
+  </div>
+</div>
+
+

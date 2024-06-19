@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 
 import { HeaderComponent } from './header/header.component';
 import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TrailComponent } from './trail/trail.component';
 import { CanvasAreaDrawComponent } from './canvas-area-draw/canvas-area-draw.component';
 import { SidenavComponent } from './sidenav/sidenav.component';
@@ -16,9 +17,13 @@ import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
 import { CustomScrollDirective } from './custom-scroll.directive';
-import { ImageNavigationComponent } from './image-navigation/image-navigation.component';
-import { ObjectClassComponent } from './object-class/object-class.component';
-import { AnnotatedPolygonComponent } from './annotated-polygon/annotated-polygon.component';
+import { CreateProjectComponent } from './create-project/create-project.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
+import {AnnotatedPolygonComponent} from "./annotated-polygon/annotated-polygon.component";
+import {ObjectClassComponent} from "./object-class/object-class.component";
+import {ImageNavigationComponent} from "./image-navigation/image-navigation.component";
+
+
 
 @NgModule({
   declarations: [
@@ -31,9 +36,12 @@ import { AnnotatedPolygonComponent } from './annotated-polygon/annotated-polygon
     AssignClassDialogComponent,
     AnnotateComponent,
     CustomScrollDirective,
-    ImageNavigationComponent,
+    CreateProjectComponent,
+    SignUpComponent,
+    AnnotatedPolygonComponent,
     ObjectClassComponent,
-    AnnotatedPolygonComponent
+    ImageNavigationComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -42,6 +50,8 @@ import { AnnotatedPolygonComponent } from './annotated-polygon/annotated-polygon
     NgOptimizedImage,
     HttpClientModule,
     ClickOutsideDirective,
+    ReactiveFormsModule,
+
   ],
   providers: [],
   bootstrap: [AppComponent]

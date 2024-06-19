@@ -18,6 +18,7 @@ import {ClickOutsideDirective} from "./click-outside.directive";
 import { CustomScrollDirective } from './custom-scroll.directive';
 import { ImageNavigationComponent } from './image-navigation/image-navigation.component';
 import { ObjectClassComponent } from './object-class/object-class.component';
+import { AnnotatedPolygonComponent } from './annotated-polygon/annotated-polygon.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ObjectClassComponent } from './object-class/object-class.component';
     AnnotateComponent,
     CustomScrollDirective,
     ImageNavigationComponent,
-    ObjectClassComponent
+    ObjectClassComponent,
+    AnnotatedPolygonComponent
   ],
   imports: [
     BrowserModule,

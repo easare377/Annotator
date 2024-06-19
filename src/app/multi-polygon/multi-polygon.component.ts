@@ -51,6 +51,11 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() polygonClicked = new EventEmitter<PolygonViewModel>();
 
   /**
+   * Event emitted when a class is assigned to a polygon.
+   */
+  @Output() objectClassAssigned = new EventEmitter<PolygonViewModel>();
+
+  /**
    * Initializes a new instance of the MultiPolygonComponent class.
    */
   constructor() {
@@ -216,7 +221,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
     polygonVm.onClassSet = () => {
       if (polygonVm.objectClassVm) {
         this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the previous fill
-        this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.objectClassVm.color, 1.0, this.thickness, true); // Draw the polygon with new class color
+        this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.objectClassVm.color,
+          1.0, this.thickness, true); // Draw the polygon with new class color
+        this.objectClassAssigned.emit(polygonVm);
       }
     };
     polygonVm.onMouseOver = () => {

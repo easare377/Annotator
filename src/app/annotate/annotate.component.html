@@ -1,59 +1,111 @@
 <div id="parent">
-  <!--Side Panel-->
-  <div id="left-panel">
-    <div style="height: 80px;">
-
+  <!--Account Menu-->
+  <div id="account-menu">
+    <div>
+      <span>Go Back</span>
     </div>
-    <div id="image-nav-container">
-      <!--      <div>-->
-      <!--        -->
-      <!--      </div>-->
-      <app-image-navigation *ngFor="let imageInfo of imageInfos"
-                            [imageInfo]="imageInfo"
-                            [active]="currentImageInfo === imageInfo"
-                            (click)="currentImageInfo = imageInfo"
-      ></app-image-navigation>
+    <div>
+
     </div>
   </div>
-  <!--Main Window-->
-  <div id="main-window">
-    <!--Account Menu-->
-    <div id="account-menu">
+  <div id="body">
+    <!--Left Side Panel-->
+    <div id="left-panel">
+      <div style="height: 80px;">
 
-    </div>
-    <!--Annotation Window-->
-    <div id="annotation-window">
-      <div id="title-image-window">
-        <h4>Select PolygonViewModel</h4>
-        <div id="image-window">
-          <app-multi-polygon *ngIf="currentImageInfo && currentImageInfo.polygonVms"
-                             [imageInfo]="currentImageInfo"
-                             [thickness]="2"
-                             (polygonClicked)="assignDialog.polygonVm = $event; currentObjectClassVm?$event.objectClassVm =currentObjectClassVm:assignDialog.showDialog()"
-                             [zoomFactor]="10"></app-multi-polygon>
-        </div>
-        <div id="object-class-container">
-          <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
-                            [objectClassVm]="objectClassVm"
-                            [active]="objectClassVm === currentObjectClassVm"
-                            (click)="objectClass.active? currentObjectClassVm = undefined: currentObjectClassVm = objectClassVm"></app-object-class>
-        </div>
       </div>
-      <!--Detail Window-->
-      <div id="detail-window">
-        <!--Selection Details-->
-        <div>
+      <div id="image-nav-container">
+        <!--      <div>-->
+        <!--        -->
+        <!--      </div>-->
+        <app-image-navigation *ngFor="let imageInfo of imageInfos"
+                              [imageInfo]="imageInfo"
+                              [active]="currentImageInfo === imageInfo"
+                              (click)="currentImageInfo = imageInfo"
+        ></app-image-navigation>
+      </div>
+    </div>
+    <!--Main Window-->
+    <div id="main-window">
+      <!--Annotation Window-->
+      <div id="annotation-window">
+        <div id="title-image-window">
           <div>
-
+            <!--Image Control-->
+            <div id="controls">
+              <div id="image-controls">
+                <!--Undo-->
+                <img class="control-svg" src="assets/images/svgs/undo-svgrepo-com.svg" alt="Undo" title="Undo">
+                <!--Redo-->
+                <img class="control-svg" src="assets/images/svgs/redo-svgrepo-com.svg" alt="Redo" title="Redo">
+                <div class="hl"></div>
+                <!--Zoom Out-->
+                <img class="control-svg" src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="Zoom Out" title="Zoom Out">
+                <span>43%</span>
+                <!--Zoom In-->
+                <img class="control-svg" src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="Zoom In" title="Zoom In">
+                <!--Zoom Fit-->
+                <img class="control-svg" src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="Zoom Fit" title="Zoom Fit">
+                <!--Pan-->
+                <img class="control-svg" src="assets/images/svgs/pan-svgrepo-com.svg" alt="Zoom Fit" title="Pan Image">
+              </div>
+              <div id="annotation-controls">
+                <!--Update Button-->
+                <button id="update-button">Update</button>
+                <button id="save-button">Save & Exit</button>
+              </div>
+            </div>
+            <div id="image-window">
+              <app-multi-polygon *ngIf="currentImageInfo && currentImageInfo.polygonVms"
+                                 [imageInfo]="currentImageInfo"
+                                 [thickness]="2"
+                                 [zoomFactor]="10"
+                                 (polygonClicked)="assignDialog.polygonVm = $event;
+                               currentObjectClassVm?$event.objectClassVm =currentObjectClassVm:assignDialog.showDialog()"
+                                 (objectClassAssigned)="!currentImageInfo.annotatedPolygonVms.includes($event)?currentImageInfo.annotatedPolygonVms.push($event):''">
+              </app-multi-polygon>
+            </div>
+            <div id="object-class-container">
+              <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
+                                [objectClassVm]="objectClassVm"
+                                [active]="objectClassVm === currentObjectClassVm"
+                                (click)="objectClass.active? currentObjectClassVm = undefined: currentObjectClassVm = objectClassVm">
+              </app-object-class>
+            </div>
           </div>
+        </div>
+        <!--Right Panel-->
+        <!--Detail Window-->
+        <div id="detail-window">
+          <!--Selection Details-->
+          <div>
+            <!--          <div id="selected-polygon-detail">-->
 
+            <!--          </div>-->
+            <div id="annotated-polygons">
+              <div id="">
+
+              </div>
+              <div>
+
+              </div>
+              <div *ngIf="currentImageInfo && currentImageInfo.polygonVms">
+                <app-annotated-polygon *ngFor="let polygonInfo of currentImageInfo.annotatedPolygonVms"
+                                       [index]="currentImageInfo.annotatedPolygonVms.indexOf(polygonInfo)"
+                                       [polygonVm]="polygonInfo"></app-annotated-polygon>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Dialogs -->
-  <div>
-    <app-assign-class-dialog #assignDialog
-                             [objectClassVms]="objectClassVms"></app-assign-class-dialog>
+    <div>
+
+    </div>
+    <!-- Dialogs -->
+    <div>
+      <app-assign-class-dialog #assignDialog
+                               [objectClassVms]="objectClassVms"></app-assign-class-dialog>
+    </div>
   </div>
 </div>

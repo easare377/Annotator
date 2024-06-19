@@ -6,6 +6,7 @@ export class ImageInfo {
   private readonly _trueSize: Size;
   private _scaledSize: Size;
   private _polygonVms: PolygonViewModel[] | undefined;
+  private readonly _annotatedPolygonVms: PolygonViewModel[] = [];
 
 
   constructor(imageUrl: string, trueSize: Size) {
@@ -40,5 +41,10 @@ export class ImageInfo {
 
   set polygonVms(value: PolygonViewModel[] | undefined) {
     this._polygonVms = value;
+  }
+
+
+  get annotatedPolygonVms(): PolygonViewModel[] {
+    return this._annotatedPolygonVms;
   }
 }

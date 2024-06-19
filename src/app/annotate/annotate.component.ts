@@ -75,4 +75,16 @@ export class AnnotateComponent implements OnInit{
     return polygonVms;
   }
 
+  getAnnotatedPolygon(polygonVms: PolygonViewModel[]): {index:number, polygonVm: PolygonViewModel}[] {
+    let annotatedPolygonIndex = 0;
+    const annotatedPolygonVms: {index:number, polygonVm: PolygonViewModel}[] = [];
+    for (let i = 0; i < polygonVms.length; i++) {
+      const polygonVm = polygonVms[i];
+      if (polygonVm.objectClassVm){
+        annotatedPolygonIndex++;
+        annotatedPolygonVms.push({index:annotatedPolygonIndex, polygonVm:polygonVm})
+      }
+    }
+    return annotatedPolygonVms;
+  }
 }

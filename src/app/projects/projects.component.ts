@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Project } from '../../models/project.model';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -10,7 +11,7 @@ import { Project } from '../../models/project.model';
 export class ProjectsComponent implements OnInit {
   projects: Project[] = [];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     // Initialize with one project
@@ -23,13 +24,14 @@ export class ProjectsComponent implements OnInit {
   }
 
   createProject(): void {
-    const projectCount = this.projects.length + 1;
-    this.projects.push({
-      name: `New Project #${projectCount}`,
-      createdAt: new Date(),
-      stats: { total: 1, success: 0, error: 0, warning: 0 },
-      initials: 'GK'
-    });
+    this.router.navigate(['/create-project']);
+    // const projectCount = this.projects.length + 1;
+    // this.projects.push({
+    //   name: `New Project #${projectCount}`,
+    //   createdAt: new Date(),
+    //   stats: { total: 1, success: 0, error: 0, warning: 0 },
+    //   initials: 'GK'
+    // });
   }
 }
 

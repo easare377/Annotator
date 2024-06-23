@@ -39,6 +39,8 @@ import { ColorPickerComponent } from './create-project/labeling-setup/color-pick
 
 
 
+
+
 @NgModule({
   declarations: [
     AppComponent,

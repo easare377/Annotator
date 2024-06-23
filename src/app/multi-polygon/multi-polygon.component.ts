@@ -91,7 +91,7 @@ export class MultiPolygonComponent implements AfterViewInit {
       this.getPolygonDataAsync(polygonCanvas).then(r => {});
       console.log("display")
     };
-    img.src = 'http://localhost:61290/assets/images/Fort.jpg';
+    img.src = 'http://localhost:4200/assets/images/Fort.jpg';
   }
 
   // displayImage(image: HTMLImageElement, canvas: HTMLCanvasElement, zoomPer: number): void {

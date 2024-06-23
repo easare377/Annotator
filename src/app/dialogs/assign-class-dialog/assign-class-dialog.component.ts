@@ -5,10 +5,12 @@ import {Dialog} from "../dialog";
 import {ObjectClassViewModel} from "../../../models/object-class-view-model";
 import {PolygonViewModel} from "../../../models/polygon-view-model";
 
+
 @Component({
   selector: 'app-assign-class-dialog',
   templateUrl: './assign-class-dialog.component.html',
-  styleUrls: ['./assign-class-dialog.component.css', '../dialog.css']
+  styleUrls: ['./assign-class-dialog.component.css', '../dialog.css'],
+
 })
 export class AssignClassDialogComponent extends Dialog implements OnInit{
   public objectClassVms: Array<ObjectClassViewModel | undefined>;
@@ -17,6 +19,8 @@ export class AssignClassDialogComponent extends Dialog implements OnInit{
 
   constructor() {
     super();
+    this.objectClassVms = new Array<ObjectClassViewModel>();
+
     const colors: string[] = ['#E91E63', '#FFBB86', '#000187', '#8A2BE2'];
     this.objectClassVms = new Array<ObjectClassViewModel>();
     this.objectClassVms.push(new ObjectClassViewModel('','Tree', colors[0]));
@@ -24,9 +28,15 @@ export class AssignClassDialogComponent extends Dialog implements OnInit{
     this.objectClassVms.push(new ObjectClassViewModel('','Road', colors[2]));
     this.objectClassVms.push(new ObjectClassViewModel('','Building', colors[3]));
     // this.polygonVm ? this.polygonVm.objectClassVm  = this.objectClassVms[0]:''
+    
   }
+  // customClass:{class:string , color:string}[]=[];
+  
+  
 
   ngOnInit(): void {
+   
+
     // this.objectClassVms
   }
 

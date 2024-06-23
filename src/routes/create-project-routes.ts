@@ -10,8 +10,6 @@ const routes: Routes = [
   // Add other routes as necessary
 ];
 
-// const routes: Routes = [];
-
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]

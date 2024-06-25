@@ -12,5 +12,5 @@ export class AppComponent {
   imageUrl='./assets/images/output.png'
 
 
-  
+  protected readonly console = console;
 }

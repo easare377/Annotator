@@ -1,0 +1,52 @@
+<div class="container">
+  <h2>Create Project</h2>
+  <div class="tabs">
+    <button class="tab-button" [class.active]="activeTab === 'projectName'" (click)="setActiveTab('projectName')">Project Name</button>
+    <button class="tab-button" [class.active]="activeTab === 'dataImport'" (click)="setActiveTab('dataImport')">Data Import</button>
+    <button class="tab-button" [class.active]="activeTab === 'labelingSetup'" (click)="setActiveTab('labelingSetup')">Labeling Setup</button>
+  </div>
+  <div *ngIf="activeTab === 'projectName'">
+    <div class="form-group">
+      <label for="projectName">Project Name</label>
+      <input id="projectName" type="text" placeholder="New Project #1" />
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Optional description of your project"></textarea>
+    </div>
+
+  </div>
+  <div *ngIf="activeTab === 'dataImport'">
+    <div class="form-group">
+      <label for="datasetUrl">Dataset URL</label>
+      <input id="datasetUrl" type="text" placeholder="Dataset URL" />
+      <button class="btn btn-primary">Add URL</button>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary" (click)="triggerFileInput()">Upload Files</button>
+      <input type="file" multiple (change)="onFileSelected($event)" #fileInput style="display: none;" />
+    </div>
+    <div
+      class="drop-area"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event)"
+    >
+      <p>Drag & drop files here<br>or click to browse</p>
+      <input type="file" multiple (change)="onFileSelected($event)" style="display: none;" />
+    </div>
+    <div *ngIf="files.length > 0">
+      <h3>Selected Files</h3>
+      <ul>
+        <li *ngFor="let file of files">{{ file.name }}</li>
+      </ul>
+    </div>
+  </div>
+  <div *ngIf="activeTab === 'labelingSetup'">
+    
+    <app-labeling-setup></app-labeling-setup>
+  </div>
+  <div class="form-buttons">
+    <button class="btn btn-danger delete-button">Delete</button>
+    <button class="btn btn-success save-button">Save</button>
+  </div>
+</div>

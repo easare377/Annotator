@@ -10,16 +10,22 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^17.3.0",
+    "@angular/animations": "^17.3.11",
+    "@angular/cdk": "^18.0.3",
     "@angular/common": "^17.3.0",
     "@angular/compiler": "^17.3.0",
     "@angular/core": "^17.3.0",
     "@angular/forms": "^17.3.0",
+    "@angular/material": "^18.0.3",
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
+    "@types/openseadragon": "^3.0.10",
     "bootstrap": "^5.3.3",
     "d3": "^7.9.0",
+    "ngx-color-picker": "^16.0.0",
+    "ngx-panzoom": "^17.0.0",
+    "ngx-pinch-zoom": "^2.6.2",
     "ngx-polygon-draw": "^1.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -37,5 +43,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.4.2"
-  }
+  },
+  "description": "This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.3.",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }

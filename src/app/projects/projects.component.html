@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="header">
+    <div class="logo">
+      <!-- <img src="/my-app/src/assets/images/Fort.jpg" alt="Label Studio Logo" /> -->
+      <span>Annotator</span>
+    </div>
+    <div class="menu">
+      <button class="menu-button">
+        <span class="hamburger-icon">&#9776;</span>
+      </button>
+      <span class="title">Projects</span>
+    </div>
+    <button class="btn-primary" (click)="createProject()">Create</button>
+    <div class="profile">
+      <span class="initials">GK</span>
+    </div>
+  </div>
+  <div class="project-list">
+    <div *ngFor="let project of projects" class="project-card">
+      <div class="project-header">
+        <h3>{{ project.name }}</h3>
+        <button class="more-options">&#8942;</button>
+      </div>
+      <div class="project-stats">
+        <div class="stat">{{ project.stats.total }} / 1</div>
+        <div class="stat success"><span class="checkmark">&#10003;</span> {{ project.stats.success }}</div>
+        <div class="stat error"><span class="crossmark">&#10007;</span> {{ project.stats.error }}</div>
+        <div class="stat warning"><span class="bulb">&#128161;</span> {{ project.stats.warning }}</div>
+      </div>
+      <div class="project-footer">
+        <span>{{ project.createdAt | date: 'dd MMM yy, HH:mm' }}</span>
+        <div class="profile">
+          <span class="initials">{{ project.initials }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

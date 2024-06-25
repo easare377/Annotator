@@ -1,0 +1,33 @@
+#title{
+  border-bottom: 1px solid gray;
+  height: 30px;
+}
+
+form{
+  margin-top: 10px;
+}
+
+#polygon-class{
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /*background: #1abc9c;*/
+  border-radius: 2px;
+  padding: 5px;
+}
+
+#polygon-class > input{
+
+}
+
+#polygon-class > label {
+  margin-left: 10px;
+}
+
+p{
+  cursor: pointer;
+}
+
+/*Each class will have a color assigned to it*/

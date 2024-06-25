@@ -1,0 +1,83 @@
+/* General styles for the card */
+.card {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* Card header styles */
+.card-header {
+  margin-bottom: 10px;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.card-header p {
+  margin: 5px 0 0 0;
+  color: #666;
+}
+
+/* Card content styles */
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Textarea styles */
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  resize: none;
+}
+
+/* Button styles */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Chip styles */
+.chip {
+  display: inline-block;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Close button styles */
+.closebtn {
+  margin-left: 10px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.closebtn:hover {
+  color: #000;
+}

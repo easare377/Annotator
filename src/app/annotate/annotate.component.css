@@ -1,0 +1,61 @@
+/* Container for side panel and main window */
+#parent {
+  display: flex; /* Establishes a flex container */
+  height: 100vh; /* Full viewport height */
+}
+
+/* Side Panel Styling */
+#left-panel {
+  width: 300px; /* Fixed width for the side panel */
+  /*background-color: red; !* Red background for visibility *!*/
+  border-right: 1px solid black;
+}
+
+/* Main Window Styling */
+#main-window {
+  flex-grow: 1; /* Takes up the remaining space */
+  /*background-color: blue; !* Blue background for the main content area *!*/
+  display: flex; /* Establishes a flex container for its children */
+  flex-direction: column; /* Children are stacked vertically */
+  height: 100%;
+}
+
+#account-menu{
+  height: 50px;
+  background: black;
+}
+
+/* Annotation Window Styling */
+#annotation-window {
+  display: flex; /* Makes the annotation window a flex container */
+  flex-grow: 1; /* Allows it to take up the available space */
+  align-items: stretch; /* Stretches children vertically to fill the container */
+}
+
+#title-image-window{
+  flex-grow: 1; /* Allows it to take up the available space beside the detail window */
+}
+
+/* Image Window Styling */
+#image-window {
+  height: 500px; /* Fixed height */
+  background-color: white; /* Background color for contrast */
+}
+
+/* Detail Window Styling */
+#detail-window {
+  width: 400px; /* Fixed width for the detail window */
+  /*background-color: yellow; !* Yellow background for visibility *!*/
+  border-left: 1px solid black;
+}
+
+/* Documentation */
+
+/*
+  #parent: Flex container for side panel and main window.
+  #left-panel: Fixed-width side panel with a red background.
+  #main-window: Flexible main content area with a blue background.
+  #annotation-window: Flex container to lay out image and detail windows side by side.
+  #image-window: Main area for displaying the image or content, expands to use available space.
+  #detail-window: Side area for additional details, fixed width on the right.
+*/

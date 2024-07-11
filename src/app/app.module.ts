@@ -17,11 +17,21 @@ import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
 import { CustomScrollDirective } from './custom-scroll.directive';
-import { CreateProjectComponent } from './create-project/create-project.component';
+import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import {AnnotatedPolygonComponent} from "./annotated-polygon/annotated-polygon.component";
 import {ObjectClassComponent} from "./object-class/object-class.component";
 import {ImageNavigationComponent} from "./image-navigation/image-navigation.component";
+import {LabelingSetupComponent} from "./dialogs/create-project-dialog/labeling-setup/labeling-setup.component";
+import { ToggleButtonComponent } from './toggle-button/toggle-button.component';
+import { ViewProjectComponent } from './view-project/view-project.component';
+import {ProjectsComponent} from "./projects/projects.component";
+import { ProjectImagesComponent } from './project-images/project-images.component';
+import { ImageDataTableComponent } from './project-images/image-data-table/image-data-table.component';
+import { CreateProjectSetupComponent } from './dialogs/create-project-dialog/create-project-setup/create-project-setup.component';
+import { UploadImagesSetupComponent } from './dialogs/create-project-dialog/upload-images-setup/upload-images-setup.component';
+import { AddedObjectClassComponent } from './dialogs/create-project-dialog/labeling-setup/added-object-class/added-object-class.component';
+
 
 
 
@@ -36,23 +46,30 @@ import {ImageNavigationComponent} from "./image-navigation/image-navigation.comp
     AssignClassDialogComponent,
     AnnotateComponent,
     CustomScrollDirective,
-    CreateProjectComponent,
+    CreateProjectDialogComponent,
     SignUpComponent,
     AnnotatedPolygonComponent,
     ObjectClassComponent,
     ImageNavigationComponent,
-
+    LabelingSetupComponent,
+    ToggleButtonComponent,
+    ViewProjectComponent,
+    ProjectsComponent,
+    ProjectImagesComponent,
+    ImageDataTableComponent,
+    CreateProjectSetupComponent,
+    UploadImagesSetupComponent,
+    AddedObjectClassComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    NgOptimizedImage,
-    HttpClientModule,
-    ClickOutsideDirective,
-    ReactiveFormsModule,
-
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        NgOptimizedImage,
+        HttpClientModule,
+        ClickOutsideDirective,
+        ReactiveFormsModule,
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

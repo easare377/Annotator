@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ImageInfo} from "../../models/image-info";
+import {ImageInfoViewModel} from "../../models/image-info-view-model";
 import {ObjectClassViewModel} from "../../models/object-class-view-model";
 
 @Component({
@@ -8,7 +8,7 @@ import {ObjectClassViewModel} from "../../models/object-class-view-model";
   styleUrl: './image-navigation.component.css'
 })
 export class ImageNavigationComponent implements OnInit{
-  @Input() imageInfo!: ImageInfo;
+  @Input() imageInfo!: ImageInfoViewModel;
   @Input() active: Boolean = false;
   ngOnInit(): void {
   }

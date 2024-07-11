@@ -28,7 +28,7 @@
     <!--Main Window-->
     <div id="main-window">
       <!--Annotation Window-->
-      <div id="annotation-window">
+      <div id="annotation-window" *ngIf="currentImageInfo && currentImageInfo.polygonVms">
         <div id="title-image-window">
           <div>
             <!--Image Control-->
@@ -38,16 +38,26 @@
                 <img class="control-svg" src="assets/images/svgs/undo-svgrepo-com.svg" alt="Undo" title="Undo">
                 <!--Redo-->
                 <img class="control-svg" src="assets/images/svgs/redo-svgrepo-com.svg" alt="Redo" title="Redo">
+                <!--Separator-->
                 <div class="hl"></div>
                 <!--Zoom Out-->
-                <img class="control-svg" src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="Zoom Out" title="Zoom Out">
-                <span>43%</span>
+                <img (click)="currentImageInfo.zoomLevel > 100?multiPolygon.zoomOut():undefined"
+                     class="control-svg {{currentImageInfo.zoomLevel === 100?'control-svg-disabled':''}}"
+                     src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="Zoom Out" title="Zoom Out">
+                <!--Zoom level text-->
+                <span>{{ currentImageInfo.zoomLevel }}%</span>
                 <!--Zoom In-->
-                <img class="control-svg" src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="Zoom In" title="Zoom In">
+                <img (click)="currentImageInfo.zoomLevel < 1000?multiPolygon.zoomIn():undefined"
+                     class="control-svg {{currentImageInfo.zoomLevel === 1000?'control-svg-disabled':''}}"
+                     src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="Zoom In" title="Zoom In">
                 <!--Zoom Fit-->
-                <img class="control-svg" src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="Zoom Fit" title="Zoom Fit">
+                <img (click)="multiPolygon.zoom(100)" class="control-svg"
+                     src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="Zoom Fit" title="Zoom Fit">
                 <!--Pan-->
-                <img class="control-svg" src="assets/images/svgs/pan-svgrepo-com.svg" alt="Zoom Fit" title="Pan Image">
+                <img class="control-svg" src="assets/images/svgs/pan-svgrepo-com.svg" alt="Pan Image" title="Pan Image">
+                <!--Separator-->
+                <div class="hl"></div>
+<!--                <app-toggle-button class="toggle-button"></app-toggle-button>-->
               </div>
               <div id="annotation-controls">
                 <!--Update Button-->
@@ -56,7 +66,7 @@
               </div>
             </div>
             <div id="image-window">
-              <app-multi-polygon *ngIf="currentImageInfo && currentImageInfo.polygonVms"
+              <app-multi-polygon #multiPolygon
                                  [imageInfo]="currentImageInfo"
                                  [thickness]="2"
                                  [zoomFactor]="10"

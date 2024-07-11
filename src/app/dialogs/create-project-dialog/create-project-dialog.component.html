@@ -1,0 +1,56 @@
+<div id="parent" class="dialog-container container-dark" *ngIf="visible">
+  <div class="container">
+    <h2>Create Project</h2>
+    <div class="tabs">
+      <button class="tab-button" [class.active]="activeTab === ActiveTab.PROJECTNAME"
+              (click)="setActiveTab(ActiveTab.PROJECTNAME)">Project Name
+      </button>
+      <button class="tab-button" [class.active]="activeTab === ActiveTab.LABELINGSETUP"
+              (click)="setActiveTab(ActiveTab.LABELINGSETUP)">Labeling Setup
+      </button>
+      <button class="tab-button" [class.active]="activeTab === ActiveTab.DATAIMPORT"
+              (click)="setActiveTab(ActiveTab.DATAIMPORT)">Data Import
+      </button>
+    </div>
+    <!--Create Project-->
+    <div>
+      <app-create-project-setup #createProjectSetup [visible]="activeTab === ActiveTab.PROJECTNAME"></app-create-project-setup>
+    </div>
+    <!--Project Setup-->
+    <div>
+      <app-labeling-setup #labelingSetup [visible]="activeTab === ActiveTab.LABELINGSETUP"></app-labeling-setup>
+    </div>
+    <!--Upload Files-->
+    <div *ngIf="activeTab === ActiveTab.DATAIMPORT">
+      <div class="form-group">
+        <label for="datasetUrl">Dataset URL</label>
+        <input id="datasetUrl" type="text" placeholder="Dataset URL"/>
+        <button class="btn btn-primary">Add URL</button>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary" (click)="upload()">Upload Files</button>
+        <input type="file" multiple (change)="onFileSelected($event)" #fileInput style="display: none;"/>
+      </div>
+      <div
+        class="drop-area"
+        (dragover)="$event.preventDefault()"
+        (drop)="onDrop($event)">
+        <p>Drag & drop files here<br>or click to browse</p>
+        <input type="file" multiple (change)="onFileSelected($event)" style="display: none;"/>
+      </div>
+      <div *ngIf="files.length > 0">
+        <h3>Selected Files</h3>
+        <ul>
+          <li *ngFor="let file of files">{{ file.name }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="form-buttons">
+      <button class="btn btn-danger delete-button" (click)="hideDialog()">Cancel</button>
+      <button class="btn btn-success save-button"
+              (click)="createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
+        Create Project
+      </button>
+    </div>
+  </div>
+</div>

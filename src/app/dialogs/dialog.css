@@ -1,6 +1,5 @@
 .dialog-container {
   position: absolute;
-  top: 35px;
   right: 0;
   bottom: 0;
   left: 0;
@@ -11,6 +10,12 @@
   justify-content: center;
   align-items: center;
 }
+
+.container-dark{
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+
 .standard-dialog{
   width: 500px;
   height: 300px;

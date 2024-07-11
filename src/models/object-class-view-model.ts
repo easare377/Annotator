@@ -1,10 +1,10 @@
+import {ObjectClassBase} from "./object-class-base";
+
 /**
  * ViewModel for representing an object class.
  */
-export class ObjectClassViewModel {
+export class ObjectClassViewModel extends ObjectClassBase{
   private readonly _classId: string; // Unique identifier for the class
-  private readonly _className: string; // Name of the class
-  private readonly _color: string; // Color associated with the class
   private _selected: boolean = false; // Flag indicating whether the class is selected
 
   /**
@@ -12,11 +12,11 @@ export class ObjectClassViewModel {
    * @param classId Unique identifier for the class.
    * @param className Name of the class.
    * @param color Color associated with the class.
+   * @param description Detailed description of the class.
    */
-  constructor(classId: string, className: string, color: string) {
+  constructor(classId: string, className: string, color: string,  description?: string) {
+    super(className, color, description);
     this._classId = classId;
-    this._className = className;
-    this._color = color;
   }
 
   /**
@@ -27,21 +27,6 @@ export class ObjectClassViewModel {
     return this._classId;
   }
 
-  /**
-   * Gets the name of the class.
-   * @returns The name of the class.
-   */
-  get className(): string {
-    return this._className;
-  }
-
-  /**
-   * Gets the color associated with the class.
-   * @returns The color associated with the class.
-   */
-  get color(): string {
-    return this._color;
-  }
 
   /**
    * Gets a value indicating whether the class is selected.

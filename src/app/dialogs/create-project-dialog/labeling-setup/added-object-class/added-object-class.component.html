@@ -1,0 +1,6 @@
+<div id="added-class" [style.background-color]="objectClassVm.color" [title]="objectClassVm.description">
+  <span>{{objectClassVm.className}}</span>
+  <span id="close" (click)="remove.emit()">
+    <img id="close-img" src="assets/images/svgs/close-md-svgrepo-com.svg" alt="remove">
+  </span>
+</div>

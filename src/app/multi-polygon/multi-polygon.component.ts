@@ -12,7 +12,7 @@ import {PolygonViewModel} from "../../models/polygon-view-model";
 import {Utils} from "../utils";
 import {Size} from "../../models/size";
 import {Point} from "../../models/point";
-import {ImageInfo} from "../../models/image-info";
+import {ImageInfoViewModel} from "../../models/image-info-view-model";
 
 /**
  * Component to display and interact with multiple polygons overlaid on an image.
@@ -23,7 +23,6 @@ import {ImageInfo} from "../../models/image-info";
   styleUrl: './multi-polygon.component.css'
 })
 export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
-  private zoomLevel: number = 100; // Initial zoom level
   private image: HTMLImageElement | undefined; // Image element
   private currentPolygonVms!: PolygonViewModel[]; // Array to hold current polygon view models
 
@@ -38,7 +37,12 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
   /**
    * Information about the image and the polygons to be displayed.
    */
-  @Input() imageInfo!: ImageInfo;
+  @Input() imageInfo!: ImageInfoViewModel;
+
+  // /**
+  //  * Determines how much the image should be zoomed.
+  //  */
+  // @Input() zoomLevel: number = 100; // Initial zoom level
 
   /**
    * Factor by which the image and polygons should be zoomed in/out.
@@ -113,15 +117,16 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
       this.currentPolygonVms = this.imageInfo.polygonVms;
       img.onload = () => {
         this.displayImage(img, imgCanvas, 100); // Display the image on the canvas with default zoom level
-        this.clearCanvas(polygonCanvas); //clears the canvas
-        this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-          this.setupPolygonVms(p, polygonCanvas, this.imageInfo); // Set up each polygon view model
-          if (p.objectClassVm){
-            this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
-          }else{
-            this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.color, 1.0, this.thickness); // Draw each polygon
-          }
-        });
+        // this.clearCanvas(polygonCanvas); //clears the canvas
+        // this.currentPolygonVms.forEach((p: PolygonViewModel) => {
+        //   this.setupPolygonVms(p, polygonCanvas, this.imageInfo); // Set up each polygon view model
+        //   if (p.objectClassVm){
+        //     this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
+        //   }else{
+        //     this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.color, 1.0, this.thickness); // Draw each polygon
+        //   }
+        // });
+        this.zoom(this.imageInfo.zoomLevel);
       };
       img.src = this.imageInfo.imageUrl; // Set the image source URL
     }
@@ -214,7 +219,7 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
    * @param imageInfo The image information.
    * @returns The updated polygon view model.
    */
-  setupPolygonVms(polygonVm: PolygonViewModel, canvas: HTMLCanvasElement, imageInfo: ImageInfo): PolygonViewModel {
+  setupPolygonVms(polygonVm: PolygonViewModel, canvas: HTMLCanvasElement, imageInfo: ImageInfoViewModel): PolygonViewModel {
     polygonVm.onClick = () => {
       this.polygonClicked.emit(polygonVm); // Emit the polygonClicked event when the polygon is clicked
     };
@@ -301,16 +306,16 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
    * Zooms in the image and polygons by the specified zoom factor.
    */
   zoomIn(): void {
-    this.zoomLevel += this.zoomFactor;
-    this.zoom(this.zoomLevel); // Apply the new zoom level
+    this.imageInfo.zoomLevel += this.zoomFactor;
+    this.zoom(this.imageInfo.zoomLevel); // Apply the new zoom level
   }
 
   /**
    * Zooms out the image and polygons by the specified zoom factor.
    */
   zoomOut(): void {
-    this.zoomLevel -= this.zoomFactor;
-    this.zoom(this.zoomLevel); // Apply the new zoom level
+    this.imageInfo.zoomLevel -= this.zoomFactor;
+    this.zoom(this.imageInfo.zoomLevel); // Apply the new zoom level
   }
 
   /**
@@ -323,7 +328,7 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
       const imgPos: Point = imgParams.imagePosition;
       const imgSize: Size = imgParams.imageSize;
       this.imageInfo.scaledSize = imgSize;
-      this.displayImage(this.image, this.imgCanvas.nativeElement, this.zoomLevel); // Display the zoomed image
+      this.displayImage(this.image, this.imgCanvas.nativeElement, this.imageInfo.zoomLevel); // Display the zoomed image
       const croppedPolygons: PolygonViewModel[] = Utils.cropPolygons(this.imageInfo.polygonVms, imgPos, imgSize);
       this.currentPolygonVms = croppedPolygons;
       this.clearCanvas(this.polygonCanvas.nativeElement); // Clear the canvas before redrawing polygons

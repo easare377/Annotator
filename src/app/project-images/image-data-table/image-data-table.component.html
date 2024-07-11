@@ -1,0 +1,71 @@
+<div class="parent-container">
+  <div>
+    <div class="searchbar">
+<!--      <input #searchInput id="search_input" type="text" name=""-->
+<!--             placeholder="Search Devices">-->
+      <!--        (input)="onSearchDevice($any($event.target).value)"-->
+<!--      <div><img id="search-img" src="assets/img/search_dark.png"></div>-->
+    </div>
+  </div>
+  <div class="table-container">
+    <div class="table100">
+      <table>
+        <thead>
+        <tr class="table100-head">
+          <th class="column1">Task Number</th>
+          <th class="column2">Image</th>
+          <th class="column3">Date Added</th>
+          <th class="column3">Last Modified</th>
+          <th class="column3">Polygons</th>
+          <th class="column3">Annotated</th>
+          <th class="column3">File name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let imageInfo of imageInfoVms" (click)="appManagerService.addData('imageId', imageInfo.imageId);
+         navService.gotoAnnotateImagesAsync()">
+          <!--Task number-->
+          <td class="column1">
+            <div>
+<!--              <img src="{{imageInfo.online ? 'assets/img/mobile_device_online.png':-->
+<!--                        'assets/img/mobile_device_offline.png'}}">-->
+
+              <span>1</span>
+            </div>
+          </td>
+          <!--Image-->
+          <td class="column2">
+            <img [src]="imageInfo.imageUrl" style="width:70px; height:40px">
+          </td>
+          <!--Date Added-->
+          <td class="column3">
+            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+          </td>
+          <!--Date Modified-->
+          <td class="column3">
+            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+          </td>
+          <!--Date Modified-->
+          <td class="column3">
+            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+          </td>
+          <!--Polygons-->
+          <td class="column3">
+            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+          </td>
+          <!--Annotated-->
+          <td class="column4">
+            <button id="view-users-button" title="View Users">View Users</button>
+          </td>
+          <!--FileName-->
+          <td class="column5">
+            <button id="view-permissions-button" title="View Permissions">View Permissions</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+

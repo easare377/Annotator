@@ -70,6 +70,7 @@
   height: 100%;
   align-items: center;
   background-color: white;
+  border-radius: 4px;
   gap: 10px;
 }
 
@@ -80,6 +81,16 @@
   filter: brightness(0) saturate(100%) invert(19%) sepia(0%)
   saturate(1408%) hue-rotate(196deg) brightness(97%) contrast(80%);
 }
+
+.control-svg-disabled{
+  filter: brightness(0) saturate(100%) invert(58%)
+  sepia(7%) saturate(5%) hue-rotate(319deg) brightness(93%) contrast(85%) !important;
+  cursor: default !important;
+}
+
+/*.toggle-button{*/
+/*  */
+/*}*/
 
 .hl{
   height: 60%;

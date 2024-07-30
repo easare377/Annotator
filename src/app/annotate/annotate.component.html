@@ -15,10 +15,7 @@
 
       </div>
       <div id="image-nav-container">
-        <!--      <div>-->
-        <!--        -->
-        <!--      </div>-->
-        <app-image-navigation *ngFor="let imageInfo of imageInfos"
+        <app-image-navigation *ngFor="let imageInfo of imageInfoVms"
                               [imageInfo]="imageInfo"
                               [active]="currentImageInfo === imageInfo"
                               (click)="currentImageInfo = imageInfo"
@@ -28,7 +25,8 @@
     <!--Main Window-->
     <div id="main-window">
       <!--Annotation Window-->
-      <div id="annotation-window" *ngIf="currentImageInfo && currentImageInfo.polygonVms">
+<!--      && currentImageInfo.polygonVms-->
+      <div id="annotation-window" *ngIf="currentImageInfo">
         <div id="title-image-window">
           <div>
             <!--Image Control-->
@@ -57,7 +55,7 @@
                 <img class="control-svg" src="assets/images/svgs/pan-svgrepo-com.svg" alt="Pan Image" title="Pan Image">
                 <!--Separator-->
                 <div class="hl"></div>
-<!--                <app-toggle-button class="toggle-button"></app-toggle-button>-->
+                <!--<app-toggle-button class="toggle-button"></app-toggle-button>-->
               </div>
               <div id="annotation-controls">
                 <!--Update Button-->
@@ -66,13 +64,20 @@
               </div>
             </div>
             <div id="image-window">
+              <!--Generate Polygons-->
+              <div id="generate-polygon" *ngIf="!currentImageInfo.polygonVms">
+                <button id="generate-polygon-button">
+                  Detect Objects
+                </button>
+              </div>
               <app-multi-polygon #multiPolygon
                                  [imageInfo]="currentImageInfo"
                                  [thickness]="2"
                                  [zoomFactor]="10"
                                  (polygonClicked)="assignDialog.polygonVm = $event;
                                currentObjectClassVm?$event.objectClassVm =currentObjectClassVm:assignDialog.showDialog()"
-                                 (objectClassAssigned)="!currentImageInfo.annotatedPolygonVms.includes($event)?currentImageInfo.annotatedPolygonVms.push($event):''">
+                                 (objectClassAssigned)="!currentImageInfo.annotatedPolygonVms.includes($event)?
+                                 currentImageInfo.annotatedPolygonVms.push($event):''">
               </app-multi-polygon>
             </div>
             <div id="object-class-container">

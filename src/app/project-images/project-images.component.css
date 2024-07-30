@@ -1,3 +1,8 @@
+#controls{
+  display: flex;
+  justify-content: space-between;
+}
+
 .control-button{
   display: flex;
   /*width: 70px;*/

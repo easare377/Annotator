@@ -12,9 +12,13 @@ import {AppManagerService} from "../../../services/app-manager.service";
 })
 export class ImageDataTableComponent implements OnInit{
 
-  @Input() imageInfoVms?: ImageInfoViewModel[];
+  @Input() projectId!: string;
 
-  constructor(public navService: NavigationService, private httpService: HttpService, protected appManagerService: AppManagerService) {
+  @Input() imageInfoVms!: ImageInfoViewModel[];
+
+  constructor(public navService: NavigationService, private httpService: HttpService,
+              protected appManagerService: AppManagerService) {
+
   }
 
   ngOnInit(): void {

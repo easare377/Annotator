@@ -17,7 +17,7 @@
   </div>
   <div class="project-list">
     <div *ngFor="let project of projects" class="project-card"
-    (click)="appManagerService.addData('projectId', project.projectId);navService.gotoProjectImagesPageAsync()">
+    (click)="appManagerService.addData('projectId', project.projectId);navService.gotoProjectImagesPageAsync(project.projectId)">
       <div class="project-header">
         <h3>{{ project.name }}</h3>
         <button class="more-options">&#8942;</button>
@@ -39,6 +39,6 @@
   <!-- Dialogs -->
   <div>
     <app-create-project-dialog #createProjectDialog
-    (projectCreated)="displayProjects($event)"></app-create-project-dialog>
+    (projectCreated)="appManagerService.addData('projectId', $event.projectId);navService.gotoProjectImagesPageAsync($event.projectId)"></app-create-project-dialog>
   </div>
 </div>

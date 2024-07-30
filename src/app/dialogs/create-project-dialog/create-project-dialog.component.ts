@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {ActiveTab} from "../../../models/enum/ActiveTab";
+import {ActiveTab} from "../../../models/enum/active-tab";
 import {Dialog} from "../dialog";
 import {CreateProjectViewModel} from "../../../models/create-project-view-model";
 import {ProjectSetupViewModel} from "../../../models/project-setup-view-model";
@@ -11,6 +11,7 @@ import {ObjectClassBase} from "../../../models/object-class-base";
 import {HttpResponse} from "@angular/common/http";
 import {ProjectInfoResponseBody} from "../../../models/project-info-response-body";
 import {FileUploadService} from "../../file-upload.service";
+import {CreatedProjectResponseBody} from "../../../models/created-project-response-body";
 
 @Component({
   selector: 'app-create-project-dialog',
@@ -24,7 +25,7 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
   files: File[] = [];
 
   @ViewChild('fileInput', {static: false}) fileInput!: ElementRef;
-  @Output() projectCreated = new EventEmitter<Array<ProjectInfoResponseBody>>();
+  @Output() projectCreated = new EventEmitter<ProjectInfoResponseBody>();
 
   selectedFiles?: FileList;
   progress = 0;
@@ -88,7 +89,8 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
-  async createProject(createProjectVm: CreateProjectViewModel, projectSetupVm: ProjectSetupViewModel): Promise<void> {
+  async createProject(createProjectVm: CreateProjectViewModel, projectSetupVm: ProjectSetupViewModel):
+    Promise<void> {
     const projectName: string = createProjectVm.name;
     const description: string | undefined = createProjectVm.description;
     const annotationType: AnnotationType | undefined = projectSetupVm.annotationType
@@ -98,7 +100,8 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
     const projectInfoRequestBody =
       new ProjectInfoRequestBody(projectName, projectSetup, description);
     try {
-      const resp: HttpResponse<Array<ProjectInfoResponseBody>> = await this.httpService.createProjectAsync(projectInfoRequestBody);
+      const resp: HttpResponse<ProjectInfoResponseBody>
+        = await this.httpService.createProjectAsync(projectInfoRequestBody);
       switch (resp.status) {
         case 200:
           if (!resp.body) {

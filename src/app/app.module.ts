@@ -10,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TrailComponent } from './trail/trail.component';
 import { CanvasAreaDrawComponent } from './canvas-area-draw/canvas-area-draw.component';
 import { SidenavComponent } from './sidenav/sidenav.component';
-import { MultiPolygonComponent } from './multi-polygon/multi-polygon.component';
+import { MultiPolygonComponent } from './annotate/multi-polygon/multi-polygon.component';
 import {NgOptimizedImage} from "@angular/common";
 import { HttpClientModule } from '@angular/common/http';
 import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign-class-dialog.component';
@@ -19,7 +19,7 @@ import {ClickOutsideDirective} from "./click-outside.directive";
 import { CustomScrollDirective } from './custom-scroll.directive';
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
-import {AnnotatedPolygonComponent} from "./annotated-polygon/annotated-polygon.component";
+import {AnnotatedPolygonComponent} from "./annotate/annotated-polygon/annotated-polygon.component";
 import {ObjectClassComponent} from "./object-class/object-class.component";
 import {ImageNavigationComponent} from "./image-navigation/image-navigation.component";
 import {LabelingSetupComponent} from "./dialogs/create-project-dialog/labeling-setup/labeling-setup.component";
@@ -31,6 +31,9 @@ import { ImageDataTableComponent } from './project-images/image-data-table/image
 import { CreateProjectSetupComponent } from './dialogs/create-project-dialog/create-project-setup/create-project-setup.component';
 import { UploadImagesSetupComponent } from './dialogs/create-project-dialog/upload-images-setup/upload-images-setup.component';
 import { AddedObjectClassComponent } from './dialogs/create-project-dialog/labeling-setup/added-object-class/added-object-class.component';
+import { ImportDataDialogComponent } from './dialogs/import-data-dialog/import-data-dialog.component';
+import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/file-upload.component';
+import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialog/generate-polygon-dialog.component';
 
 
 
@@ -60,6 +63,9 @@ import { AddedObjectClassComponent } from './dialogs/create-project-dialog/label
     CreateProjectSetupComponent,
     UploadImagesSetupComponent,
     AddedObjectClassComponent,
+    ImportDataDialogComponent,
+    FileUploadComponent,
+    GeneratePolygonDialogComponent,
   ],
     imports: [
         BrowserModule,

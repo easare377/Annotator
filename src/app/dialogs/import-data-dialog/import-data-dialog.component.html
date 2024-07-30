@@ -1,0 +1,22 @@
+<div class="dialog-container container-dark" *ngIf="visible">
+  <div id="parent">
+    <!--Toolbar-->
+    <div id="toolbar">
+      <h4 id="title">Import Data</h4>
+      <button id="exit-button" (click)="hideDialog(); navService.gotoProjectImagesPageAsync(projectId)">Exit</button>
+    </div>
+    <!--Body-->
+    <div id="select-files-window" [style.display]="fileUploadVms.length > 0? 'none':'flex'">
+      <h3>Drag & drop files here</h3>
+      <h3>or click to browse</h3>
+      <input #fileInput type="file" multiple (change)="onFileSelected($event)" style="display: none;"/>
+      <button id="upload-button" (click)="fileInput.click()">Upload Images</button>
+    </div>
+    <div id="upload-window" [style.display]="fileUploadVms.length > 0? '':'none'">
+      <app-file-upload *ngFor="let fileUploadVm of fileUploadVms" [fileUploadVm]="fileUploadVm">
+
+      </app-file-upload>
+    </div>
+  </div>
+</div>
+

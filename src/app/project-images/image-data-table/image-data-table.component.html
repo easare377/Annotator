@@ -1,10 +1,10 @@
 <div class="parent-container">
   <div>
     <div class="searchbar">
-<!--      <input #searchInput id="search_input" type="text" name=""-->
-<!--             placeholder="Search Devices">-->
+      <!--      <input #searchInput id="search_input" type="text" name=""-->
+      <!--             placeholder="Search Devices">-->
       <!--        (input)="onSearchDevice($any($event.target).value)"-->
-<!--      <div><img id="search-img" src="assets/img/search_dark.png"></div>-->
+      <!--      <div><img id="search-img" src="assets/img/search_dark.png"></div>-->
     </div>
   </div>
   <div class="table-container">
@@ -12,7 +12,9 @@
       <table>
         <thead>
         <tr class="table100-head">
-          <th class="column1">Task Number</th>
+          <th class="column1">
+            <span><input #mainChkBox type="checkbox"></span>
+          </th>
           <th class="column2">Image</th>
           <th class="column3">Date Added</th>
           <th class="column3">Last Modified</th>
@@ -22,44 +24,41 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let imageInfo of imageInfoVms" (click)="appManagerService.addData('imageId', imageInfo.imageId);
-         navService.gotoAnnotateImagesAsync()">
-          <!--Task number-->
+        <tr *ngFor="let imageInfo of imageInfoVms"
+            (click)="navService.gotoAnnotateImagesAsync(projectId ,imageInfo.imageId)">
+          <!--Selection Checkbox-->
           <td class="column1">
             <div>
-<!--              <img src="{{imageInfo.online ? 'assets/img/mobile_device_online.png':-->
-<!--                        'assets/img/mobile_device_offline.png'}}">-->
-
-              <span>1</span>
+              <span><input type="checkbox" [checked]="mainChkBox.checked"></span>
             </div>
           </td>
           <!--Image-->
           <td class="column2">
-            <img [src]="imageInfo.imageUrl" style="width:70px; height:40px">
+            <img id="thumbnail" [src]="imageInfo.imageUrl">
           </td>
           <!--Date Added-->
           <td class="column3">
-            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+            {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
           </td>
-          <!--Date Modified-->
+          <!--Last Modified-->
           <td class="column3">
-            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
-          </td>
-          <!--Date Modified-->
-          <td class="column3">
-            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+            {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
           </td>
           <!--Polygons-->
           <td class="column3">
-            {{imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm'}}
+            {{ imageInfo.polygonVms ? '' : 'empty' }}
           </td>
           <!--Annotated-->
+          <td class="column3">
+            {{ imageInfo.polygonVms ? '' : 'empty' }}
+          </td>
+          <!--File name-->
           <td class="column4">
-            <button id="view-users-button" title="View Users">View Users</button>
+            <span>{{ imageInfo.originalFileName }}</span>
           </td>
           <!--FileName-->
           <td class="column5">
-            <button id="view-permissions-button" title="View Permissions">View Permissions</button>
+            <button id="remove-button" title="View Permissions">Remove</button>
           </td>
         </tr>
         </tbody>

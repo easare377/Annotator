@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Router} from "@angular/router";
 
 @Injectable({
@@ -6,17 +6,22 @@ import {Router} from "@angular/router";
 })
 export class NavigationService {
 
+
   constructor(private router: Router) {
 
   }
 
-  async gotoProjectImagesPageAsync(): Promise<void> {
-    //await this.router.navigate(['projects/data', projectId])
-    await this.router.navigateByUrl('projects/data')
+  async gotoProjectPageAsync(): Promise<any> {
+    await this.router.navigateByUrl('')
   }
 
-  async gotoAnnotateImagesAsync(): Promise<void> {
+  async gotoProjectImagesPageAsync(projectId: string): Promise<void> {
+    //await this.router.navigate(['projects/data', projectId])
+    await this.router.navigate(['projects/data'], {queryParams: {pid: projectId}})
+  }
+
+  async gotoAnnotateImagesAsync(projectId: string, imageId: string): Promise<void> {
     // await this.router.navigate(['projects/data/annotate', imageId])
-    await this.router.navigateByUrl('projects/data/annotate')
+    await this.router.navigate(['projects/data/annotate'], {queryParams: {pid: projectId, imid: imageId}})
   }
 }

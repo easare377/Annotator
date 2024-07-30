@@ -7,6 +7,11 @@ import {HttpService} from "../../services/http.service";
 import {ObjectClassViewModel} from "../../models/object-class-view-model";
 import {AppManagerService} from "../../services/app-manager.service";
 import {NavigationService} from "../../services/navigation.service";
+import {HttpResponse} from "@angular/common/http";
+import {ImageInfoResponseBody} from "../../models/image-info-response-body";
+import {ImageInfoRequestBody} from "../../models/imageInfo-request-body";
+import {Size} from "../../models/size";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-annotate',
@@ -14,16 +19,17 @@ import {NavigationService} from "../../services/navigation.service";
   styleUrl: './annotate.component.css'
 })
 export class AnnotateComponent implements OnInit{
-  public imageInfos: ImageInfoViewModel[] | undefined;
+  public projectId!: string;
+  public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
   public currentObjectClassVm: ObjectClassViewModel | undefined;
   @Input() objectClassVms!: Array<ObjectClassViewModel>;
 
 
   constructor(public httpService: HttpService, public navService: NavigationService,
-              public appManagerService: AppManagerService) {
+              public appManagerService: AppManagerService, private route: ActivatedRoute) {
     // super(httpService, navService,appManagerService);
-    this.imageInfos = [];
+    this.imageInfoVms = [];
     const colors: string[] = ['#E91E63', '#FFBB86', '#000187', '#8A2BE2'];
     // colors[0] = Utils.lightenColor(colors[0], 0.3);
     this.objectClassVms = new Array<ObjectClassViewModel>();
@@ -34,41 +40,51 @@ export class AnnotateComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    //
-    // const imageInfo = new ImageInfoViewModel('http://localhost:4200/assets/images/Fort.jpg',
-    //   new Size(3830, 1822),'image.jpg', new Date(), new Date());
-    // const imageInfo2 = new ImageInfoViewModel('http://localhost:4200/assets/images/DJI_0195_AS_0320_01.JPG',
-    //   new Size(4000, 2250),'image.jpg', new Date(), new Date());
-    // const imageInfo3 = new ImageInfoViewModel('http://localhost:4200/assets/images/DJI_0183_AS_0320_03.JPG',
-    //   new Size(4000, 2250),'image.jpg', new Date(), new Date());
-    // const imageInfo4 = new ImageInfoViewModel('http://localhost:4200/assets/images/DJI_0198_AS_0320_01.JPG',
-    //   new Size(4000, 2250), 'image.jpg', new Date(), new Date());
-    // if (this.imageInfos){
-    //   this.imageInfos.push(imageInfo);
-    //   this.imageInfos.push(imageInfo2);
-    //   this.imageInfos.push(imageInfo3);
-    //   this.imageInfos.push(imageInfo4);
-    //   this.currentImageInfo = imageInfo;
-    // }
-    // this.getPolygonDataAsync('assets/data/polygons.json').then((polygonVms)=>{
-    //   imageInfo.polygonVms = polygonVms;
-    // });
-    // this.getPolygonDataAsync('assets/data/DJI_0194_AS_0320_01.json').then((polygonVms)=>{
-    //   imageInfo2.polygonVms = polygonVms;
-    // });
-    // this.getPolygonDataAsync('assets/data/DJI_0183_AS_0320_03.json').then((polygonVms)=>{
-    //   imageInfo3.polygonVms = polygonVms;
-    // });
-    // this.getPolygonDataAsync('assets/data/DJI_0198_AS_0320_01.json').then((polygonVms)=>{
-    //   imageInfo4.polygonVms = polygonVms;
-    // });
-    // this.imageInfos.push(imageInfo);
-    // this.imageInfos = this.appManagerService.imageInfoVms;
-    // this.getPolygonDataAsync('assets/data/DJI_0198_AS_0320_01.json').then((polygonVms)=>{
-    //   if (this.imageInfos){
-    //     this.imageInfos[0].polygonVms = polygonVms;
-    //   }
-    // });
+    this.route.queryParams.subscribe(async params => {
+      this.projectId = params['pid'];
+      const currentImageId = params['imid'];
+      if (!this.projectId){
+        await this.navService.gotoProjectPageAsync();
+      }else{
+        await this.getProjectDataAsync(this.projectId);
+        this.currentImageInfo = this.imageInfoVms.find(image => image.imageId === currentImageId);
+      }
+    });
+  }
+
+  async getProjectDataAsync(projectId: string): Promise<void> {
+    try {
+      const resp: HttpResponse<ImageInfoResponseBody[]> =
+        await this.httpService.getImageInfosAsync(new ImageInfoRequestBody(projectId))
+      console.log(resp);
+      switch (resp.status) {
+        case 200:
+          if (!resp.body) {
+            throw new Error();
+          }
+          const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body;
+          imageInfosRespBody.forEach(imageInfoRespBody => {
+            this.createImageInfo(imageInfoRespBody);
+          })
+          break;
+        default:
+          throw new Error();
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  createImageInfo(projectRespBody: ImageInfoResponseBody): void {
+    const imageId: string = projectRespBody.imageId;
+    const imageUrl: string = projectRespBody.imageUrl;
+    const originalFilename: string = projectRespBody.originalFileName
+    const imageSize: Size = projectRespBody.imageSize;
+    const dateAdded: Date = projectRespBody.dateAdded;
+    const dateModified: Date = projectRespBody.dateModified;
+    const imageInfoVm =
+      new ImageInfoViewModel(imageId, imageUrl, imageSize, originalFilename, dateAdded, dateModified);
+    this.imageInfoVms.push(imageInfoVm);
   }
 
   async getPolygonDataAsync(dataUrl: string): Promise<PolygonViewModel[]> {

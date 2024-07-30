@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {ObjectClassViewModel} from "../../models/object-class-view-model";
-import {PolygonViewModel} from "../../models/polygon-view-model";
+import {ObjectClassViewModel} from "../../../models/object-class-view-model";
+import {PolygonViewModel} from "../../../models/polygon-view-model";
 
 @Component({
   selector: 'app-annotated-polygon',

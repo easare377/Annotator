@@ -1,10 +1,24 @@
 <div>
-  <div>
-    <!--Sort By-->
-    <div class="control-button">
-      <span>ID</span><span><img src="assets/images/svgs/sort-amount-down-svgrepo-com.svg"></span>
+  <!--Controls-->
+  <div id="controls">
+    <!--Left Controls-->
+    <div>
+      <!--Sort By-->
+      <div class="control-button">
+        <span>ID</span><span><img src="assets/images/svgs/sort-amount-down-svgrepo-com.svg"></span>
+      </div>
+    </div>
+    <!--Right Controls-->
+    <div>
+      <button>Refresh</button>
+      <button (click)="importDataDialog.showDialog()">Import</button>
+      <button>Export</button>
     </div>
   </div>
-  <app-image-data-table [imageInfoVms]="imageInfoVms"></app-image-data-table>
-
+  <app-image-data-table [projectId]="projectId" [imageInfoVms]="imageInfoVms">
+  </app-image-data-table>
+  <!-- Dialogs -->
+  <div>
+    <app-import-data-dialog [projectId]="projectId" #importDataDialog></app-import-data-dialog>
+  </div>
 </div>

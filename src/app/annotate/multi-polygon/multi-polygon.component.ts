@@ -8,11 +8,11 @@ import {
   ViewChild,
   EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
-import {PolygonViewModel} from "../../models/polygon-view-model";
-import {Utils} from "../utils";
-import {Size} from "../../models/size";
-import {Point} from "../../models/point";
-import {ImageInfoViewModel} from "../../models/image-info-view-model";
+import {PolygonViewModel} from "../../../models/polygon-view-model";
+import {Utils} from "../../utils";
+import {Size} from "../../../models/size";
+import {Point} from "../../../models/point";
+import {ImageInfoViewModel} from "../../../models/image-info-view-model";
 
 /**
  * Component to display and interact with multiple polygons overlaid on an image.
@@ -71,9 +71,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
    * @throws Error if imageInfo.polygonVms is undefined.
    */
   ngOnInit(): void {
-    if (!this.imageInfo.polygonVms) {
-      throw new Error('Polygon view models are not defined.');
-    }
+    // if (!this.imageInfo.polygonVms) {
+    //   throw new Error('Polygon view models are not defined.');
+    // }
   }
 
   /**
@@ -113,8 +113,8 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
   onDocumentLoaded(imgCanvas: HTMLCanvasElement, polygonCanvas: HTMLCanvasElement): void {
     const img: HTMLImageElement = new Image();
     this.image = img;
-    if (this.imageInfo.polygonVms){
-      this.currentPolygonVms = this.imageInfo.polygonVms;
+    if (this.imageInfo){
+      // this.currentPolygonVms = this.imageInfo.polygonVms;
       img.onload = () => {
         this.displayImage(img, imgCanvas, 100); // Display the image on the canvas with default zoom level
         // this.clearCanvas(polygonCanvas); //clears the canvas

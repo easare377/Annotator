@@ -1,0 +1,44 @@
+#parent{
+  display: flex;
+  /*justify-content: center;*/
+  justify-content: space-around;
+  align-items: center;
+  height: 40px;
+}
+
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border-width: 2px;
+  background: radial-gradient(farthest-side,#474bff 94%,#0000) top/9px 9px no-repeat,
+  conic-gradient(#0000 30%,#474bff);
+  -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0);
+  animation: spinner-c7wet2 1s infinite linear;
+}
+
+@keyframes spinner-c7wet2 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+#check-svg{
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(41%) sepia(58%)
+  saturate(2017%) hue-rotate(81deg) brightness(89%) contrast(98%);
+}
+
+#failed-svg{
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(16%) sepia(91%)
+  saturate(5780%) hue-rotate(357deg) brightness(118%) contrast(117%);
+}
+
+#retry-button{
+  color: red;
+  cursor: pointer;
+}

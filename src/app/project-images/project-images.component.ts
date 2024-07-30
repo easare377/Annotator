@@ -7,28 +7,38 @@ import {ImageInfoResponseBody} from "../../models/image-info-response-body";
 import {ImageInfoViewModel} from "../../models/image-info-view-model";
 import {Size} from "../../models/size";
 import {AppManagerService} from "../../services/app-manager.service";
+import {BaseComponent} from "../base-component";
+import {NavigationService} from "../../services/navigation.service";
 
 @Component({
   selector: 'app-project-images',
   templateUrl: './project-images.component.html',
   styleUrl: './project-images.component.css'
 })
-export class ProjectImagesComponent implements OnInit {
-  projectId?: string;
+export class ProjectImagesComponent extends BaseComponent implements OnInit {
+  projectId!: string;
   imageInfoVms: ImageInfoViewModel[] = new Array<ImageInfoViewModel>;
 
-  constructor(private httpService: HttpService, private route: ActivatedRoute, private appManagerService: AppManagerService) {
+  constructor(private httpService: HttpService, private route: ActivatedRoute,
+              private appManagerService: AppManagerService, private navService: NavigationService) {
+    super();
   }
 
   ngOnInit(): void {
-    this.projectId = this.appManagerService.getData('projectId');
-      if (this.projectId)
-        this.getProjectDataAsync(this.projectId).then();
+    this.route.queryParams.subscribe(async params => {
+      this.projectId = params['pid'];
+      if (!this.projectId){
+        await this.navService.gotoProjectPageAsync();
+      }else{
+        await this.getProjectDataAsync(this.projectId);
+      }
+    });
+    // this.projectId = this.appManagerService.getData('projectId');
+    //   if (this.projectId)
+    //     this.getProjectDataAsync(this.projectId).then();
   }
 
   async getProjectDataAsync(projectId: string): Promise<void> {
-    // const resp: HttpResponse<ImageInfoResponseBody[]> =
-    //   await this.httpService.getImageInfosAsync(new ImageInfoRequestBody(projectId))
     try {
       const resp: HttpResponse<ImageInfoResponseBody[]> =
         await this.httpService.getImageInfosAsync(new ImageInfoRequestBody(projectId))
@@ -40,7 +50,7 @@ export class ProjectImagesComponent implements OnInit {
           }
           const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body;
           imageInfosRespBody.forEach(imageInfoRespBody => {
-            this.imageInfoProject(imageInfoRespBody);
+            this.createImageInfo(imageInfoRespBody);
           })
           break;
         case 409:
@@ -53,7 +63,7 @@ export class ProjectImagesComponent implements OnInit {
     }
   }
 
-  imageInfoProject(projectRespBody: ImageInfoResponseBody): void {
+  createImageInfo(projectRespBody: ImageInfoResponseBody): void {
     const imageId: string = projectRespBody.imageId;
     const imageUrl: string = projectRespBody.imageUrl;
     const originalFilename: string = projectRespBody.originalFileName

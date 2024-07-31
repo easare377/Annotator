@@ -8,6 +8,7 @@ export class Uris {
   private static _projectDataUrl = Uris._baseUrl + "/api/projects/data";
   private static _uploadImageUrl = Uris._baseUrl + "/api/projects/data/upload-image"
   private static _imagePolygonsUrl = Uris._baseUrl + "/api/projects/data/polygons";
+  private static _generatePolygonsUrl = Uris._baseUrl + "/api/projects/data/generate-polygons";
 
   static get baseUrl(): string {
     return this._baseUrl;
@@ -32,5 +33,9 @@ export class Uris {
 
   static get imagePolygonsUrl(): string{
     return this._imagePolygonsUrl;
+  }
+
+  static get generatePolygonsUrl(): string{
+    return this._generatePolygonsUrl;
   }
 }

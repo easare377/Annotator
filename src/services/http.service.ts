@@ -126,7 +126,7 @@ export class HttpService {
 
   async getImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody>> {
     return new Promise<HttpResponse<PolygonInfoResponseBody>>((resolve, reject) => {
-      this.http.post<PolygonInfoResponseBody>(Uris.createProjectUrl, polygonInfo,
+      this.http.post<PolygonInfoResponseBody>(Uris.generatePolygonsUrl, polygonInfo,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);

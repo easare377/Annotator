@@ -11,6 +11,8 @@ import {ImageInfoResponseBody} from "../models/image-info-response-body";
 import {map} from "rxjs/operators";
 import {CreatedProjectResponseBody} from "../models/created-project-response-body";
 import {ImageInfoRequestBody} from "../models/imageInfo-request-body";
+import {PolygonInfoRequestBody} from "../models/polygon-info-request-body";
+import {PolygonInfoResponseBody} from "../models/polygon-info-response-body";
 
 @Injectable({
   providedIn: 'root'
@@ -110,7 +112,8 @@ export class HttpService {
     formData.append('imageDetails', JSON.stringify(project));
 
     return new Promise<HttpResponse<ImageInfoResponseBody[]>>((resolve, reject) => {
-      this.http.post<ImageInfoResponseBody[]>(Uris.uploadImageUrl, formData, {observe: 'response'}).subscribe({
+      this.http.post<ImageInfoResponseBody[]>(Uris.uploadImageUrl, formData,
+        {observe: 'response'}).subscribe({
         next: response => {
           resolve(response);
         },
@@ -120,6 +123,24 @@ export class HttpService {
       });
     });
   }
+
+  async getImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody>> {
+    return new Promise<HttpResponse<PolygonInfoResponseBody>>((resolve, reject) => {
+      this.http.post<PolygonInfoResponseBody>(Uris.createProjectUrl, polygonInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+
+
+
 
   // uploadImage(image: File): Observable<{ progress: number, response?: any }> {
   //   const formData: FormData = new FormData();

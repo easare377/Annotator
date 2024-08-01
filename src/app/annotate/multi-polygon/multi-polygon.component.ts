@@ -6,7 +6,7 @@ import {
   Output,
   OnInit,
   ViewChild,
-  EventEmitter, OnChanges, SimpleChanges
+  EventEmitter, OnChanges, SimpleChanges, AfterViewChecked
 } from '@angular/core';
 import {PolygonViewModel} from "../../../models/polygon-view-model";
 import {Utils} from "../../utils";
@@ -22,7 +22,7 @@ import {ImageInfoViewModel} from "../../../models/image-info-view-model";
   templateUrl: './multi-polygon.component.html',
   styleUrl: './multi-polygon.component.css'
 })
-export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
+export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked {
   private image: HTMLImageElement | undefined; // Image element
   private currentPolygonVms!: PolygonViewModel[]; // Array to hold current polygon view models
 
@@ -86,10 +86,20 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['imageInfo']) {
-      const previousValue = changes['imageInfo'].previousValue;
-      const currentValue = changes['imageInfo'].currentValue;
+      const previousValue = changes['imageInfo'].previousValue as ImageInfoViewModel | undefined;
+      const currentValue = changes['imageInfo'].currentValue as ImageInfoViewModel;
+      if (previousValue) {
+        previousValue.onPolygonsChanged = undefined;
+      }
+      currentValue.onPolygonsChanged = ()=>{
+        this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+      }
       this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
     }
+  }
+
+  ngAfterViewChecked(): void {
+
   }
 
   /**
@@ -323,15 +333,24 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges {
    * @param zoomPer The zoom percentage.
    */
   zoom(zoomPer: number): void {
-    if (this.image && this.imageInfo.polygonVms) {
+    if (this.image){
       const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(this.image, zoomPer);
       const imgPos: Point = imgParams.imagePosition;
       const imgSize: Size = imgParams.imageSize;
       this.imageInfo.scaledSize = imgSize;
       this.displayImage(this.image, this.imgCanvas.nativeElement, this.imageInfo.zoomLevel); // Display the zoomed image
+      this.clearCanvas(this.polygonCanvas.nativeElement); // Clear the canvas before redrawing polygons
+    }
+    if (this.image && this.imageInfo.polygonVms) {
+      const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(this.image, zoomPer);
+      const imgPos: Point = imgParams.imagePosition;
+      const imgSize: Size = imgParams.imageSize;
+      this.imageInfo.scaledSize = imgSize;
+      // this.displayImage(this.image, this.imgCanvas.nativeElement, this.imageInfo.zoomLevel); // Display the zoomed image
+
       const croppedPolygons: PolygonViewModel[] = Utils.cropPolygons(this.imageInfo.polygonVms, imgPos, imgSize);
       this.currentPolygonVms = croppedPolygons;
-      this.clearCanvas(this.polygonCanvas.nativeElement); // Clear the canvas before redrawing polygons
+      // this.clearCanvas(this.polygonCanvas.nativeElement); // Clear the canvas before redrawing polygons
 
       croppedPolygons.forEach((p: PolygonViewModel) => {
         p.scaledPoints = Utils.computeNewDisplayPoints(p.truePoints, imgPos, imgSize); // Compute new display points based on zoom

@@ -12,6 +12,7 @@ export class ImageInfoViewModel {
   private _zoomLevel: number = 100;
   private _polygonVms: PolygonViewModel[] | undefined;
   private readonly _annotatedPolygonVms: PolygonViewModel[] = [];
+  public onPolygonsChanged: Function | undefined;
 
 
   constructor(imageId: string, imageUrl: string, trueSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
@@ -53,6 +54,9 @@ export class ImageInfoViewModel {
 
   set polygonVms(value: PolygonViewModel[] | undefined) {
     this._polygonVms = value;
+    if (this.onPolygonsChanged) {
+      this.onPolygonsChanged();
+    }
   }
 
 

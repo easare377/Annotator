@@ -9,6 +9,7 @@ import {Size} from "../../models/size";
 import {AppManagerService} from "../../services/app-manager.service";
 import {BaseComponent} from "../base-component";
 import {NavigationService} from "../../services/navigation.service";
+import {ProjectDataResponseBody} from "../../models/project-data-response-body";
 
 @Component({
   selector: 'app-project-images',
@@ -40,15 +41,15 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
 
   async getProjectDataAsync(projectId: string): Promise<void> {
     try {
-      const resp: HttpResponse<ImageInfoResponseBody[]> =
-        await this.httpService.getImageInfosAsync(new ImageInfoRequestBody(projectId))
+      const resp: HttpResponse<ProjectDataResponseBody> =
+        await this.httpService.getProjectDataAsync(new ImageInfoRequestBody(projectId))
       console.log(resp);
       switch (resp.status) {
         case 200:
           if (!resp.body) {
             throw new Error();
           }
-          const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body;
+          const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body.imageInfos;
           imageInfosRespBody.forEach(imageInfoRespBody => {
             this.createImageInfo(imageInfoRespBody);
           })

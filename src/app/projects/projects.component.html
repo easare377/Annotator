@@ -39,6 +39,6 @@
   <!-- Dialogs -->
   <div>
     <app-create-project-dialog #createProjectDialog
-    (projectCreated)="appManagerService.addData('projectId', $event.projectId);navService.gotoProjectImagesPageAsync($event.projectId)"></app-create-project-dialog>
+    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project-dialog>
   </div>
 </div>

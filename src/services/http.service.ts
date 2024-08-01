@@ -13,6 +13,7 @@ import {CreatedProjectResponseBody} from "../models/created-project-response-bod
 import {ImageInfoRequestBody} from "../models/imageInfo-request-body";
 import {PolygonInfoRequestBody} from "../models/polygon-info-request-body";
 import {PolygonInfoResponseBody} from "../models/polygon-info-response-body";
+import {ProjectDataResponseBody} from "../models/project-data-response-body";
 
 @Injectable({
   providedIn: 'root'
@@ -56,9 +57,9 @@ export class HttpService {
     });
   }
 
-  async getImageInfosAsync(requestBody: RequestBody): Promise<HttpResponse<Array<ImageInfoResponseBody>>> {
-    return new Promise<HttpResponse<Array<ImageInfoResponseBody>>>((resolve, reject) => {
-      this.http.post<Array<ImageInfoResponseBody>>(Uris.projectDataUrl, requestBody,
+  async getProjectDataAsync(requestBody: RequestBody): Promise<HttpResponse<ProjectDataResponseBody>> {
+    return new Promise<HttpResponse<ProjectDataResponseBody>>((resolve, reject) => {
+      this.http.post<ProjectDataResponseBody>(Uris.projectDataUrl, requestBody,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);
@@ -124,9 +125,23 @@ export class HttpService {
     });
   }
 
-  async getImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody>> {
-    return new Promise<HttpResponse<PolygonInfoResponseBody>>((resolve, reject) => {
-      this.http.post<PolygonInfoResponseBody>(Uris.generatePolygonsUrl, polygonInfo,
+  async getImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
+    return new Promise<HttpResponse<PolygonInfoResponseBody[]>>((resolve, reject) => {
+      this.http.post<PolygonInfoResponseBody[]>(Uris.imagePolygonsUrl, polygonInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  async generateImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
+    return new Promise<HttpResponse<PolygonInfoResponseBody[]>>((resolve, reject) => {
+      this.http.post<PolygonInfoResponseBody[]>(Uris.generatePolygonsUrl, polygonInfo,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);

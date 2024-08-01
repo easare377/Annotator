@@ -66,8 +66,9 @@
             <div id="image-window">
               <!--Generate Polygons-->
               <div id="generate-polygon" *ngIf="!currentImageInfo.polygonVms">
-                <button id="generate-polygon-button">
-                  Detect Objects
+                <button (click)="generatePolygonsAsync(currentImageInfo.imageId)" id="generate-polygon-button">
+                  <div *ngIf="!generatingPolygons">Detect Objects</div>
+                  <div id="progress" class="spinner" *ngIf="generatingPolygons"></div>
                 </button>
               </div>
               <app-multi-polygon #multiPolygon

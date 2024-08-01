@@ -13,7 +13,7 @@ export class ObjectClassBase {
    * Gets the name of the class.
    * @returns The name of the class.
    */
-  get className(): string | undefined {
+  get className(): string {
     return this._className;
   }
 

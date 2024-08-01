@@ -12,17 +12,23 @@ import {ImageInfoResponseBody} from "../../models/image-info-response-body";
 import {ImageInfoRequestBody} from "../../models/imageInfo-request-body";
 import {Size} from "../../models/size";
 import {ActivatedRoute} from "@angular/router";
+import {ProjectDataResponseBody} from "../../models/project-data-response-body";
+import {ObjectClassResponseBody} from "../../models/object-class-response-body";
+import {PolygonInfoResponseBody} from "../../models/polygon-info-response-body";
+import {PolygonInfoRequestBody} from "../../models/polygon-info-request-body";
+import {UploadState} from "../../models/enum/upload-state";
 
 @Component({
   selector: 'app-annotate',
   templateUrl: './annotate.component.html',
   styleUrl: './annotate.component.css'
 })
-export class AnnotateComponent implements OnInit{
+export class AnnotateComponent implements OnInit {
   public projectId!: string;
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
   public currentObjectClassVm: ObjectClassViewModel | undefined;
+  public generatingPolygons = false;
   @Input() objectClassVms!: Array<ObjectClassViewModel>;
 
 
@@ -30,39 +36,90 @@ export class AnnotateComponent implements OnInit{
               public appManagerService: AppManagerService, private route: ActivatedRoute) {
     // super(httpService, navService,appManagerService);
     this.imageInfoVms = [];
-    const colors: string[] = ['#E91E63', '#FFBB86', '#000187', '#8A2BE2'];
-    // colors[0] = Utils.lightenColor(colors[0], 0.3);
     this.objectClassVms = new Array<ObjectClassViewModel>();
-    this.objectClassVms.push(new ObjectClassViewModel('', 'Tree', colors[0]));
-    this.objectClassVms.push(new ObjectClassViewModel('', 'Charcoal', colors[1]));
-    this.objectClassVms.push(new ObjectClassViewModel('', 'Road', colors[2]));
-    this.objectClassVms.push(new ObjectClassViewModel('', 'Building', colors[3]));
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(async params => {
       this.projectId = params['pid'];
       const currentImageId = params['imid'];
-      if (!this.projectId){
+      if (!this.projectId) {
         await this.navService.gotoProjectPageAsync();
-      }else{
+      } else {
         await this.getProjectDataAsync(this.projectId);
         this.currentImageInfo = this.imageInfoVms.find(image => image.imageId === currentImageId);
+        const polygonsRespBody: PolygonInfoResponseBody[] = await this.getImagePolygonsAsync(currentImageId);
+        const polygonVms: PolygonViewModel[] = [];
+        if (polygonsRespBody.length > 0) {
+          this.createPolygonVms(polygonsRespBody);
+        }
       }
     });
   }
 
+
+
+  createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[]): void{
+    const polygonVms: PolygonViewModel[] = [];
+    polygonsRespBody.forEach(polygonRspBody => {
+      const polygonId: string = polygonRspBody.polygonId;
+      const points = polygonRspBody.points;
+      polygonVms.push(new PolygonViewModel(polygonId, points, Utils.generateRandomColor()))
+    });
+    this.currentImageInfo!.polygonVms = polygonVms;
+  }
+
+  async generatePolygonsAsync(imageId: string): Promise<void> {
+    this.generatingPolygons = true;
+    const resp: HttpResponse<PolygonInfoResponseBody[]> =
+      await this.httpService.generateImagePolygons(new PolygonInfoRequestBody(imageId));
+    switch (resp.status) {
+      case 200:
+        if (!resp.body) {
+          throw new Error();
+        }
+        // Display classes
+        this.createPolygonVms(resp.body);
+        break;
+      default:
+        this.generatingPolygons = false;
+        throw new Error();
+    }
+    this.generatingPolygons = false;
+  }
+
+  async getImagePolygonsAsync(imageId: string): Promise<PolygonInfoResponseBody[]> {
+      const resp: HttpResponse<PolygonInfoResponseBody[]> =
+        await this.httpService.getImagePolygons(new PolygonInfoRequestBody(imageId));
+      switch (resp.status) {
+        case 200:
+          if (!resp.body) {
+            throw new Error();
+          }
+          // Display classes
+          return resp.body;
+        default:
+          throw new Error();
+      }
+  }
+
   async getProjectDataAsync(projectId: string): Promise<void> {
     try {
-      const resp: HttpResponse<ImageInfoResponseBody[]> =
-        await this.httpService.getImageInfosAsync(new ImageInfoRequestBody(projectId))
+      const resp: HttpResponse<ProjectDataResponseBody> =
+        await this.httpService.getProjectDataAsync(new ImageInfoRequestBody(projectId))
       console.log(resp);
       switch (resp.status) {
         case 200:
           if (!resp.body) {
             throw new Error();
           }
-          const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body;
+          const objectClassesRespBody: ObjectClassResponseBody[] = resp.body.projectSetup.objectClasses
+          const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body.imageInfos;
+          // Display classes
+          objectClassesRespBody.forEach(objectClass => {
+            this.createObjectClass(objectClass);
+          })
+          // Display images
           imageInfosRespBody.forEach(imageInfoRespBody => {
             this.createImageInfo(imageInfoRespBody);
           })
@@ -73,6 +130,16 @@ export class AnnotateComponent implements OnInit{
     } catch (e) {
       console.log(e);
     }
+  }
+
+  createObjectClass(objectClass: ObjectClassResponseBody) {
+    const classId: string = objectClass.classId;
+    const className: string = objectClass.className;
+    const color: string = objectClass.color;
+    const description: string | undefined = objectClass.description;
+    const objectClassVm =
+      new ObjectClassViewModel(classId, className, color, description);
+    this.objectClassVms.push(objectClassVm);
   }
 
   createImageInfo(projectRespBody: ImageInfoResponseBody): void {
@@ -104,16 +171,18 @@ export class AnnotateComponent implements OnInit{
     return polygonVms;
   }
 
-  getAnnotatedPolygon(polygonVms: PolygonViewModel[]): {index:number, polygonVm: PolygonViewModel}[] {
+  getAnnotatedPolygon(polygonVms: PolygonViewModel[]): { index: number, polygonVm: PolygonViewModel }[] {
     let annotatedPolygonIndex = 0;
-    const annotatedPolygonVms: {index:number, polygonVm: PolygonViewModel}[] = [];
+    const annotatedPolygonVms: { index: number, polygonVm: PolygonViewModel }[] = [];
     for (let i = 0; i < polygonVms.length; i++) {
       const polygonVm = polygonVms[i];
-      if (polygonVm.objectClassVm){
+      if (polygonVm.objectClassVm) {
         annotatedPolygonIndex++;
-        annotatedPolygonVms.push({index:annotatedPolygonIndex, polygonVm:polygonVm})
+        annotatedPolygonVms.push({index: annotatedPolygonIndex, polygonVm: polygonVm})
       }
     }
     return annotatedPolygonVms;
   }
+
+  protected readonly UploadState = UploadState;
 }

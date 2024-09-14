@@ -3,7 +3,7 @@ import {Dialog} from "../dialog";
 import {UploadFileRequestBody} from "../../../models/upload-file-request-body";
 import {HttpService} from "../../../services/http.service";
 import {AppManagerService} from "../../../services/app-manager.service";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {ImageInfoResponseBody} from "../../../models/image-info-response-body";
 import {NavigationService} from "../../../services/navigation.service";
 import {FileUploadViewModel} from "../../../models/file-upload-view-model";

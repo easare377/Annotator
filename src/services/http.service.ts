@@ -1,4 +1,4 @@
-import {HttpClient, HttpEventType, HttpHeaders, HttpRequest, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable, firstValueFrom} from 'rxjs';
 import {ProjectInfoRequestBody} from "../models/project-info-request-body";

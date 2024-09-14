@@ -7,7 +7,7 @@ import {HttpService} from "../../services/http.service";
 import {ObjectClassViewModel} from "../../models/object-class-view-model";
 import {AppManagerService} from "../../services/app-manager.service";
 import {NavigationService} from "../../services/navigation.service";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {ImageInfoResponseBody} from "../../models/image-info-response-body";
 import {ImageInfoRequestBody} from "../../models/imageInfo-request-body";
 import {Size} from "../../models/size";

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {HttpService} from "../../services/http.service";
 import {ImageInfoRequestBody} from "../../models/imageInfo-request-body";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {ImageInfoResponseBody} from "../../models/image-info-response-body";
 import {ImageInfoViewModel} from "../../models/image-info-view-model";
 import {Size} from "../../models/size";

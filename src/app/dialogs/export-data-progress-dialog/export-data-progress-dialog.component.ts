@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IDialog} from "../i-dialog";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {ExportDataRequestBody} from "../../../models/export-data-request-body";
 import {Utils} from "../../utils";
 import {ObjectClassResponseBody} from "../../../models/object-class-response-body";

@@ -12,7 +12,7 @@ import { CanvasAreaDrawComponent } from './canvas-area-draw/canvas-area-draw.com
 import { SidenavComponent } from './sidenav/sidenav.component';
 import { MultiPolygonComponent } from './annotate/multi-polygon/multi-polygon.component';
 import {NgOptimizedImage} from "@angular/common";
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign-class-dialog.component';
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
@@ -40,47 +40,40 @@ import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.compo
 
 
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    TrailComponent,
-    CanvasAreaDrawComponent,
-    SidenavComponent,
-    MultiPolygonComponent,
-    AssignClassDialogComponent,
-    AnnotateComponent,
-    CustomScrollDirective,
-    CreateProjectDialogComponent,
-    SignUpComponent,
-    AnnotatedPolygonComponent,
-    ObjectClassComponent,
-    ImageNavigationComponent,
-    LabelingSetupComponent,
-    ToggleButtonComponent,
-    ViewProjectComponent,
-    ProjectsComponent,
-    ProjectImagesComponent,
-    ImageDataTableComponent,
-    CreateProjectSetupComponent,
-    UploadImagesSetupComponent,
-    AddedObjectClassComponent,
-    ImportDataDialogComponent,
-    FileUploadComponent,
-    GeneratePolygonDialogComponent,
-    ExportDataProgressDialogComponent,
-    BoundingBoxComponent,
-  ],
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [
+        AppComponent,
+        HeaderComponent,
+        TrailComponent,
+        CanvasAreaDrawComponent,
+        SidenavComponent,
+        MultiPolygonComponent,
+        AssignClassDialogComponent,
+        AnnotateComponent,
+        CustomScrollDirective,
+        CreateProjectDialogComponent,
+        SignUpComponent,
+        AnnotatedPolygonComponent,
+        ObjectClassComponent,
+        ImageNavigationComponent,
+        LabelingSetupComponent,
+        ToggleButtonComponent,
+        ViewProjectComponent,
+        ProjectsComponent,
+        ProjectImagesComponent,
+        ImageDataTableComponent,
+        CreateProjectSetupComponent,
+        UploadImagesSetupComponent,
+        AddedObjectClassComponent,
+        ImportDataDialogComponent,
+        FileUploadComponent,
+        GeneratePolygonDialogComponent,
+        ExportDataProgressDialogComponent,
+        BoundingBoxComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         FormsModule,
         NgOptimizedImage,
-        HttpClientModule,
         ClickOutsideDirective,
-        ReactiveFormsModule,
-    ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }

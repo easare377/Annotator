@@ -5,7 +5,7 @@ import {RequestBody} from "../../models/request-body";
 import {HttpService} from "../../services/http.service";
 import {NavigationService} from "../../services/navigation.service";
 import {AppManagerService} from "../../services/app-manager.service";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 
 
 @Component({

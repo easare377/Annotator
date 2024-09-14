@@ -8,7 +8,7 @@ import {ProjectInfoRequestBody} from "../../../models/project-info-request-body"
 import {ProjectSetupBase} from "../../../models/project-setup-base";
 import {AnnotationType} from "../../../models/enum/annotation-type";
 import {ObjectClassBase} from "../../../models/object-class-base";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {ProjectInfoResponseBody} from "../../../models/project-info-response-body";
 import {FileUploadService} from "../../file-upload.service";
 import {CreatedProjectResponseBody} from "../../../models/created-project-response-body";

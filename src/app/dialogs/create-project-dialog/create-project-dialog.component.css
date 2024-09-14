@@ -71,6 +71,12 @@ h2 {
   margin-top: 20px;
 }
 
+.form-buttons > div{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .btn {
   padding: 10px 20px;
   border: none;

@@ -4,7 +4,7 @@ export class ProjectInfoResponseBody extends ProjectInfoBase{
   private readonly _projectId: string;
   private readonly _dateCreated: Date;
 
-  constructor(projectId: string, name: string, dateCreated: Date, description?: string) {
+  constructor(projectId: string, name: string, dateCreated: Date, description: string | null) {
     super(name, description);
     this._projectId = projectId;
     this._dateCreated = dateCreated;

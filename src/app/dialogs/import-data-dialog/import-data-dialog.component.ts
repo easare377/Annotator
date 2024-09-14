@@ -9,6 +9,7 @@ import {NavigationService} from "../../../services/navigation.service";
 import {FileUploadViewModel} from "../../../models/file-upload-view-model";
 import {UploadState} from "../../../models/enum/upload-state";
 
+
 @Component({
   selector: 'app-import-data-dialog',
   templateUrl: './import-data-dialog.component.html',
@@ -75,5 +76,15 @@ export class ImportDataDialogComponent extends Dialog implements OnInit {
     //     await this.httpService.uploadImageAsync(uploadImageRequestBody,file);
     //   }
     // }
+  }
+
+  private resetDialog(): void {
+    this.fileUploadVms = [];
+    // this.projectId = undefined;
+  }
+
+  override hideDialog() {
+    this.resetDialog();
+    super.hideDialog();
   }
 }

@@ -1,10 +1,10 @@
 <div id="parent" #parent (wheel)="onWheel($event)">
-<!--  <img id="image" #image src="assets/images/Fort.jpg" (load)="onCanvasLoaded(polygonCanvas)" >-->
+  <!--Canvas to show the image-->
   <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"></canvas>
+  <!--Canvas to show and control the polygons-->
   <canvas id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"
           (click)="onCanvasClicked($event)"
           (mousemove)="onCanvasHover($event)">
   </canvas>
-<!--  <canvas #canvas (click)="onCanvasClicked($event)"></canvas>-->
 </div>
-<!--<div><input style="height: 100px; width: 50px;" type="text" [innerText]="dis" [(ngModel)]=""></div>-->
+

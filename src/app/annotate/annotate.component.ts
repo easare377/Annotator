@@ -17,6 +17,7 @@ import {ObjectClassResponseBody} from "../../models/object-class-response-body";
 import {PolygonInfoResponseBody} from "../../models/polygon-info-response-body";
 import {PolygonInfoRequestBody} from "../../models/polygon-info-request-body";
 import {UploadState} from "../../models/enum/upload-state";
+import {ObjectClassInfosRequestBody} from "../../models/object-class-infos-request-body";
 
 @Component({
   selector: 'app-annotate',
@@ -28,8 +29,11 @@ export class AnnotateComponent implements OnInit {
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
   public currentObjectClassVm: ObjectClassViewModel | undefined;
-  public generatingPolygons = false;
+  protected readonly UploadState = UploadState;
   @Input() objectClassVms!: Array<ObjectClassViewModel>;
+  // progresses
+  public generatingPolygons = false;
+  public updatingPolygonClasses = false;
 
 
   constructor(public httpService: HttpService, public navService: NavigationService,
@@ -39,17 +43,24 @@ export class AnnotateComponent implements OnInit {
     this.objectClassVms = new Array<ObjectClassViewModel>();
   }
 
+  initializeData(): void {
+    // Init logic anytime the page is routed to.
+    this.imageInfoVms = [];
+    this.objectClassVms = new Array<ObjectClassViewModel>();
+  }
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(async params => {
       this.projectId = params['pid'];
       const currentImageId = params['imid'];
+      this.initializeData();
       if (!this.projectId) {
         await this.navService.gotoProjectPageAsync();
       } else {
         await this.getProjectDataAsync(this.projectId);
         this.currentImageInfo = this.imageInfoVms.find(image => image.imageId === currentImageId);
         const polygonsRespBody: PolygonInfoResponseBody[] = await this.getImagePolygonsAsync(currentImageId);
-        const polygonVms: PolygonViewModel[] = [];
+        // const polygonVms: PolygonViewModel[] = [];
         if (polygonsRespBody.length > 0) {
           this.createPolygonVms(polygonsRespBody);
         }
@@ -57,14 +68,24 @@ export class AnnotateComponent implements OnInit {
     });
   }
 
-
-
-  createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[]): void{
+  // Creates the polygon view models
+  createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[]): void {
     const polygonVms: PolygonViewModel[] = [];
     polygonsRespBody.forEach(polygonRspBody => {
       const polygonId: string = polygonRspBody.polygonId;
       const points = polygonRspBody.points;
-      polygonVms.push(new PolygonViewModel(polygonId, points, Utils.generateRandomColor()))
+      const classId: string | undefined = polygonRspBody.classId;
+      // console.log(polygonRspBody);
+      const polygonVm = new PolygonViewModel(polygonId, points, Utils.generateRandomColor());
+      //re-assign the selected class of the polygon.
+      if (classId){
+        polygonVm.objectClassVm = this.objectClassVms.find(x => x.classId === classId);
+        // update the annotated classes.
+        if (polygonVm.objectClassVm) {
+          this.currentImageInfo!.annotatedPolygonVms.push(polygonVm);
+        }
+      }
+      polygonVms.push(polygonVm)
     });
     this.currentImageInfo!.polygonVms = polygonVms;
   }
@@ -72,7 +93,7 @@ export class AnnotateComponent implements OnInit {
   async generatePolygonsAsync(imageId: string): Promise<void> {
     this.generatingPolygons = true;
     const resp: HttpResponse<PolygonInfoResponseBody[]> =
-      await this.httpService.generateImagePolygons(new PolygonInfoRequestBody(imageId));
+      await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageId));
     switch (resp.status) {
       case 200:
         if (!resp.body) {
@@ -89,18 +110,18 @@ export class AnnotateComponent implements OnInit {
   }
 
   async getImagePolygonsAsync(imageId: string): Promise<PolygonInfoResponseBody[]> {
-      const resp: HttpResponse<PolygonInfoResponseBody[]> =
-        await this.httpService.getImagePolygons(new PolygonInfoRequestBody(imageId));
-      switch (resp.status) {
-        case 200:
-          if (!resp.body) {
-            throw new Error();
-          }
-          // Display classes
-          return resp.body;
-        default:
+    const resp: HttpResponse<PolygonInfoResponseBody[]> =
+      await this.httpService.getImagePolygonsAsync(new PolygonInfoRequestBody(imageId));
+    switch (resp.status) {
+      case 200:
+        if (!resp.body) {
           throw new Error();
-      }
+        }
+        // Display classes
+        return resp.body;
+      default:
+        throw new Error();
+    }
   }
 
   async getProjectDataAsync(projectId: string): Promise<void> {
@@ -184,5 +205,34 @@ export class AnnotateComponent implements OnInit {
     return annotatedPolygonVms;
   }
 
-  protected readonly UploadState = UploadState;
+  async saveObjectClassesAsync(): Promise<void> {
+    this.updatingPolygonClasses = true;
+    const objectClassInfos = new ObjectClassInfosRequestBody();
+    //Add all annotated polygons.
+    if (this.currentImageInfo && this.currentImageInfo.polygonVms) {
+      this.currentImageInfo.polygonVms.forEach((polygonVm: PolygonViewModel) => {
+        if (polygonVm.objectClassVm) {
+          objectClassInfos.addObjectClassInfo(polygonVm.id, polygonVm.objectClassVm.classId);
+        }
+      });
+    }
+    //Create a web request to send the annotated polygons.
+    try {
+      const resp: HttpResponse<string> =
+        await this.httpService.savePolygonObjectClassesAsync(objectClassInfos);
+      switch (resp.status) {
+        case 200:
+          if (resp.body !== 'done') {
+            throw new Error();
+          }
+          break;
+        default:
+          throw new Error();
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    this.updatingPolygonClasses  = false;
+  }
+
 }

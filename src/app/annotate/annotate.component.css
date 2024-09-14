@@ -95,10 +95,18 @@
 
 }
 
+button {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.progress-button{
+  gap: 5px;
+}
+
 #generate-polygon-button{
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 40px;
   width: 200px;
   color: white;
@@ -147,7 +155,7 @@
 
 #annotation-controls > button{
   height: 40px;
-  width: 100px;
+  min-width: 100px;
   color: white;
   border-radius: 4px;
   border: none;

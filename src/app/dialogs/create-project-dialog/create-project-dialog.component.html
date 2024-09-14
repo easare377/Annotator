@@ -2,56 +2,36 @@
   <div class="container">
     <h2>Create Project</h2>
     <div class="tabs">
-      <button class="tab-button" [class.active]="activeTab === ActiveTab.PROJECTNAME"
-              (click)="setActiveTab(ActiveTab.PROJECTNAME)">Project Name
+      <button class="tab-button" [class.active]="step === 1"
+              (click)="step = 1">Project Name
       </button>
-      <button class="tab-button" [class.active]="activeTab === ActiveTab.LABELINGSETUP"
-              (click)="setActiveTab(ActiveTab.LABELINGSETUP)">Labeling Setup
+      <button class="tab-button" [class.active]="step === 2"
+              (click)="step = 2">Labeling Setup
       </button>
-      <button class="tab-button" [class.active]="activeTab === ActiveTab.DATAIMPORT"
-              (click)="setActiveTab(ActiveTab.DATAIMPORT)">Data Import
-      </button>
+      <!--      <button class="tab-button" [class.active]="activeTab === ActiveTab.DATAIMPORT"-->
+      <!--              (click)="setActiveTab(ActiveTab.DATAIMPORT)">Data Import-->
+      <!--      </button>-->
     </div>
     <!--Create Project-->
     <div>
-      <app-create-project-setup #createProjectSetup [visible]="activeTab === ActiveTab.PROJECTNAME"></app-create-project-setup>
+      <app-create-project-setup #createProjectSetup
+                                [visible]="step === 1"></app-create-project-setup>
     </div>
     <!--Project Setup-->
     <div>
-      <app-labeling-setup #labelingSetup [visible]="activeTab === ActiveTab.LABELINGSETUP"></app-labeling-setup>
+      <app-labeling-setup #labelingSetup [visible]="step === 2"></app-labeling-setup>
     </div>
-    <!--Upload Files-->
-    <app-upload-images-setup #uploadImagesSetup [visible]="activeTab === ActiveTab.DATAIMPORT"></app-upload-images-setup>
-<!--    <div *ngIf="activeTab === ActiveTab.DATAIMPORT">-->
-<!--      <div class="form-group">-->
-<!--        <label for="datasetUrl">Dataset URL</label>-->
-<!--        <input id="datasetUrl" type="text" placeholder="Dataset URL"/>-->
-<!--        <button class="btn btn-primary">Add URL</button>-->
-<!--      </div>-->
-<!--      <div class="form-group">-->
-<!--        <button class="btn btn-primary" (click)="upload()">Upload Files</button>-->
-<!--        <input type="file" multiple (change)="onFileSelected($event)" #fileInput style="display: none;"/>-->
-<!--      </div>-->
-<!--      <div (click)="fileInput.click()"-->
-<!--        class="drop-area"-->
-<!--        (dragover)="$event.preventDefault()"-->
-<!--        (drop)="onDrop($event)">-->
-<!--        <p>Drag & drop files here<br>or click to browse</p>-->
-<!--        <input type="file" multiple (change)="onFileSelected($event)" style="display: none;"/>-->
-<!--      </div>-->
-<!--      <div *ngIf="files.length > 0">-->
-<!--        <h3>Selected Files</h3>-->
-<!--        <ul>-->
-<!--          <li *ngFor="let file of files">{{ file.name }}</li>-->
-<!--        </ul>-->
-<!--      </div>-->
-<!--    </div>-->
     <div class="form-buttons">
       <button class="btn btn-danger delete-button" (click)="hideDialog()">Cancel</button>
-      <button class="btn btn-success save-button"
-              (click)="createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
-        Create Project
-      </button>
+      <div>
+        <button class="btn btn-success save-button" *ngIf="step !== 1"
+                (click)="step = step - 1">Back</button>
+        <button class="btn btn-success save-button"
+                (click)="step !== maxSteps? step = step + 1:
+              createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
+          {{step !== maxSteps ? 'Next' : 'Create Project' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

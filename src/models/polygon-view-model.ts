@@ -14,6 +14,7 @@ export class PolygonViewModel {
   public onMouseOver: Function | undefined;
   public onClick: Function | undefined;
   public onClassSet: Function | undefined;
+  public onDrawPolygon: Function | undefined;
 
   constructor(id: string, points: Array<Point>, color: string = '#FF0000FF') {
     this._id = id;
@@ -92,5 +93,11 @@ export class PolygonViewModel {
       }
     });
     return BBox.fromBbox(xMin, yMin, xMax, yMax);
+  }
+
+  drawPolygon(): void{
+    if (this.onDrawPolygon){
+      this.onDrawPolygon();
+    }
   }
 }

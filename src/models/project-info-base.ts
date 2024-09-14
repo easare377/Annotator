@@ -1,8 +1,8 @@
 export abstract class ProjectInfoBase {
   private _name: string;
-  private _description: string | undefined;
+  private _description: string | null;
 
-  protected constructor(_name: string, description: string | undefined) {
+  protected constructor(_name: string, description: string | null) {
     this._name = _name;
     this._description = description;
   }
@@ -16,11 +16,11 @@ export abstract class ProjectInfoBase {
     this._name = value;
   }
 
-  get description(): string | undefined {
+  get description(): string | null {
     return this._description;
   }
 
-  set description(value: string | undefined) {
+  set description(value: string | null) {
     this._description = value;
   }
 }

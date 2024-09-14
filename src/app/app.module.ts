@@ -34,6 +34,8 @@ import { AddedObjectClassComponent } from './dialogs/create-project-dialog/label
 import { ImportDataDialogComponent } from './dialogs/import-data-dialog/import-data-dialog.component';
 import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/file-upload.component';
 import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialog/generate-polygon-dialog.component';
+import { ExportDataProgressDialogComponent } from './dialogs/export-data-progress-dialog/export-data-progress-dialog.component';
+import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.component';
 
 
 
@@ -66,6 +68,8 @@ import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialo
     ImportDataDialogComponent,
     FileUploadComponent,
     GeneratePolygonDialogComponent,
+    ExportDataProgressDialogComponent,
+    BoundingBoxComponent,
   ],
     imports: [
         BrowserModule,

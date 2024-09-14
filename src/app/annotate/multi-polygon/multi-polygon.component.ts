@@ -94,7 +94,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
       currentValue.onPolygonsChanged = ()=>{
         this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
       }
-      this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+      if (this.imgCanvas){
+        this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+      }
     }
   }
 
@@ -217,7 +219,7 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
       ctx.fillStyle = colorHex + opacityHex; // Set fill style with opacity
       ctx.fill();
     }
-    ctx.strokeStyle = colorHex + opacityHex; // Set stroke style with opacity
+    ctx.strokeStyle = colorHex //+ opacityHex; // Set stroke style with opacity
     ctx.lineWidth = thickness;
     ctx.stroke();
   }
@@ -233,50 +235,39 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
     polygonVm.onClick = () => {
       this.polygonClicked.emit(polygonVm); // Emit the polygonClicked event when the polygon is clicked
     };
+    // Update the polygons when object class is set.
     polygonVm.onClassSet = () => {
-      if (polygonVm.objectClassVm) {
-        this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the previous fill
-        this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.objectClassVm.color,
-          1.0, this.thickness, true); // Draw the polygon with new class color
+        polygonVm.drawPolygon();
         this.objectClassAssigned.emit(polygonVm);
+    };
+    // Update the polygons if mouse over.
+    polygonVm.onMouseOver = () => {
+      this.clearCanvas(canvas);
+      for (let p of this.currentPolygonVms) {
+        this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
+        p.drawPolygon();
       }
     };
-    polygonVm.onMouseOver = () => {
-      for (let p of this.currentPolygonVms) {
-        if (p.objectClassVm) {
-          this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-          this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
-        } else {
-          if (p !== polygonVm) {
-            // if (p.mouseOver || Utils.bBoxIntercepts(p.bbox, polygonVm.bbox)) {
-              this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-              this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 1.0, this.thickness, false); // Redraw without fill
-              p.mouseOver = false;
-              // console.log('intercepts');
-            // }
-          } else {
-            // this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-            this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 0.4, this.thickness, true); // Draw with hover effect
-          }
+
+    polygonVm.onDrawPolygon = () => {
+      if (polygonVm.objectClassVm){
+        // Fill polygon with object class color.
+        this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
+        this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.objectClassVm.color,
+          0.6, this.thickness, true); // Redraw with class color
+      }else{
+        if (polygonVm.mouseOver){
+          // Fill polygon when mouse over.
+          this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
+          this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.color,
+            0.4, this.thickness, true); // Draw with hover effect
+        }else{
+          // Set polygon stroke color with no fill
+          this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
+          this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.color,
+            1.0, this.thickness, false); // Redraw without fill
         }
       }
-      // this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-      //   if (p.objectClassVm) {
-      //     this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-      //     this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
-      //   } else {
-      //     if (p !== polygonVm) {
-      //       // if (p.mouseOver || Utils.bBoxIntercepts(p.bbox, polygonVm.bbox)) {
-      //       //   this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-      //         this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 0, this.thickness, false); // Redraw without fill
-      //         p.mouseOver = false;
-      //         // console.log('intercepts');
-      //       // }
-      //     } else {
-      //       this.drawPolygon(canvas, p.scaledPoints, imageInfo.scaledSize, p.color, 0.4, this.thickness, true); // Draw with hover effect
-      //     }
-      //   }
-      // });
     };
     return polygonVm;
   }
@@ -354,12 +345,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
 
       croppedPolygons.forEach((p: PolygonViewModel) => {
         p.scaledPoints = Utils.computeNewDisplayPoints(p.truePoints, imgPos, imgSize); // Compute new display points based on zoom
-        if (p.objectClassVm) {
-          this.clearPolygonFill(this.polygonCanvas.nativeElement, p.scaledPoints); // Clear the fill
-          this.drawPolygon(this.polygonCanvas.nativeElement, p.scaledPoints, imgSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
-        } else {
-          this.drawPolygon(this.polygonCanvas.nativeElement, p.scaledPoints, imgSize, p.color, 1, this.thickness, false); // Redraw without fill
-        }
+        // p.scaledPoints = Utils.computeBboxPoints(p.truePoints, imgPos, imgSize);
+        this.setupPolygonVms(p, this.polygonCanvas.nativeElement, this.imageInfo);
+        p.drawPolygon();
       });
     }
   }
@@ -378,10 +366,8 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
       const yi: number = points[i].y;
       const xj: number = points[j].x;
       const yj: number = points[j].y;
-
       const intersect: boolean = ((yi > y) !== (yj > y)) &&
         (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-
       if (intersect) {
         inside = !inside;
       }
@@ -439,12 +425,12 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
     let polygon: PolygonViewModel | undefined;
     this.currentPolygonVms.forEach((p) => {
       if (this.isPointInsidePolygon(hPosition.x, hPosition.y, p.scaledPoints)) {
-        // if (!p.mouseOver) {
-        // if (p.onMouseOver) {
-        // p.onMouseOver();
         polygon = p;
-        // }
-        // }
+      }
+    });
+    this.currentPolygonVms.forEach((p: PolygonViewModel) => {
+      if (p !== polygon){
+        p.mouseOver = false;
       }
     });
     if (polygon && !polygon.mouseOver && polygon.onMouseOver) {

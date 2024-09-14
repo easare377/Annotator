@@ -1,0 +1,13 @@
+#parent{
+  position: absolute;
+  display: flex;
+  height: 70px;
+  width: 200px;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px #ccc solid;
+  border-radius: 4px;
+  right: 20px;
+  bottom: 20px;
+  padding: 10px;
+}

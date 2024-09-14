@@ -32,7 +32,7 @@ export class ProjectsComponent implements OnInit {
 
   async loadProjectsAsync(): Promise<void> {
     try {
-      const resp: HttpResponse<Array<ProjectInfoResponseBody>> = await this.httpService.getProjects(new RequestBody())
+      const resp: HttpResponse<Array<ProjectInfoResponseBody>> = await this.httpService.getProjectsAsync(new RequestBody())
       switch (resp.status) {
         case 200:
           if (!resp.body) {
@@ -61,7 +61,7 @@ export class ProjectsComponent implements OnInit {
   displayProject(projectRespBody: ProjectInfoResponseBody): void {
     const projectId: string = projectRespBody.projectId;
     const projectName: string = projectRespBody.name;
-    const projectDesc: string | undefined = projectRespBody.description;
+    const projectDesc: string | null = projectRespBody.description;
     const dateCreated: Date = projectRespBody.dateCreated;
     const projectVm = new ProjectViewModel(projectId, projectName, dateCreated, projectDesc);
     this.projects.push(projectVm);

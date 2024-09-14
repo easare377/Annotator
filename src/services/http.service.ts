@@ -42,7 +42,7 @@ export class HttpService {
     }
   }
 
-  async getProjects(requestBody: RequestBody | null): Promise<HttpResponse<Array<ProjectInfoResponseBody>>> {
+  async getProjectsAsync(requestBody: RequestBody | null): Promise<HttpResponse<Array<ProjectInfoResponseBody>>> {
     return new Promise<HttpResponse<Array<ProjectInfoResponseBody>>>((resolve, reject) => {
       this.http.post<Array<ProjectInfoResponseBody>>(Uris.projectsUrl, requestBody,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
@@ -125,7 +125,7 @@ export class HttpService {
     });
   }
 
-  async getImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
+  async getImagePolygonsAsync(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
     return new Promise<HttpResponse<PolygonInfoResponseBody[]>>((resolve, reject) => {
       this.http.post<PolygonInfoResponseBody[]>(Uris.imagePolygonsUrl, polygonInfo,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
@@ -139,9 +139,37 @@ export class HttpService {
     });
   }
 
-  async generateImagePolygons(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
+  async generateImagePolygonsAsync(polygonInfo: PolygonInfoRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>> {
     return new Promise<HttpResponse<PolygonInfoResponseBody[]>>((resolve, reject) => {
       this.http.post<PolygonInfoResponseBody[]>(Uris.generatePolygonsUrl, polygonInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  async savePolygonObjectClassesAsync(objectClassInfo: RequestBody): Promise<HttpResponse<string>>{
+    return new Promise<HttpResponse<string>>((resolve, reject) => {
+      this.http.post<string>(Uris.annotateImageUrl, objectClassInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  async exportProjectAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
+    return new Promise<HttpResponse<string>>((resolve, reject) => {
+      this.http.post<string>(Uris.exportProjectUrl, exportProjectInfo,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);

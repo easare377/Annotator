@@ -18,7 +18,7 @@
         <app-image-navigation *ngFor="let imageInfo of imageInfoVms"
                               [imageInfo]="imageInfo"
                               [active]="currentImageInfo === imageInfo"
-                              (click)="currentImageInfo = imageInfo"
+                              (click)="navService.gotoAnnotateImagesAsync(projectId, imageInfo.imageId)"
         ></app-image-navigation>
       </div>
     </div>
@@ -59,8 +59,11 @@
               </div>
               <div id="annotation-controls">
                 <!--Update Button-->
-                <button id="update-button">Update</button>
-                <button id="save-button">Save & Exit</button>
+                <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">
+                  <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>
+                  {{updatingPolygonClasses ? 'Saving...':'Update'}}
+                </button>
+                <button id="save-button" class="progress-button" (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">Save & Exit</button>
               </div>
             </div>
             <div id="image-window">
@@ -68,7 +71,7 @@
               <div id="generate-polygon" *ngIf="!currentImageInfo.polygonVms">
                 <button (click)="generatePolygonsAsync(currentImageInfo.imageId)" id="generate-polygon-button">
                   <div *ngIf="!generatingPolygons">Detect Objects</div>
-                  <div id="progress" class="spinner" *ngIf="generatingPolygons"></div>
+                  <div id="detect-object-progress" class="spinner" *ngIf="generatingPolygons"></div>
                 </button>
               </div>
               <app-multi-polygon #multiPolygon

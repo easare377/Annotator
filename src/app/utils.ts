@@ -101,6 +101,43 @@ export abstract class Utils {
     return croppedPoints;
   }
 
+  // static getBboxFromPoints(points: Point[], position: Point, size: Size): BBox {
+  //
+  // }
+
+  static computeBbox(points: Array<Point>): BBox {
+    let xMin: number = points[0].x;
+    let xMax: number = points[0].x;
+    let yMin: number = points[0].y;
+    let yMax: number = points[0].y;
+    points.forEach((point: Point) => {
+      if (point.x < xMin) {
+        xMin = point.x;
+      }
+      if (point.x > xMax) {
+        xMax = point.x;
+      }
+      if (point.y < yMin) {
+        yMin = point.y;
+      }
+      if (point.y > yMax) {
+        yMax = point.y;
+      }
+    });
+    return BBox.fromBbox(xMin, yMin, xMax, yMax);
+  }
+
+  static computeBboxPoints(points: Point[], position: Point, size: Size): Array<Point> {
+    const croppedPoints = this.computeNewDisplayPoints(points, position, size)
+    const bbox: BBox = this.computeBbox(croppedPoints);
+    const bboxPoints: Point[] = [];
+    bboxPoints.push(new Point(bbox.xMin, bbox.yMin));
+    bboxPoints.push(new Point(bbox.xMax, bbox.yMin));
+    bboxPoints.push(new Point(bbox.xMax, bbox.yMax));
+    bboxPoints.push(new Point(bbox.xMin, bbox.yMax));
+    return bboxPoints;
+  }
+
   static polygonIntercepts(polygon1: PolygonViewModel, polygon2: PolygonViewModel): boolean {
     const polygons = [polygon1, polygon2];
 
@@ -258,4 +295,19 @@ export abstract class Utils {
     // Step 5: Convert RGB back to Hex
     return Utils.rgbToHex(newR, newG, newB);
   }
+
+  static getFilenameFromUrl(url: string): string {
+    if (!url) {
+      throw new Error('URL must be provided');
+    }
+    // Create a URL object to parse the URL
+    const parsedUrl = new URL(url);
+    // Extract the pathname (which includes the filename)
+    const pathname = parsedUrl.pathname;
+    // Use the last segment of the pathname as the filename
+    const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+    // Return the filename or null if not found
+    return filename;
+  }
+
 }

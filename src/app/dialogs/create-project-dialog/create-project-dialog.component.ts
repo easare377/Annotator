@@ -19,64 +19,65 @@ import {CreatedProjectResponseBody} from "../../../models/created-project-respon
   styleUrls: ['./create-project-dialog.component.css', '../dialog.css']
 })
 export class CreateProjectDialogComponent extends Dialog implements OnInit {
-  protected readonly ActiveTab = ActiveTab;
-  public createProjectVm: CreateProjectViewModel
-  activeTab: ActiveTab = ActiveTab.PROJECTNAME;
-  files: File[] = [];
+  // protected readonly ActiveTab = ActiveTab;
+  // activeTab: ActiveTab = ActiveTab.PROJECTNAME;
+  step: number = 1;
+  maxSteps: number = 2;
+  // files: File[] = [];
 
   @ViewChild('fileInput', {static: false}) fileInput!: ElementRef;
   @Output() projectCreated = new EventEmitter<ProjectInfoResponseBody>();
 
-  selectedFiles?: FileList;
-  progress = 0;
-  message = '';
+  // selectedFiles?: FileList;
+  // progress = 0;
+  // message = '';
 
   constructor(private httpService: HttpService, private uploadService: FileUploadService) {
     super();
-    this.createProjectVm = new CreateProjectViewModel('');
+    // this.createProjectVm = new CreateProjectViewModel('', null);
   }
 
-  onFileSelected(event: any): void {
-    this.selectedFiles = event.target.files;
-  }
+  // onFileSelected(event: any): void {
+  //   this.selectedFiles = event.target.files;
+  // }
 
-  upload(): void {
-    if (this.selectedFiles) {
-      this.uploadService.upload(this.selectedFiles).subscribe(
-        event => {
-          if (typeof event === 'object') {
-            if (event.status === 'progress') {
-              this.progress = event.message;
-            } else {
-              this.message = 'Upload complete';
-            }
-          }
-        },
-        error => {
-          this.message = 'Could not upload the file';
-          this.progress = 0;
-        }
-      );
-    }
-  }
+  // upload(): void {
+  //   if (this.selectedFiles) {
+  //     this.uploadService.upload(this.selectedFiles).subscribe(
+  //       event => {
+  //         if (typeof event === 'object') {
+  //           if (event.status === 'progress') {
+  //             this.progress = event.message;
+  //           } else {
+  //             this.message = 'Upload complete';
+  //           }
+  //         }
+  //       },
+  //       error => {
+  //         this.message = 'Could not upload the file';
+  //         this.progress = 0;
+  //       }
+  //     );
+  //   }
+  // }
 
   ngOnInit(): void {
   }
 
-  setActiveTab(tab: ActiveTab): void {
-    this.activeTab = tab;
-  }
+  // setActiveTab(tab: ActiveTab): void {
+  //   this.activeTab = tab;
+  // }
 
   // onDragOver(event: DragEvent): void {
   //   event.preventDefault();
   // }
 
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    if (event.dataTransfer?.files) {
-      Array.from(event.dataTransfer.files).forEach(file => this.files.push(file));
-    }
-  }
+  // onDrop(event: DragEvent): void {
+  //   event.preventDefault();
+  //   if (event.dataTransfer?.files) {
+  //     Array.from(event.dataTransfer.files).forEach(file => this.files.push(file));
+  //   }
+  // }
 
   // onFileSelected(event: Event): void {
   //   const input = event.target as HTMLInputElement;
@@ -85,14 +86,14 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
   //   }
   // }
 
-  triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
-  }
+  // triggerFileInput(): void {
+  //   this.fileInput.nativeElement.click();
+  // }
 
   async createProject(createProjectVm: CreateProjectViewModel, projectSetupVm: ProjectSetupViewModel):
     Promise<void> {
     const projectName: string = createProjectVm.name;
-    const description: string | undefined = createProjectVm.description;
+    const description: string | null = createProjectVm.description;
     const annotationType: AnnotationType | undefined = projectSetupVm.annotationType
     // const objectClasses: ObjectClassBase[] = [];
     // projectSetupVm.objectClasses

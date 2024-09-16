@@ -4,27 +4,31 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 @Component({
   selector: 'app-create-project',
   templateUrl: './create-project.component.html',
-  styleUrl: './create-project.component.css'
+  styleUrls: ['./create-project.component.css']
 })
-export class CreateProjectComponent{
-  personalInfoFormGroup: FormGroup |any;
-  usageInfoFormGroup: FormGroup |any;
+export class CreateProjectComponent implements OnInit {
+  nameFormGroup: FormGroup |any;     // Add name form group
+  addressFormGroup: FormGroup | any;  // Add address form group
 
-  constructor(private _formBuilder: FormBuilder) {}
+  constructor(private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    this.personalInfoFormGroup = this._formBuilder.group({
-      type: ['', Validators.required]
+    // Initialize the form groups
+    this.nameFormGroup = this._formBuilder.group({
+      name: ['', Validators.required]    // 'name' field in the first step
     });
-    this.usageInfoFormGroup = this._formBuilder.group({
-      usage: ['', Validators.required]
+
+    this.addressFormGroup = this._formBuilder.group({
+      address: ['', Validators.required]  // 'address' field in the second step
     });
   }
 
-  onFinish() {
-    console.log('Form completed');
-    // Handle form submission
+  // Add onComplete method for the final step
+  onComplete() {
+    console.log("Form Completed");
+    console.log("Name:", this.nameFormGroup.value.name);
+    console.log("Address:", this.addressFormGroup.value.address);
   }
-
 }
+
 

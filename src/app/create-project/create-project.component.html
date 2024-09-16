@@ -1,57 +1,39 @@
-<mat-horizontal-stepper [linear]="true" #stepper>
-
-    <mat-step [stepControl]="personalInfoFormGroup">
-      <form [formGroup]="personalInfoFormGroup">
-        <ng-template matStepLabel>Personal Info</ng-template>
-        <mat-form-field appearance="fill">
-          <mat-label>Are you an individual or a business?</mat-label>
-          <mat-select formControlName="type">
-            <mat-option value="individual">Individual</mat-option>
-            <mat-option value="business">Business</mat-option>
-          </mat-select>
+<div class="stepper-container">
+  <mat-horizontal-stepper [linear]="true">
+    <mat-step [stepControl]="nameFormGroup">
+      <form [formGroup]="nameFormGroup">
+        <ng-template matStepLabel>Fill out your name</ng-template>
+        <mat-form-field class="stepper-input" appearance="outline">
+          <mat-label>Last name, First name</mat-label>
+          <input matInput formControlName="name" placeholder="Last name, First name">
         </mat-form-field>
-        <div>
+        <div class="stepper-buttons">
           <button mat-button matStepperNext>Next</button>
         </div>
       </form>
     </mat-step>
-  
 
-    <mat-step [stepControl]="usageInfoFormGroup">
-      <form [formGroup]="usageInfoFormGroup">
-        <ng-template matStepLabel>Usage Info</ng-template>
-       
-        <mat-form-field appearance="fill">
-          <mat-label>Enter your usage information</mat-label>
-          <input matInput placeholder="Usage Info" formControlName="usage">
+    <mat-step [stepControl]="addressFormGroup">
+      <form [formGroup]="addressFormGroup">
+        <ng-template matStepLabel>Fill out your address</ng-template>
+        <mat-form-field class="stepper-input" appearance="outline">
+          <mat-label>Address</mat-label>
+          <input matInput formControlName="address" placeholder="Enter your address">
         </mat-form-field>
-        <div>
+        <div class="stepper-buttons">
           <button mat-button matStepperPrevious>Back</button>
           <button mat-button matStepperNext>Next</button>
         </div>
       </form>
     </mat-step>
-  
 
     <mat-step>
-      <ng-template matStepLabel>Get Started</ng-template>
-      <p>You're all set! Click finish to complete the process.</p>
-      <div>
+      <ng-template matStepLabel>Done</ng-template>
+      <p>You have completed all steps!</p>
+      <div class="stepper-buttons">
         <button mat-button matStepperPrevious>Back</button>
-        <button mat-button (click)="onFinish()">Finish</button>
+        <button mat-button (click)="onComplete()">Complete</button>
       </div>
     </mat-step>
   </mat-horizontal-stepper>
-  
-
-
-   <!-- <mat-horizontal-stepper>
-    <mat-step label="Step 1">
-   
-    </mat-step>
-    <mat-step label="Step 2">
-
-    </mat-step>
-  </mat-horizontal-stepper> -->
-  <h1>jhfdsjlfjdas</h1>
-  
+</div>

@@ -1,0 +1,37 @@
+<div id="parent" class="dialog-container container-dark" *ngIf="visible">
+  <div class="container">
+    <h2>Create Project</h2>
+    <div class="tabs">
+      <button class="tab-button" [class.active]="step === 1"
+              (click)="step = 1">Project Name
+      </button>
+      <button class="tab-button" [class.active]="step === 2"
+              (click)="step = 2">Labeling Setup
+      </button>
+      <!--      <button class="tab-button" [class.active]="activeTab === ActiveTab.DATAIMPORT"-->
+      <!--              (click)="setActiveTab(ActiveTab.DATAIMPORT)">Data Import-->
+      <!--      </button>-->
+    </div>
+    <!--Create Project-->
+    <div>
+      <app-create-project-setup #createProjectSetup
+                                [visible]="step === 1"></app-create-project-setup>
+    </div>
+    <!--Project Setup-->
+    <div>
+      <app-labeling-setup #labelingSetup [visible]="step === 2"></app-labeling-setup>
+    </div>
+    <div class="form-buttons">
+      <button class="btn btn-danger delete-button" (click)="hideDialog()">Cancel</button>
+      <div>
+        <button class="btn btn-success save-button" *ngIf="step !== 1"
+                (click)="step = step - 1">Back</button>
+        <button class="btn btn-success save-button"
+                (click)="step !== maxSteps? step = step + 1:
+              createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
+          {{step !== maxSteps ? 'Next' : 'Create Project' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

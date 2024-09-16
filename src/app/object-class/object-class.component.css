@@ -1,0 +1,33 @@
+#polygon-class{
+  /*width: 100px;*/
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /*background: #1abc9c;*/
+  border-radius: 2px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#polygon-class > span{
+  width: 5px;
+  height: 100%;
+}
+
+#polygon-class > label {
+  margin-left: 10px;
+}
+
+label{
+  cursor: pointer;
+}
+
+.label-active{
+  color: white;
+}
+
+.label-inactive{
+  color: black;
+}
+

@@ -1,0 +1,10 @@
+<div id="parent" #parent (wheel)="onWheel($event)">
+  <!--Canvas to show the image-->
+  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"></canvas>
+  <!--Canvas to show and control the polygons-->
+  <canvas id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"
+          (click)="onCanvasClicked($event)"
+          (mousemove)="onCanvasHover($event)">
+  </canvas>
+</div>
+

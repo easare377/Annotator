@@ -1,0 +1,10 @@
+.canvas-container {
+    width: 800px;  /* or any other fixed size */
+    height: 600px;
+    overflow: auto;  /* Enable scrolling */
+    border: 1px solid black;
+}
+
+canvas {
+    display: block; /* Removes bottom margin/gap */
+}

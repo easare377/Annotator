@@ -1,0 +1,59 @@
+/* sidebar.component.css */
+@import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';
+
+  
+  /* Optional: Add Font Awesome styles if not already included in your project */
+
+  /* sidebar.component.css */
+.sidebar {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 10px 0 0 10px;
+  }
+  
+  .sidebar-item {
+    background-color: #444;
+    color: white;
+    padding: 15px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+    position: relative; /* Position context for the tooltip */
+  }
+  
+  .tooltip-text {
+    visibility: hidden;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+  
+    /* Positioning */
+    position: absolute;
+    z-index: 1;
+    top: 50%; /* Align it vertically */
+    transform: translateY(-50%); /* Center it vertically */
+    right: 100%; /* Place it to the left of the sidebar button */
+    margin-right: 10px; /* Add some space between the tooltip and button */
+  
+    /* Fade in */
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  
+  .sidebar-item:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  

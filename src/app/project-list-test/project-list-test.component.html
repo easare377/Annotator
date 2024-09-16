@@ -1,0 +1,136 @@
+<!-- <div class="project-grid">
+    <div class="project-card" *ngFor="let project of projects">
+      <img [src]="project.imgUrl" alt="{{ project.name }}" />
+      <h3>{{ project.name }}</h3>
+      <p>{{ project.type }}</p>
+      <p>Edited {{ project.edited }}</p>
+      <p>{{ project.visibility }} • {{ project.images }} Images • {{ project.models }} Models</p>
+    </div>
+  </div> -->
+
+  <!-- projectpage -->
+  
+  <html lang="en">
+  
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Sidebar With Bootstrap</title>
+      <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  
+  </head>
+  
+  <body>
+      <div class="wrapper">
+          <aside id="sidebar">
+              <div class="d-flex">
+                  <button class="toggle-btn" type="button" (click)="toggleSidebar()">
+                      <i class="lni lni-grid-alt"></i>
+                  </button>
+                  <div class="sidebar-logo">
+                      <a href="#">Annotator</a>
+                  </div>
+              </div>
+              <ul class="sidebar-nav">
+                  <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                          <i class="lni lni-user"></i>
+                          <span>Profile</span>
+                          
+                      </a>
+                      <span class="hover-text">View your profile</span>
+                  </li>
+                  <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                          <i class="lni lni-agenda"></i>
+                          <span>Classes</span>
+                      </a>
+                      <span class="hover-text">Assign Classes</span>
+                  </li>
+                  <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                      <i class="lni lni-upload"></i>
+                        <span>Upload Data</span>
+                       
+                    </a>
+                    <span class="hover-text">Upload Images</span>
+                   
+                </li>
+                
+                <li class="sidebar-item">
+                  <a href="#" class="sidebar-link">
+                    <i class="lni lni-image"></i>
+                      <span>DataSet</span>
+                     
+                  </a>
+                  <span class="hover-text">DataSet</span>
+                 
+              </li>
+                  <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                          <i class="lni lni-popup"></i>
+                          <span>Notification</span>
+                      </a>
+                      <span class="hover-text">Notification</span>
+                  </li>
+                  <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                          <i class="lni lni-cog"></i>
+                          <span>Settings</span>
+                          <span class="hover-text">Test 1</span>
+                      </a>
+                      <span class="hover-text">Settings</span>
+                  </li>
+              </ul>
+              <div class="sidebar-footer">
+                  <a href="#" class="sidebar-link">
+                      <i class="lni lni-exit"></i>
+                      <span>Logout</span>
+                  </a>
+              </div>
+          </aside>
+          <div class="main p-3">
+              <div class="text-center">
+                <nav class="navbar navbar-light bg-light">
+                  <div class="container-fluid">
+                    <a class="navbar-brand" href="#">
+                      <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+                      Annotator
+                    </a>
+                  </div>
+                </nav>
+
+                
+                  <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                  </form>
+              </div>
+              <div class="card-container">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+                <img src="../assets/images/DJI_0183_AS_0320_03.JPG" class="img-thumbnail" alt="...">
+
+                
+              </div>
+              
+              
+
+          </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+          crossorigin="anonymous"></script>
+    
+  </body>
+  
+  </html>

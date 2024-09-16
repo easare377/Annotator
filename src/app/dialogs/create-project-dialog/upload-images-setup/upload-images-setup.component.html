@@ -1,0 +1,24 @@
+<div *ngIf="visible">
+  <div class="form-group">
+    <label for="datasetUrl">Dataset URL</label>
+    <input id="datasetUrl" type="text" placeholder="Dataset URL"/>
+    <button class="btn btn-primary">Add URL</button>
+  </div>
+  <div class="form-group">
+    <button class="btn btn-primary" (click)="uploadImageAsync()">Upload Files</button>
+    <input type="file" multiple (change)="onFileSelected($event)" #fileInput style="display: none;"/>
+  </div>
+  <div
+    class="drop-area"
+    (dragover)="$event.preventDefault()"
+    (drop)="onDrop($event)">
+    <p>Drag & drop files here<br>or click to browse</p>
+    <input type="file" multiple (change)="onFileSelected($event)" style="display: none;"/>
+  </div>
+  <div *ngIf="files.length > 0">
+    <h3>Selected Files</h3>
+    <ul>
+      <li *ngFor="let file of files">{{ file.name }}</li>
+    </ul>
+  </div>
+</div>

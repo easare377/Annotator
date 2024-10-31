@@ -1,0 +1,19 @@
+<!-- <p>submit-review-setup works!</p> -->
+
+<div *ngIf="visible"><p>submit-review-setup works!</p>
+        <h3>Review & Submit</h3>
+        <div class="review-section">
+          <p><strong>Project Name:</strong> {{ projectdetails?.name }}</p>
+          <p><strong>Project Description:</strong> {{ projectdetails?.description }}</p>
+          <p><strong>Added Classes:</strong></p>
+          <ul class="class-list">
+            <li *ngFor="let classItem of labelingdetails?.objectClasses" class="class-item">
+              <span class="class-name">{{ classItem.className }}</span>
+              
+              <span class="color-box" [style.background-color]="classItem.color"></span>
+              <span  >Description: {{ classItem.description }}</span>
+            </li>
+          </ul>
+
+
+</div>

@@ -22,7 +22,7 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
   // protected readonly ActiveTab = ActiveTab;
   // activeTab: ActiveTab = ActiveTab.PROJECTNAME;
   step: number = 1;
-  maxSteps: number = 2;
+  maxSteps: number = 3;
   // files: File[] = [];
 
   @ViewChild('fileInput', {static: false}) fileInput!: ElementRef;

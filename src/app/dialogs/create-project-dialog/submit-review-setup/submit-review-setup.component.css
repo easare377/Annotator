@@ -1,0 +1,46 @@
+.review-section {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* List style for the added classes */
+.class-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Flexbox for class item */
+.class-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+  gap: 15px;
+}
+
+/* Class name aligned properly */
+.class-name {
+  font-weight: bold;
+  margin-right: 10px;
+  min-width: 100px;
+}
+
+/* Style for the color box to represent the actual color */
+.color-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #000;
+}
+
+/* Class description aligned properly */
+.class-description {
+  font-size: 14px;
+  color: #555;
+  word-wrap: break-word;
+  max-width: 300px;
+}

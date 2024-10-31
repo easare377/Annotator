@@ -30,6 +30,7 @@ import { ProjectImagesComponent } from './project-images/project-images.componen
 import { ImageDataTableComponent } from './project-images/image-data-table/image-data-table.component';
 import { CreateProjectSetupComponent } from './dialogs/create-project-dialog/create-project-setup/create-project-setup.component';
 import { UploadImagesSetupComponent } from './dialogs/create-project-dialog/upload-images-setup/upload-images-setup.component';
+import {SubmitReviewSetupComponent} from './dialogs/create-project-dialog/submit-review-setup/submit-review-setup.component'
 import { AddedObjectClassComponent } from './dialogs/create-project-dialog/labeling-setup/added-object-class/added-object-class.component';
 import { ImportDataDialogComponent } from './dialogs/import-data-dialog/import-data-dialog.component';
 import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/file-upload.component';
@@ -85,6 +86,7 @@ import { MatInputModule } from '@angular/material/input'; // If you're using inp
         BoundingBoxComponent,
         ProjectListTestComponent,
         CreateProjectComponent,
+        SubmitReviewSetupComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

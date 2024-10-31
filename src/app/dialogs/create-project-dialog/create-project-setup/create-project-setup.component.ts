@@ -13,6 +13,7 @@ export class CreateProjectSetupComponent {
   name: string | undefined;
   alert = false;
   description: string | undefined;
+  isProjectNameInvalid:boolean=false;
   // form: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -23,6 +24,7 @@ export class CreateProjectSetupComponent {
     // });
     this.createProjectVm = new CreateProjectViewModel('', null);
   }
+
 
   public validateForm() {
 

@@ -15,13 +15,17 @@ export class ImageDataTableComponent implements OnInit{
   @Input() projectId!: string;
 
   @Input() imageInfoVms!: ImageInfoViewModel[];
+  
 
   constructor(public navService: NavigationService, private httpService: HttpService,
               protected appManagerService: AppManagerService) {
 
   }
+  
 
   ngOnInit(): void {
+    console.log("hiiiiiii" + this.imageInfoVms +"hi");
 
   }
+  
 }

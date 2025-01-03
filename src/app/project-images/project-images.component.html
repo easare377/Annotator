@@ -15,8 +15,10 @@
       <button (click)="exportDataProgressDialog.showDialog()">Export</button>
     </div>
   </div>
+  <!-- <p>{{ imageInfoVms}}</p> -->
   <app-image-data-table [projectId]="projectId" [imageInfoVms]="imageInfoVms">
   </app-image-data-table>
+  <app-image-data-grid [projectId]="projectId" [imageInfoVms]="imageInfoVms"></app-image-data-grid>
   <!-- Dialogs -->
   <div>
     <app-import-data-dialog [projectId]="projectId" #importDataDialog></app-import-data-dialog>

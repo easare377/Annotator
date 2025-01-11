@@ -17,7 +17,7 @@ import {ObjectClassResponseBody} from "../../models/object-class-response-body";
 @Component({
   selector: 'app-project-images',
   templateUrl: './project-images.component.html',
-  styleUrl: './project-images.component.css'
+  styleUrls: ['./project-images.component.css', '../temporal.css']
 })
 
 export class ProjectImagesComponent extends BaseComponent implements OnInit {

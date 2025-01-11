@@ -19,8 +19,7 @@ import {CreatedProjectResponseBody} from "../../../models/created-project-respon
   styleUrls: ['./create-project-dialog.component.css', '../dialog.css']
 })
 export class CreateProjectDialogComponent extends Dialog implements OnInit {
-  // protected readonly ActiveTab = ActiveTab;
-  // activeTab: ActiveTab = ActiveTab.PROJECTNAME;
+
   step: number = 1;
   maxSteps: number = 2;
   // files: File[] = [];

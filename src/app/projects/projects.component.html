@@ -1,20 +1,61 @@
-<div class="container">
-  <div class="header">
-    <div class="logo">
-      <!-- <img src="/my-app/src/assets/images/Fort.jpg" alt="Label Studio Logo" /> -->
-      <span>Annotator</span>
+<div>
+<!--  <div class="header">-->
+<!--    <div class="logo">-->
+<!--      &lt;!&ndash; <img src="/my-app/src/assets/images/Fort.jpg" alt="Label Studio Logo" /> &ndash;&gt;-->
+<!--      <span>Annotator</span>-->
+<!--    </div>-->
+<!--    <div class="menu">-->
+<!--      <button class="menu-button">-->
+<!--        <span class="hamburger-icon">&#9776;</span>-->
+<!--      </button>-->
+<!--      <span class="title">Projects</span>-->
+<!--    </div>-->
+<!--    <button class="btn-primary" (click)="createProjectDialog.showDialog()">Create</button>-->
+<!--    <div class="profile">-->
+<!--      <span class="initials">GK</span>-->
+<!--    </div>-->
+<!--  </div>-->
+
+  <div id="account-menu">
+    <div id="account-menu-left">
+      <div>
+        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
+      </div>
+      <div class="hl"></div>
+      <!--Web Navigation-->
+      <div id="navigation">
+        <ul>
+          <li><a style="color: #007bff">Projects</a></li>
+<!--          <span>/</span>-->
+<!--          &lt;!&ndash;          <li *ngIf="projectInfo" style="color: #007bff"&ndash;&gt;-->
+<!--          &lt;!&ndash;              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">&ndash;&gt;-->
+<!--          &lt;!&ndash;            {{projectInfo.name}}&ndash;&gt;-->
+<!--          &lt;!&ndash;          </li>&ndash;&gt;-->
+<!--          <span>/</span>-->
+<!--          <li>Annotate</li>-->
+        </ul>
+      </div>
     </div>
-    <div class="menu">
-      <button class="menu-button">
-        <span class="hamburger-icon">&#9776;</span>
-      </button>
-      <span class="title">Projects</span>
-    </div>
-    <button class="btn-primary" (click)="createProjectDialog.showDialog()">Create</button>
-    <div class="profile">
-      <span class="initials">GK</span>
+    <div id="account-menu-right">
+      <div id="annotation-controls">
+        <!--Update Button-->
+        <button id="update-button" class="progress-button" (click)="createProjectDialog.showDialog()">
+          <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg">
+          Create
+        </button>
+        <!--Import-button"-->
+<!--        <button id="save-button" class="progress-button" (click)="importDataDialog.showDialog()">-->
+<!--          <img src="assets/images/svgs/import-svgrepo-com.svg">-->
+<!--          Import-->
+<!--        </button>-->
+<!--        <button id="export-button" class="progress-button" (click)="exportData.showDialog()">-->
+<!--          <img src="assets/images/svgs/export-svgrepo-com.svg">-->
+<!--          Export-->
+<!--        </button>-->
+      </div>
     </div>
   </div>
+
   <div class="project-list">
     <div *ngFor="let project of projects" class="project-card"
     (click)="appManagerService.addData('projectId', project.projectId);navService.gotoProjectImagesPageAsync(project.projectId)">
@@ -28,6 +69,7 @@
 <!--        <div class="stat error"><span class="crossmark">&#10007;</span> {{ project.stats.error }}</div>-->
 <!--        <div class="stat warning"><span class="bulb">&#128161;</span> {{ project.stats.warning }}</div>-->
       </div>
+      <div class="hl"></div>
       <div class="project-footer">
         <span>{{ project.dateCreated | date: 'dd MMM yy, HH:mm' }}</span>
         <div class="profile">
@@ -38,7 +80,8 @@
   </div>
   <!-- Dialogs -->
   <div>
-    <app-create-project-dialog #createProjectDialog
-    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project-dialog>
+<!--    <app-create-project-dialog #createProjectDialog-->
+<!--    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project-dialog>-->
+    <app-create-project #createProjectDialog></app-create-project>
   </div>
 </div>

@@ -167,9 +167,38 @@ export class HttpService {
     });
   }
 
-  async exportProjectAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
+  async exportProjectMaskAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
     return new Promise<HttpResponse<string>>((resolve, reject) => {
       this.http.post<string>(Uris.exportProjectUrl, exportProjectInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  async exportProjectAsJsonAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
+    return new Promise<HttpResponse<string>>((resolve, reject) => {
+      this.http.post<string>(Uris.exportProjectAsJsonUrl, exportProjectInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+
+  async exportProjectAsVocAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
+    return new Promise<HttpResponse<string>>((resolve, reject) => {
+      this.http.post<string>(Uris.exportProjectAsVocUrl, exportProjectInfo,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);

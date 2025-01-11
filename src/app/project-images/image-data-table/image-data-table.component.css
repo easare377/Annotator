@@ -11,7 +11,12 @@
 }
 
 .wrap-table100 {
-  width: 1170px;
+  /*width: 1170px;*/
+}
+
+.hl{
+  height: 80%;
+  border-left: 1px solid #dfdfdf;
 }
 
 /* Search Input */
@@ -60,9 +65,10 @@
 }
 
 .table100 {
-  width: 90%;
+  width: 100%;
   height: 100%;
-  font-family: Calibri, serif;
+  /*font-family: Calibri, serif;*/
+
 }
 
 table {
@@ -116,7 +122,6 @@ table td.r, table th.r {
 }
 
 .table100-head th {
-  font-size: 18px;
   color: black;
   line-height: 1.2;
   font-weight: unset;
@@ -134,6 +139,7 @@ tr {
 }
 
 .table100-head{
+  font-size: 14px;
   display: flex !important;
 }
 
@@ -164,11 +170,11 @@ td {
 }
 
 .column3 {
-  width: 150px;
+  width: 200px;
 }
 
 .column4 {
-  width: 160px;
+  width: 200px;
 }
 
 .column5 {
@@ -210,7 +216,7 @@ td {
 
   table tbody tr td:before {
     font-size: 14px;
-    color: #999999;
+    /*color: #999999;*/
     line-height: 1.2;
     font-weight: unset;
     position: absolute;
@@ -301,7 +307,7 @@ tr {
 tbody tr {
   display: flex;
   align-items: center;
-  background-color: #F2F2F2;
+  /*background-color: #F2F2F2;*/
   height: 70px !important;
 }
 

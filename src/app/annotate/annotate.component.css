@@ -1,36 +1,160 @@
+/* Reset default margin and padding for body */
+/*body {*/
+/*  margin: 0;*/
+/*  padding: 0;*/
+/*  height: 100vh;*/
+/*  overflow: hidden;*/
+/*}*/
+
 /* Container for side panel and main window */
 #parent {
   display: flex; /* Establishes a flex container */
   height: 100vh; /* Full viewport height */
+  overflow: hidden;
   flex-direction: column;
 }
 
 #account-menu{
+  display: flex;
+  /*flex-direction: row;*/
+  align-items: center;
+  justify-content: space-between;
   height: 50px;
+  padding: 10px;
   /*background: black;*/
   width: 100%;
   border-bottom: 1px solid #e6e6e6;
+  gap: 10px;
 }
 
-#body{
+#account-menu-left{
   display: flex;
-  flex-grow: 1;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+}
+
+#icon{
+  height: 20px;
+  /*width: 30px;*/
+}
+
+#navigation > ul{
+  display: flex;
+  flex-direction: row;
+  list-style-type:none;
+  padding:0;
+  margin:0;
+}
+
+/*#navigation > ul > li::before{*/
+/*  content: '>';*/
+/*}*/
+#navigation > ul > li{
+  display: flex;
+  height: 30px;
+  /*width: 70px;*/
+  /*background-color: #dcdcdc;*/
+  border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.hl{
+  height: 60%;
+  border-left: 2px solid #e6e6e6;
+}
+
+#annotation-controls{
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 10px;
+  /*padding: 0 10px;*/
+}
+
+#annotation-controls > button{
+  height: 40px;
+  min-width: 100px;
+  color: white;
+  border-radius: 20px;
+  border: none;
+}
+
+#update-button{
+  background-color: #5A00EE;
+}
+
+#save-button{
+  background-color: #c209c1;
+}
+
+button {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.progress-button{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  gap: 5px;
+}
+
+.progress-button > img {
+  height: 20px;
+  width: 20px;
+  filter: brightness(0) saturate(100%) invert(100%) sepia(1%) saturate(7496%)
+  hue-rotate(5deg) brightness(105%) contrast(101%)
+}
+
+
+#body{
+  /*display: flex;*/
+  /*flex-grow: 1;*/
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
   /*height: 100%;*/
 }
 
 /* Side Panel Styling */
 #left-panel {
+  display: flex;
+  flex-direction: column;
   width: 164px; /* Fixed width for the side panel */
   /*background-color: red; !* Red background for visibility *!*/
   border-right: 1px solid #e6e6e6;
+  /*height: calc(100vh - 20px);*/
+  /*background-color: coral;*/
+  overflow: hidden
+}
+
+
+
+#image-nav-title{
+  height: 80px;
+  /*background-color: chartreuse;*/
 }
 
 #image-nav-container{
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  overflow: auto;
+  /*height: 100vh;*/
+  /*display: flex;*/
+  /*background-color: #b94a48;*/
+  /*flex-direction: column;*/
+  /*overflow: auto;*/
+  /*flex-grow: 1;*/
+  /*height: calc(100% - 80px);*/
+  /*background-color: #b94a48;*/
+  flex: 1;
+  overflow-y: auto; /* Add scrollbar if content exceeds */
+  /*background-color: #eaeaea; !* Optional background color *!*/
 }
 
 /* Main Window Styling */
@@ -41,7 +165,6 @@
   flex-direction: column; /* Children are stacked vertically */
   height: 100%;
 }
-
 
 
 /* Annotation Window Styling */
@@ -62,17 +185,18 @@
 
 #controls{
   display: flex;
-  height: 70px;
+  height: 50px;
   justify-content: space-between;
-  padding: 10px;
+  padding: 1px;
 }
 
 #image-controls{
   display: flex;
   height: 100%;
+  width: 100%;
   align-items: center;
   background-color: white;
-  border-radius: 4px;
+  border-radius: 2px;
   gap: 10px;
 }
 
@@ -92,18 +216,9 @@
   align-items: center;
   z-index: 10; /* Higher z-index to ensure it is on top */
   background: rgba(255, 255, 255, 0.5); /* Optional: semi-transparent background */
-
 }
 
-button {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
 
-.progress-button{
-  gap: 5px;
-}
 
 #generate-polygon-button{
   display: flex;
@@ -140,34 +255,6 @@ button {
 /*  */
 /*}*/
 
-.hl{
-  height: 60%;
-  border-left: 2px solid #e6e6e6;
-}
-
-#annotation-controls{
-  display: flex;
-  height: 100%;
-  align-items: center;
-  gap: 10px;
-  /*padding: 0 10px;*/
-}
-
-#annotation-controls > button{
-  height: 40px;
-  min-width: 100px;
-  color: white;
-  border-radius: 4px;
-  border: none;
-}
-
-#update-button{
-  background-color: dodgerblue;
-}
-
-#save-button{
-  background-color: #E91E63;
-}
 
 
 
@@ -176,10 +263,6 @@ button {
   height: 500px; /* Fixed height */
   background-color: white; /* Background color for contrast */
 }
-
-
-
-
 
 /* Detail Window Styling */
 #detail-window {
@@ -196,6 +279,11 @@ button {
   justify-content: flex-start;
   gap: 10px;
   cursor: pointer;
+}
+
+#right-panel {
+  width: 400px; /* Fixed width for the detail window */
+  border-left: 1px solid #e6e6e6;
 }
 
 #detail-window > div{

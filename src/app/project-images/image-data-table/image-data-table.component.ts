@@ -8,7 +8,7 @@ import {AppManagerService} from "../../../services/app-manager.service";
 @Component({
   selector: 'app-image-data-table',
   templateUrl: './image-data-table.component.html',
-  styleUrl: './image-data-table.component.css'
+  styleUrls: ['./image-data-table.component.css']
 })
 export class ImageDataTableComponent implements OnInit{
 

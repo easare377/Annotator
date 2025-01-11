@@ -18,6 +18,7 @@ import {PolygonInfoResponseBody} from "../../models/polygon-info-response-body";
 import {PolygonInfoRequestBody} from "../../models/polygon-info-request-body";
 import {UploadState} from "../../models/enum/upload-state";
 import {ObjectClassInfosRequestBody} from "../../models/object-class-infos-request-body";
+import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
 
 @Component({
   selector: 'app-annotate',
@@ -29,12 +30,13 @@ export class AnnotateComponent implements OnInit {
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
   public currentObjectClassVm: ObjectClassViewModel | undefined;
-  protected readonly UploadState = UploadState;
+  // protected readonly UploadState = UploadState;
   @Input() objectClassVms!: Array<ObjectClassViewModel>;
   // progresses
   public generatingPolygons = false;
   public updatingPolygonClasses = false;
-
+  public projectName: string | undefined;
+  public projectInfo: ProjectInfoResponseBody | undefined;
 
   constructor(public httpService: HttpService, public navService: NavigationService,
               public appManagerService: AppManagerService, private route: ActivatedRoute) {
@@ -128,14 +130,17 @@ export class AnnotateComponent implements OnInit {
     try {
       const resp: HttpResponse<ProjectDataResponseBody> =
         await this.httpService.getProjectDataAsync(new ImageInfoRequestBody(projectId))
-      console.log(resp);
+      // console.log(resp);
       switch (resp.status) {
         case 200:
           if (!resp.body) {
             throw new Error();
           }
+          const projectInfoResponseBody: ProjectInfoResponseBody = resp.body.projectInfo
+          this.projectInfo = resp.body.projectInfo;
           const objectClassesRespBody: ObjectClassResponseBody[] = resp.body.projectSetup.objectClasses
           const imageInfosRespBody: Array<ImageInfoResponseBody> = resp.body.imageInfos;
+          // this.projectName = projectInfoResponseBody.name;
           // Display classes
           objectClassesRespBody.forEach(objectClass => {
             this.createObjectClass(objectClass);

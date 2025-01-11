@@ -1,0 +1,30 @@
+#parent{
+  display: flex;
+  /*height: 100px;*/
+  flex-direction: row;
+  /*justify-content: start;*/
+  /*align-items: start;*/
+  cursor: pointer;
+}
+
+#radio{
+  display: flex;
+  width: 30px;
+  align-items: center;
+}
+
+#export-data-type > div{
+  /*background-color: #007bff;*/
+  display: flex;
+  justify-content: left;
+  text-align: start;
+}
+
+#export-type{
+  font-weight: bold;
+}
+
+#export-description{
+  color: grey;
+}
+

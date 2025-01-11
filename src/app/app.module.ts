@@ -36,6 +36,9 @@ import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/fi
 import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialog/generate-polygon-dialog.component';
 import { ExportDataProgressDialogComponent } from './dialogs/export-data-progress-dialog/export-data-progress-dialog.component';
 import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.component';
+import { ExportDataDialogComponent } from './dialogs/export-data-dialog/export-data-dialog.component';
+import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-data-type/export-data-type.component';
+import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
 
 
 
@@ -69,6 +72,9 @@ import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.compo
         GeneratePolygonDialogComponent,
         ExportDataProgressDialogComponent,
         BoundingBoxComponent,
+        ExportDataDialogComponent,
+        ExportDataTypeComponent,
+        CreateProjectComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

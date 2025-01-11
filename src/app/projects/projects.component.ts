@@ -11,7 +11,7 @@ import { HttpResponse } from "@angular/common/http";
 @Component({
   selector: 'app-projects',
   templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.css']
+  styleUrls: ['./projects.component.css', '../temporal.css']
 })
 export class ProjectsComponent implements OnInit {
   projects: ProjectViewModel[] = [];

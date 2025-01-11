@@ -1,20 +1,59 @@
 <div id="parent">
-  <!--Controls-->
-  <div id="controls">
-    <!--Left Controls-->
-    <div>
-      <!--Sort By-->
-      <div class="control-button">
-        <span>ID</span><span><img src="assets/images/svgs/sort-amount-down-svgrepo-com.svg"></span>
+  <div id="account-menu">
+    <div id="account-menu-left">
+      <div>
+        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
+      </div>
+      <div class="hl"></div>
+      <!--Web Navigation-->
+      <div id="navigation">
+        <ul>
+          <li><a style="color: #007bff">Projects</a></li>
+          <span>/</span>
+          <!--          <li *ngIf="projectInfo" style="color: #007bff"-->
+          <!--              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">-->
+          <!--            {{projectInfo.name}}-->
+          <!--          </li>-->
+          <span>/</span>
+          <li>Annotate</li>
+        </ul>
       </div>
     </div>
-    <!--Right Controls-->
-    <div>
-      <button>Refresh</button>
-      <button (click)="importDataDialog.showDialog()">Import</button>
-      <button (click)="exportDataProgressDialog.showDialog()">Export</button>
+    <div id="account-menu-right">
+      <div id="annotation-controls">
+        <!--Update Button-->
+        <button id="update-button" class="progress-button">
+          <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg">
+          Refresh
+        </button>
+        <!--Import-button"-->
+        <button id="save-button" class="progress-button" (click)="importDataDialog.showDialog()">
+          <img src="assets/images/svgs/import-svgrepo-com.svg">
+          Import
+        </button>
+        <button id="export-button" class="progress-button" (click)="exportData.showDialog()">
+          <img src="assets/images/svgs/export-svgrepo-com.svg">
+          Export
+        </button>
+      </div>
     </div>
   </div>
+  <!--Controls-->
+  <!--  <div id="controls">-->
+  <!--    &lt;!&ndash;Left Controls&ndash;&gt;-->
+  <!--    <div>-->
+  <!--      &lt;!&ndash;Sort By&ndash;&gt;-->
+  <!--      <div class="control-button">-->
+  <!--        <span>ID</span><span><img src="assets/images/svgs/sort-amount-down-svgrepo-com.svg"></span>-->
+  <!--      </div>-->
+  <!--    </div>-->
+  <!--    &lt;!&ndash;Right Controls&ndash;&gt;-->
+  <!--    <div>-->
+  <!--      <button>Refresh</button>-->
+  <!--      <button (click)="importDataDialog.showDialog()">Import</button>-->
+  <!--      <button (click)="exportDataProgressDialog.showDialog()">Export</button>-->
+  <!--    </div>-->
+  <!--  </div>-->
   <app-image-data-table [projectId]="projectId" [imageInfoVms]="imageInfoVms">
   </app-image-data-table>
   <!-- Dialogs -->
@@ -23,5 +62,10 @@
     <app-export-data-progress-dialog #exportDataProgressDialog [projectId]="projectId"
                                      [objectClasses]="objectClasses">
     </app-export-data-progress-dialog>
+    <app-export-data-dialog #exportData
+                            [projectId]="projectId"
+                            [objectClasses]="objectClasses"
+                            (onExportData)="exportDataProgressDialog.showDialog(); exportDataProgressDialog.exportDataAsync(projectId, $event)"
+    ></app-export-data-dialog>
   </div>
 </div>

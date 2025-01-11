@@ -1,0 +1,135 @@
+<div id="parent" class="dialog-container container-dark" *ngIf="visible">
+  <div class="card">
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-step" [class.active]="currentStep >= 1">
+        <div class="circle" [class.active]="currentStep === 1 || currentStep === 2 || currentStep === 3">1</div>
+        <p>Project Details</p>
+      </div>
+      <div class="line" [class.active]="currentStep > 1"></div>
+      <div class="progress-step" [class.active]="currentStep >= 2">
+        <div class="circle" [class.active]="currentStep === 2 || currentStep === 3 ">2</div>
+        <p>Labeling Setup</p>
+      </div>
+      <div class="line" [class.active]="currentStep > 2"></div>
+      <div class="progress-step" [class.active]="currentStep >= 3">
+        <div class="circle" [class.active]="currentStep === 3">3</div>
+        <p>Get Started</p>
+      </div>
+    </div>
+
+    <!-- Step 1: Project Details -->
+    <form *ngIf="currentStep === 1">
+      <h3>Project Details</h3>
+      <div class="form-group">
+        <label for="projectName">Project Name <span class="required">*</span></label>
+        <input
+          id="projectName"
+          type="text"
+          class="form-control"
+          [(ngModel)]="formData.projectName"
+          name="projectName"
+          required
+          [class.invalid]="isProjectNameInvalid"
+        />
+        <div *ngIf="isProjectNameInvalid" class="error-message">Project Name is required</div>
+      </div>
+      <div class="form-group">
+        <label for="description">Project Description <span class="required">*</span></label>
+        <textarea
+          id="description"
+          class="form-control"
+          [(ngModel)]="formData.projectDescription"
+          name="description"
+          required
+          [class.invalid]="isProjectDescriptionInvalid"
+        ></textarea>
+        <div *ngIf="isProjectDescriptionInvalid" class="error-message">Project Description is required</div>
+      </div>
+      <div class="button-container">
+        <!-- Cancel Button -->
+        <button type="button" class="btn btn-danger" (click)="cancelForm()">Cancel</button>
+
+        <!-- Next Button -->
+        <button type="button" class="btn btn-primary" (click)="nextStep()">Next</button>
+      </div>
+    </form>
+
+    <!-- Step 2: Labeling Setup -->
+    <form *ngIf="currentStep === 2">
+      <h3>Labeling Setup</h3>
+      <div class="form-group-labeling">
+        <div class="input-section">
+          <label for="className">Class Name</label>
+          <input
+            id="className"
+            type="text"
+            class="form-control"
+            placeholder="Class name"
+            [(ngModel)]="newClassName"
+            name="className"
+          />
+          <label for="classDescription">Class Description</label>
+          <textarea
+            id="classDescription"
+            class="form-control"
+            placeholder="Class description"
+            [(ngModel)]="newClassDescription"
+            name="classDescription"
+          ></textarea>
+        </div>
+        <!-- Display Added Classes Side by Side with both Class Name and Class Description -->
+        <div class="added-classes-inline">
+          <div
+            *ngFor="let classItem of addedClasses"
+            [style.background-color]="classItem.color"
+            class="class-badge"
+            (click)="selectClassForColorChange(classItem)"
+          >
+            {{ classItem.name }}
+            <span class="remove-class" (click)="removeClass(classItem)">✖</span>
+
+            <!-- Tooltip for class description, shown on hover -->
+            <div class="class-description">{{ classItem.description }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Button to Add Class -->
+      <button type="button" class="btn btn-primary btn-add" (click)="addClass()">Add Class</button>
+
+      <!-- Color Picker to change class color -->
+      <div *ngIf="selectedClass">
+        <label>Change Color for: {{ selectedClass.name }}</label>
+        <input type="color" (change)="handleColorChange($event)" [value]="selectedClass.color"/>
+      </div>
+
+      <div class="button-container">
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">Back</button>
+        <button type="button" class="btn btn-primary" (click)="nextStep()">Next</button>
+      </div>
+    </form>
+
+    <!-- Step 3: Review and Submit -->
+    <div *ngIf="currentStep === 3">
+      <h3>Review & Submit</h3>
+      <div class="review-section">
+        <p><strong>Project Name:</strong> {{ formData.projectName }}</p>
+        <p><strong>Project Description:</strong> {{ formData.projectDescription }}</p>
+        <p><strong>Added Classes:</strong></p>
+        <ul class="class-list">
+          <li *ngFor="let classItem of addedClasses" class="class-item">
+            <span class="class-name">{{ classItem.name }}</span>
+            <!-- Color Box to display actual color -->
+            <span class="color-box" [style.background-color]="classItem.color"></span>
+            <span >Description: {{ classItem.description }}</span>
+          </li>
+        </ul>
+        <div class="button-container">
+          <button type="button" class="btn btn-secondary" (click)="prevStep()">Back</button>
+          <button type="button" class="btn btn-success" (click)="submitForm()">Create Project</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,12 +1,12 @@
 <div class="parent-container">
-  <div>
-    <div class="searchbar">
-      <!--      <input #searchInput id="search_input" type="text" name=""-->
-      <!--             placeholder="Search Devices">-->
-      <!--        (input)="onSearchDevice($any($event.target).value)"-->
-      <!--      <div><img id="search-img" src="assets/img/search_dark.png"></div>-->
-    </div>
-  </div>
+<!--  <div>-->
+<!--    <div class="searchbar">-->
+<!--      &lt;!&ndash;      <input #searchInput id="search_input" type="text" name=""&ndash;&gt;-->
+<!--      &lt;!&ndash;             placeholder="Search Devices">&ndash;&gt;-->
+<!--      &lt;!&ndash;        (input)="onSearchDevice($any($event.target).value)"&ndash;&gt;-->
+<!--      &lt;!&ndash;      <div><img id="search-img" src="assets/img/search_dark.png"></div>&ndash;&gt;-->
+<!--    </div>-->
+<!--  </div>-->
   <div class="table-container">
     <div class="table100">
       <table>
@@ -16,10 +16,15 @@
             <span><input #mainChkBox type="checkbox"></span>
           </th>
           <th class="column2">Image</th>
+          <div class="hl"></div>
           <th class="column3">Date Added</th>
+          <div class="hl"></div>
           <th class="column3">Last Modified</th>
+          <div class="hl"></div>
           <th class="column3">Polygons</th>
+          <div class="hl"></div>
           <th class="column3">Annotated</th>
+          <div class="hl"></div>
           <th class="column3">File name</th>
         </tr>
         </thead>
@@ -46,7 +51,7 @@
           </td>
           <!--Polygons-->
           <td class="column3">
-            {{ imageInfo.polygonVms ? '' : 'empty' }}
+            {{ imageInfo.polygonVms ? imageInfo.polygonVms.length : 'empty' }}
           </td>
           <!--Annotated-->
           <td class="column3">
@@ -58,7 +63,7 @@
           </td>
           <!--FileName-->
           <td class="column5">
-            <button id="remove-button" title="View Permissions">Remove</button>
+            <button id="remove-button" title="Delete image">Remove</button>
           </td>
         </tr>
         </tbody>

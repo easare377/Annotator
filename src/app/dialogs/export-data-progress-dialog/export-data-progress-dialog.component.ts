@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IDialog} from "../i-dialog";
-import { HttpResponse } from "@angular/common/http";
+import {HttpResponse} from "@angular/common/http";
 import {ExportDataRequestBody} from "../../../models/export-data-request-body";
 import {Utils} from "../../utils";
 import {ObjectClassResponseBody} from "../../../models/object-class-response-body";
 import {HttpService} from "../../../services/http.service";
+import {ExportType} from "../../../models/enum/export-type";
 
 
 @Component({
@@ -13,7 +14,7 @@ import {HttpService} from "../../../services/http.service";
   styleUrl: './export-data-progress-dialog.component.css'
 })
 
-export class ExportDataProgressDialogComponent implements OnInit,IDialog {
+export class ExportDataProgressDialogComponent implements OnInit, IDialog {
 
   @Input() objectClasses: ObjectClassResponseBody[] = []
   @Input() projectId!: string;
@@ -33,18 +34,36 @@ export class ExportDataProgressDialogComponent implements OnInit,IDialog {
 
   showDialog(): void {
     this.visible = true;
-    this.exportDataAsync(this.projectId).then();
+    // this.exportDataAsync(this.projectId).then();
   }
 
-  async exportDataAsync(projectId: string): Promise<void> {
+  async exportDataAsync(projectId: string, exportType: ExportType): Promise<void> {
     try {
       const classValueDict = new Array<{ classId: string; classValue: number }>;
       this.objectClasses.forEach(objectClass => {
         // classValueDict.set(objectClass.classId, objectClass.classIndex);
         classValueDict.push({classId: objectClass.classId, classValue: objectClass.classIndex});
       });
-      const resp: HttpResponse<string> =
-        await this.httpService.exportProjectAsync(new ExportDataRequestBody(projectId, classValueDict));
+      let resp: HttpResponse<string>;
+      switch (exportType) {
+        case ExportType.JSON:
+          resp = await this.httpService.exportProjectAsJsonAsync(new ExportDataRequestBody(projectId, classValueDict));
+          break;
+        case ExportType.SEGMENTATION_MASK:
+          resp = await this.httpService.exportProjectMaskAsync(new ExportDataRequestBody(projectId, classValueDict));
+          break;
+        case ExportType.YOLO:
+          resp = await this.httpService.exportProjectMaskAsync(new ExportDataRequestBody(projectId, classValueDict));
+          break;
+        case ExportType.PASCAL_VOC:
+          resp = await this.httpService.exportProjectAsVocAsync(new ExportDataRequestBody(projectId, classValueDict));
+          break;
+        // default:
+        //   resp = await this.httpService.exportProjectAsync(new ExportDataRequestBody(projectId, classValueDict));
+        //   break;
+      }
+      // const resp: HttpResponse<string> =
+      //   await this.httpService.exportProjectAsync(new ExportDataRequestBody(projectId, classValueDict));
       switch (resp.status) {
         case 200:
           if (!resp.body) {

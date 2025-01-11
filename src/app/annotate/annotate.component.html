@@ -1,31 +1,61 @@
 <div id="parent">
   <!--Account Menu-->
   <div id="account-menu">
-    <div>
-      <span>Go Back</span>
+    <div id="account-menu-left">
+      <div>
+        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
+      </div>
+      <div class="hl"></div>
+      <!--Web Navigation-->
+      <div id="navigation">
+        <ul>
+          <li><a style="color: #007bff">Projects</a></li>
+          <span>/</span>
+          <li *ngIf="projectInfo" style="color: #007bff"
+              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">
+            {{projectInfo.name}}
+          </li>
+          <span>/</span>
+          <li>Annotate</li>
+        </ul>
+      </div>
     </div>
-    <div>
-
+    <div id="account-menu-right">
+      <div id="annotation-controls">
+        <!--Update Button-->
+        <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">
+          <img src="assets/images/svgs/update-alt-2-svgrepo-com.svg">
+          <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>
+          {{ updatingPolygonClasses ? 'Saving...' : 'Update' }}
+        </button>
+        <!--Save-button"-->
+        <button id="save-button" class="progress-button"
+                (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">
+          <img src="assets/images/svgs/save-svgrepo-com.svg">
+          Save & Exit
+        </button>
+      </div>
     </div>
   </div>
+  <!--Body-->
   <div id="body">
     <!--Left Side Panel-->
     <div id="left-panel">
-      <div style="height: 80px;">
+      <div id="image-nav-title">
 
       </div>
+      <!--Image Navigation-->
       <div id="image-nav-container">
         <app-image-navigation *ngFor="let imageInfo of imageInfoVms"
                               [imageInfo]="imageInfo"
                               [active]="currentImageInfo === imageInfo"
-                              (click)="navService.gotoAnnotateImagesAsync(projectId, imageInfo.imageId)"
-        ></app-image-navigation>
+                              (click)="navService.gotoAnnotateImagesAsync(projectId, imageInfo.imageId)">
+        </app-image-navigation>
       </div>
     </div>
     <!--Main Window-->
     <div id="main-window">
       <!--Annotation Window-->
-<!--      && currentImageInfo.polygonVms-->
       <div id="annotation-window" *ngIf="currentImageInfo">
         <div id="title-image-window">
           <div>
@@ -57,14 +87,17 @@
                 <div class="hl"></div>
                 <!--<app-toggle-button class="toggle-button"></app-toggle-button>-->
               </div>
-              <div id="annotation-controls">
-                <!--Update Button-->
-                <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">
-                  <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>
-                  {{updatingPolygonClasses ? 'Saving...':'Update'}}
-                </button>
-                <button id="save-button" class="progress-button" (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">Save & Exit</button>
-              </div>
+<!--              <div id="annotation-controls">-->
+<!--                &lt;!&ndash;Update Button&ndash;&gt;-->
+<!--                <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">-->
+<!--                  <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>-->
+<!--                  {{ updatingPolygonClasses ? 'Saving...' : 'Update' }}-->
+<!--                </button>-->
+<!--                &lt;!&ndash;Save-button"&ndash;&gt;-->
+<!--                <button id="save-button" class="progress-button"-->
+<!--                        (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">Save & Exit-->
+<!--                </button>-->
+<!--              </div>-->
             </div>
             <div id="image-window">
               <!--Generate Polygons-->
@@ -93,33 +126,26 @@
             </div>
           </div>
         </div>
-        <!--Right Panel-->
-        <!--Detail Window-->
-        <div id="detail-window">
-          <!--Selection Details-->
+      </div>
+    </div>
+
+    <!--Right panel-->
+    <div id="right-panel">
+      <div>
+        <div id="annotated-polygons">
+          <div id="">
+
+          </div>
           <div>
-            <!--          <div id="selected-polygon-detail">-->
 
-            <!--          </div>-->
-            <div id="annotated-polygons">
-              <div id="">
-
-              </div>
-              <div>
-
-              </div>
-              <div *ngIf="currentImageInfo && currentImageInfo.polygonVms">
-                <app-annotated-polygon *ngFor="let polygonInfo of currentImageInfo.annotatedPolygonVms"
-                                       [index]="currentImageInfo.annotatedPolygonVms.indexOf(polygonInfo)"
-                                       [polygonVm]="polygonInfo"></app-annotated-polygon>
-              </div>
-            </div>
+          </div>
+          <div *ngIf="currentImageInfo && currentImageInfo.polygonVms">
+            <app-annotated-polygon *ngFor="let polygonInfo of currentImageInfo.annotatedPolygonVms"
+                                   [index]="currentImageInfo.annotatedPolygonVms.indexOf(polygonInfo)"
+                                   [polygonVm]="polygonInfo"></app-annotated-polygon>
           </div>
         </div>
       </div>
-    </div>
-    <div>
-
     </div>
     <!-- Dialogs -->
     <div>

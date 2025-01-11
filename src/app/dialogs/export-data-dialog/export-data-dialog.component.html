@@ -1,0 +1,40 @@
+<div id="parent" class="dialog-container container-dark" *ngIf="visible">
+  <div class="container">
+    <div>
+      <h5>Export data</h5>
+    </div>
+    <div id="export-message">
+      Export dataset in the following format.
+    </div>
+    <div id="export-type-list" (click)="hideDialog()">
+      <app-export-data-type [typeText]="'SEGMENTATION MASK'"
+                            [typeDescription]="'List of items in raw JSON format stored in one JSON file. Use to export both the data and the ' +
+       'annotations for a dataset. It`s Label Studio Common Format'"
+                            (click)="onExportData.emit(ExportType.SEGMENTATION_MASK);">
+      </app-export-data-type>
+      <app-export-data-type [typeText]="'JSON'"
+                            [typeDescription]="'List of items in raw JSON format stored in one JSON file. Use to export both the data and the ' +
+       'annotations for a dataset. It`s Label Studio Common Format'"
+                            (click)="onExportData.emit(ExportType.JSON);">
+      </app-export-data-type>
+
+      <app-export-data-type [typeText]="'YOLO'"
+                            [typeDescription]="'Popular TXT format is created for each image file. Each txt file ' +
+                             'contains annotations for the corresponding image file, that is object class, object coordinates, height & width.'">
+      </app-export-data-type>
+
+      <app-export-data-type [typeText]="'PASCAL VOC XML'"
+                            [typeDescription]="'Popular XML format used for object detection and polygon image segmentation tasks.'"
+                            (click)="onExportData.emit(ExportType.PASCAL_VOC);">
+      </app-export-data-type>
+
+    </div>
+  </div>
+  <!-- Dialogs -->
+<!--  <div>-->
+<!--&lt;!&ndash;    <app-export-data-progress-dialog #exportDataProgressDialog [projectId]="projectId"&ndash;&gt;-->
+<!--&lt;!&ndash;                                     [objectClasses]="objectClasses">&ndash;&gt;-->
+<!--&lt;!&ndash;    </app-export-data-progress-dialog>&ndash;&gt;-->
+<!--&lt;!&ndash;    <app-export-data-dialog #exportData></app-export-data-dialog>&ndash;&gt;-->
+<!--  </div>-->
+</div>

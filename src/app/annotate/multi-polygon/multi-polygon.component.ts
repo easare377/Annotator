@@ -140,7 +140,7 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
         // });
         this.zoom(this.imageInfo.zoomLevel);
       };
-      img.src = this.imageInfo.imageUrl; // Set the image source URL
+      img.src = this.imageInfo.imageUrls.jpg; // Set the image source URL
     }
   }
 

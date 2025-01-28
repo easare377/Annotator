@@ -13,6 +13,7 @@ import {ProjectDataResponseBody} from "../../models/project-data-response-body";
 import {ExportDataRequestBody} from "../../models/export-data-request-body";
 import {Utils} from "../utils";
 import {ObjectClassResponseBody} from "../../models/object-class-response-body";
+import {ImageUrls} from "../../models/image-urls";
 
 @Component({
   selector: 'app-project-images',
@@ -70,13 +71,13 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
 
   createImageInfo(projectRespBody: ImageInfoResponseBody): void {
     const imageId: string = projectRespBody.imageId;
-    const imageUrl: string = projectRespBody.imageUrl;
+    const imageUrls: ImageUrls = projectRespBody.imageUrls;
     const originalFilename: string = projectRespBody.originalFileName
     const imageSize: Size = projectRespBody.imageSize;
     const dateAdded: Date = projectRespBody.dateAdded;
     const dateModified: Date = projectRespBody.dateModified;
     const imageInfoVm =
-      new ImageInfoViewModel(imageId, imageUrl, imageSize, originalFilename, dateAdded, dateModified);
+      new ImageInfoViewModel(imageId, imageUrls, imageSize, originalFilename, dateAdded, dateModified);
     this.imageInfoVms.push(imageInfoVm);
   }
 

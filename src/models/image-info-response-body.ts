@@ -1,5 +1,6 @@
 import {Size} from "./size";
 import {ImageInfoBase} from "./image-info-base";
+import {ImageUrls} from "./image-urls";
 
 export class ImageInfoResponseBody extends ImageInfoBase{
   private readonly _originalFileName: string;
@@ -7,8 +8,8 @@ export class ImageInfoResponseBody extends ImageInfoBase{
   private readonly _dateModified: Date;
 
 
-  constructor(imageId: string, imageUrl: string, imageSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
-    super(imageId, imageUrl, imageSize);
+  constructor(imageId: string, imageUrls: ImageUrls, imageSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
+    super(imageId, imageUrls, imageSize);
     this._originalFileName = originalFileName;
     this._dateAdded = dateAdded;
     this._dateModified = dateModified;

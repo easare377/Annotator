@@ -19,6 +19,7 @@ import {PolygonInfoRequestBody} from "../../models/polygon-info-request-body";
 import {UploadState} from "../../models/enum/upload-state";
 import {ObjectClassInfosRequestBody} from "../../models/object-class-infos-request-body";
 import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
+import {ImageUrls} from "../../models/image-urls";
 
 @Component({
   selector: 'app-annotate',
@@ -170,13 +171,13 @@ export class AnnotateComponent implements OnInit {
 
   createImageInfo(projectRespBody: ImageInfoResponseBody): void {
     const imageId: string = projectRespBody.imageId;
-    const imageUrl: string = projectRespBody.imageUrl;
+    const imageUrls: ImageUrls = projectRespBody.imageUrls;
     const originalFilename: string = projectRespBody.originalFileName
     const imageSize: Size = projectRespBody.imageSize;
     const dateAdded: Date = projectRespBody.dateAdded;
     const dateModified: Date = projectRespBody.dateModified;
     const imageInfoVm =
-      new ImageInfoViewModel(imageId, imageUrl, imageSize, originalFilename, dateAdded, dateModified);
+      new ImageInfoViewModel(imageId, imageUrls, imageSize, originalFilename, dateAdded, dateModified);
     this.imageInfoVms.push(imageInfoVm);
   }
 

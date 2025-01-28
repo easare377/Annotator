@@ -1,14 +1,15 @@
 import {Size} from "./size";
+import {ImageUrls} from "./image-urls";
 
 export abstract class ImageInfoBase {
   private readonly _imageId: string;
-  private readonly _imageUrl: string;
+  private readonly _imageUrls: ImageUrls;
   private readonly _imageSize: Size;
 
 
-  protected constructor(imageId: string, imageUrl: string, imageSize: Size) {
+  protected constructor(imageId: string, imageUrls: ImageUrls, imageSize: Size) {
     this._imageId = imageId;
-    this._imageUrl = imageUrl;
+    this._imageUrls = imageUrls;
     this._imageSize = imageSize;
   }
 
@@ -17,8 +18,8 @@ export abstract class ImageInfoBase {
     return this._imageId;
   }
 
-  get imageUrl(): string {
-    return this._imageUrl;
+  get imageUrls(): ImageUrls {
+    return this._imageUrls;
   }
 
   get imageSize(): Size {

@@ -1,10 +1,12 @@
 import {Size} from "./size";
 import {PolygonViewModel} from "./polygon-view-model";
+import {ImageInfoBase} from "./image-info-base";
+import {ImageUrls} from "./image-urls";
 
-export class ImageInfoViewModel {
-  private readonly _imageId: string;
-  private readonly _imageUrl: string;
-  private readonly _imageSize: Size;
+export class ImageInfoViewModel extends ImageInfoBase {
+  // private readonly _imageId: string;
+  // private readonly _imageUrl: string;
+  // private readonly _imageSize: Size;
   private readonly _dateAdded: Date;
   private readonly _dateModified: Date;
   private readonly _originalFileName: string;
@@ -15,10 +17,11 @@ export class ImageInfoViewModel {
   public onPolygonsChanged: Function | undefined;
 
 
-  constructor(imageId: string, imageUrl: string, trueSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
-    this._imageId = imageId;
-    this._imageUrl = imageUrl;
-    this._imageSize = trueSize;
+  constructor(imageId: string, imageUrls: ImageUrls, trueSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
+    super(imageId, imageUrls, trueSize)
+    // this._imageId = imageId;
+    // this._imageUrl = imageUrl;
+    // this._imageSize = trueSize;
     this._scaledSize = trueSize;
     this._originalFileName = originalFileName;
     this._dateAdded = dateAdded;
@@ -26,17 +29,17 @@ export class ImageInfoViewModel {
     // this._polygonVms = polygonVms;
   }
 
-  get imageId(): string {
-    return this._imageId;
-  }
-
-  get imageUrl(): string {
-    return this._imageUrl;
-  }
-
-  get imageSize(): Size {
-    return this._imageSize;
-  }
+  // get imageId(): string {
+  //   return this._imageId;
+  // }
+  //
+  // get imageUrl(): string {
+  //   return this._imageUrl;
+  // }
+  //
+  // get imageSize(): Size {
+  //   return this._imageSize;
+  // }
 
 
   get scaledSize(): Size {

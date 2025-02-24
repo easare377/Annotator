@@ -34,35 +34,5 @@ ng serve
 ```
 The application should now be accessible at `http://localhost:4200/`.
 
-## Build the Application
-To generate a production-ready build, run:
-```sh
-ng build --configuration production
-```
-The output will be available in the `dist/` directory.
 
-## Running Tests
-### Unit Tests
-Run the unit tests using:
-```sh
-ng test
-```
-### End-to-End Tests
-Run the end-to-end tests using:
-```sh
-ng e2e
-```
-
-## Additional Configuration
-- If needed, update `environment.ts` and `environment.prod.ts` with necessary API configurations.
-- Adjust `angular.json` for custom build configurations.
-
-## Contributing
-Feel free to contribute to this project by submitting issues or pull requests.
-
-## License
-This project is licensed under the MIT License.
-
-## Contact
-For further inquiries, reach out to the repository owner on GitHub.
 

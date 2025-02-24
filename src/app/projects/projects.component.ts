@@ -31,18 +31,19 @@ export class ProjectsComponent implements OnInit {
     // });
     this.loadProjectsAsync().then();
   }
-  openDeleteDialog(projectId: string) {
+  openDeleteDialog(project: ProjectViewModel) {
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
       width: '300px',
-      data: { item: 'this project' } // Updated to delete project, not image
+      data: { projectName: project.name } // Pass project name instead of "this project"
     });
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteProject(projectId); // Call the method to delete the project
+        this.deleteProject(project.projectId);
       }
     });
   }
+  
   async deleteProject(projectId: string) {
     try {
       // Call the actual delete API for the project (assuming it's a project, not an image)

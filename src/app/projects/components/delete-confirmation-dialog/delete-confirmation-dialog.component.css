@@ -1,72 +1,40 @@
-/* General dialog styling */
-mat-dialog-content {
-    padding: 20px;
-    font-size: 16px;
-    color: #333;
-    text-align: center;
-  }
-  
-  /* Styling for the dialog title */
-  mat-dialog-title {
-    font-size: 1.5rem;
-    color: #007bff;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  /* Add some padding and spacing around the dialog actions */
-  mat-dialog-actions {
-    padding: 15px;
+/* Ensure mat-dialog-actions is flex and aligned properly */
+mat-dialog-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 16px; /* Ensures space between buttons */
+    padding: 10px 20px;
   }
   
-  /* Style the buttons */
-  button.mat-button {
-    font-size: 14px;
+  /* Button Styles */
+  mat-dialog-actions button {
+    min-width: 80px;
     padding: 8px 16px;
-    margin-left: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
   }
   
-  /* Style the Cancel button */
-  button.mat-button:first-child {
-    background-color: #f0f0f0;
-    color: #333;
+  /* Cancel Button - Grey */
+  mat-dialog-actions button:first-child {
+    background-color: #e0e0e0; /* Light Gray */
+    color: #000; /* Black Text */
+    border: 1px solid #bdbdbd;
   }
   
-  /* Hover effect for Cancel button */
-  button.mat-button:first-child:hover {
-    background-color: #e0e0e0;
+  mat-dialog-actions button:first-child:hover {
+    background-color: #bdbdbd; /* Darker Gray */
   }
   
-  /* Style the Confirm button */
-  button.mat-button[color='warn'] {
-    background-color: #f44336; /* Red color for "warn" button */
-    color: white;
+  /* Confirm Button - Red */
+  mat-dialog-actions button:last-child {
+    background-color: #d32f2f; /* Red */
+    color: #fff; /* White Text */
     border: none;
   }
   
-  /* Hover effect for Confirm button */
-  button.mat-button[color='warn']:hover {
-    background-color: #d32f2f;
-  }
-  
-  /* Small screen responsiveness */
-  @media (max-width: 600px) {
-    mat-dialog-title {
-      font-size: 1.25rem;
-    }
-  
-    mat-dialog-content {
-      font-size: 14px;
-    }
-  
-    button.mat-button {
-      font-size: 12px;
-      padding: 6px 12px;
-    }
+  mat-dialog-actions button:last-child:hover {
+    background-color: #b71c1c; /* Darker Red */
   }
   

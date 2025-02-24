@@ -1,0 +1,56 @@
+/* Dialog Title */
+.dialog-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* Dialog Content */
+.dialog-content {
+  padding: 16px;
+}
+
+.dialog-message {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px; /* Ensures space between buttons */
+  padding: 10px 20px;
+}
+
+/* Button Styles */
+.dialog-actions button {
+  min-width: 80px;
+  padding: 8px 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+/* Cancel Button - Grey */
+.cancel-btn {
+  background-color: #e0e0e0; /* Light Gray */
+  color: #000; /* Black Text */
+  border: 1px solid #bdbdbd;
+}
+
+.cancel-btn:hover {
+  background-color: #bdbdbd; /* Darker Gray */
+}
+
+/* Delete Button - Red */
+.delete-btn {
+  background-color: #d32f2f; /* Red */
+  color: #fff; /* White Text */
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: #b71c1c; /* Darker Red */
+}

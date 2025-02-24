@@ -39,6 +39,12 @@ import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.compo
 import { ExportDataDialogComponent } from './dialogs/export-data-dialog/export-data-dialog.component';
 import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-data-type/export-data-type.component';
 import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { ConfirmationDialogComponent } from './project-images/confirmation-dialog/confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent } from './projects/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
+
+
 
 
 
@@ -75,11 +81,17 @@ import { CreateProjectComponent } from './dialogs/create-project/create-project.
         ExportDataDialogComponent,
         ExportDataTypeComponent,
         CreateProjectComponent,
+        ConfirmationDialogComponent,
+        DeleteConfirmationDialogComponent,
+       
+      
+        
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         FormsModule,
         NgOptimizedImage,
         ClickOutsideDirective,
-        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        MatDialogModule,
+        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi()), provideAnimationsAsync()] })
 export class AppModule { }

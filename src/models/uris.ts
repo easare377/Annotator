@@ -13,9 +13,13 @@ export class Uris {
   private static _exportProjectUrl = Uris._baseUrl + "/api/projects/data/export/segmentation-mask";
   private static _exportProjectAsJsonUrl = Uris._baseUrl + "/api/projects/data/export/json";
   private static _exportProjectAsVocUrl = Uris._baseUrl + "/api/projects/data/export/export-data-voc";
+  private static _deleteImageUrl=Uris._baseUrl+"/api/projects/delete-image";
 
   static get baseUrl(): string {
     return this._baseUrl;
+  }
+  static get deleteImageUrl():string{
+    return this._deleteImageUrl
   }
 
   static get createProjectUrl(): string {

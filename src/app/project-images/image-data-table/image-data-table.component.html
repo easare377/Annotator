@@ -1,75 +1,71 @@
 <div class="parent-container">
-<!--  <div>-->
-<!--    <div class="searchbar">-->
-<!--      &lt;!&ndash;      <input #searchInput id="search_input" type="text" name=""&ndash;&gt;-->
-<!--      &lt;!&ndash;             placeholder="Search Devices">&ndash;&gt;-->
-<!--      &lt;!&ndash;        (input)="onSearchDevice($any($event.target).value)"&ndash;&gt;-->
-<!--      &lt;!&ndash;      <div><img id="search-img" src="assets/img/search_dark.png"></div>&ndash;&gt;-->
-<!--    </div>-->
-<!--  </div>-->
   <div class="table-container">
     <div class="table100">
       <table>
         <thead>
-        <tr class="table100-head">
-          <th class="column1">
-            <span><input #mainChkBox type="checkbox"></span>
-          </th>
-          <th class="column2">Image</th>
-          <div class="hl"></div>
-          <th class="column3">Date Added</th>
-          <div class="hl"></div>
-          <th class="column3">Last Modified</th>
-          <div class="hl"></div>
-          <th class="column3">Polygons</th>
-          <div class="hl"></div>
-          <th class="column3">Annotated</th>
-          <div class="hl"></div>
-          <th class="column3">File name</th>
-        </tr>
+          <tr class="table100-head">
+            <th class="column1">
+              <span><input #mainChkBox type="checkbox"></span>
+            </th>
+            <th class="column2">Image</th>
+            <div class="hl"></div>
+            <th class="column3">Date Added</th>
+            <div class="hl"></div>
+            <th class="column3">Last Modified</th>
+            <div class="hl"></div>
+            <th class="column3">Polygons</th>
+            <div class="hl"></div>
+            <th class="column3">Annotated</th>
+            <div class="hl"></div>
+            <th class="column3">File name</th>
+          </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let imageInfo of imageInfoVms"
-            (click)="navService.gotoAnnotateImagesAsync(projectId ,imageInfo.imageId)">
-          <!--Selection Checkbox-->
-          <td class="column1">
-            <div>
-              <span><input type="checkbox" [checked]="mainChkBox.checked"></span>
-            </div>
-          </td>
-          <!--Image-->
-          <td class="column2">
-            <img id="thumbnail" [src]="imageInfo.imageUrls.thumb">
-          </td>
-          <!--Date Added-->
-          <td class="column3">
-            {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
-          </td>
-          <!--Last Modified-->
-          <td class="column3">
-            {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
-          </td>
-          <!--Polygons-->
-          <td class="column3">
-            {{ imageInfo.polygonVms ? imageInfo.polygonVms.length : 'empty' }}
-          </td>
-          <!--Annotated-->
-          <td class="column3">
-            {{ imageInfo.polygonVms ? '' : 'empty' }}
-          </td>
-          <!--File name-->
-          <td class="column4">
-            <span>{{ imageInfo.originalFileName }}</span>
-          </td>
-          <!--FileName-->
-          <td class="column5">
-            <button id="remove-button" title="Delete image">Remove</button>
-          </td>
-        </tr>
+          <!-- Loop through imageInfoVms -->
+          <tr *ngFor="let imageInfo of imageInfoVms" (click)="onRowClick(projectId, imageInfo.imageId, $event)">
+            <!-- Selection Checkbox -->
+            <td class="column1">
+              <div>
+                <span><input type="checkbox" [checked]="mainChkBox.checked"></span>
+              </div>
+            </td>
+            <!-- Image -->
+            <td class="column2">
+              <img id="thumbnail" [src]="imageInfo.imageUrls.thumb" />
+            </td>
+            <!-- Date Added -->
+            <td class="column3">
+              {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
+            </td>
+            <!-- Last Modified -->
+            <td class="column3">
+              {{ imageInfo.dateAdded | date: 'yyyy-MM-dd hh:mm' }}
+            </td>
+            <!-- Polygons -->
+            <td class="column3">
+              {{ imageInfo.polygonVms ? imageInfo.polygonVms.length : 'empty' }}
+            </td>
+            <!-- Annotated -->
+            <td class="column3">
+              {{ imageInfo.polygonVms ? '' : 'empty' }}
+            </td>
+            <!-- File Name -->
+            <td class="column4">
+              <span>{{ imageInfo.originalFileName }}</span>
+            </td>
+            <!-- Remove Button -->
+            <td class="column5">
+              <button
+                id="remove-button"
+                title="Delete image"
+                (click)="deleteImage(projectId, imageInfo.imageId, $event)"
+              >
+                Remove
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
-
-

@@ -1,0 +1,103 @@
+
+
+
+ <!DOCTYPE HTML>
+ <html>
+ <head>
+   <title>Leaflet Map with Adjustable Image Overlay (No Rotation)</title>
+   <style type="text/css">
+     html, body, #mapid {
+         width: 100%;
+         height: 90%;
+         margin: 0;
+     }
+ 
+     /* Style for the image overlay */
+     .map-image-overlay {
+         opacity: 0.8;
+         border: 2px solid blue; /* Optional border for visibility */
+     }
+ 
+     /* Style for the Save button */
+     #save-button {
+         position: absolute;
+         top: 10px;
+         left: 10px;
+         z-index: 1000;
+         padding: 8px 16px;
+         background-color: #4CAF50;
+         color: white;
+         border: none;
+         cursor: pointer;
+         font-size: 14px;
+     }
+   </style>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+ </head>
+ <body>
+   <div id="mapid"></div>
+    
+   <button id="save-button">Save</button>
+ 
+   <script>
+     document.addEventListener("DOMContentLoaded", function() {
+       // Initialize the map
+       var mymap = L.map('mapid').setView([11.014713, -2.880310], 13);
+ 
+       // Add the OpenStreetMap tiles as the base layer
+       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+         subdomains: ['a', 'b', 'c']
+       }).addTo(mymap);
+ 
+       // Define initial bounds and image URL
+       var initialBounds = [[11.014713, -2.880310], [4.841871, 1.048252]];
+       var imageUrl = '/Users/gkishore399/Downloads/Annotator-kishore-branch-updated/Screenshot 2024-11-05 at 3.52.51 PM.png'; 
+ 
+       // Add the image overlay to the map
+       var imageLayer = L.imageOverlay(imageUrl, initialBounds, {
+         opacity: 0.8,
+         interactive: true
+       }).addTo(mymap);
+ 
+       // Apply CSS class for additional styling
+       var imageElement = imageLayer.getElement();
+       imageElement.classList.add("map-image-overlay");
+ 
+       // Add draggable markers for the top-left and bottom-right corners
+       var topLeftMarker = L.marker(initialBounds[0], { draggable: true }).addTo(mymap);
+       var bottomRightMarker = L.marker(initialBounds[1], { draggable: true }).addTo(mymap);
+ 
+       // Function to update the overlay bounds based on marker positions
+       function updateImageOverlay() {
+         var newBounds = [
+           topLeftMarker.getLatLng(),
+           bottomRightMarker.getLatLng()
+         ];
+         imageLayer.setBounds(newBounds);
+       }
+ 
+       // Listen for drag events on the markers to dynamically adjust overlay bounds
+       topLeftMarker.on('drag', updateImageOverlay);
+       bottomRightMarker.on('drag', updateImageOverlay);
+ 
+       // Save button functionality to capture current bounds
+       document.getElementById('save-button').addEventListener('click', function() {
+         var topLeft = topLeftMarker.getLatLng();
+         var bottomRight = bottomRightMarker.getLatLng();
+         var currentBounds = [
+           [topLeft.lat, topLeft.lng],
+           [bottomRight.lat, bottomRight.lng]
+         ];
+ 
+         console.log("Saved Bounds:", currentBounds);
+         alert("Progress saved! Check console for details.");
+       });
+     });
+   </script> 
+ </body>
+ </html>
+
+
+ 
+ 

@@ -242,5 +242,21 @@ export class HttpService {
   //     }
   //   }));
   // }
+  async deleteImageAsync(projectId: string, imageId: string): Promise<HttpResponse<any>> {
+    const requestBody = { project_id: projectId, image_id: imageId };
+    console.log(requestBody)
+  
+    return new Promise<HttpResponse<any>>((resolve, reject) => {
+      this.http.post<any>(Uris.deleteImageUrl, requestBody, { observe: 'response', headers: this.getRequestHeaders() }).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          
+          reject(error);
+        }
+      });
+    });
+  }
 
 }

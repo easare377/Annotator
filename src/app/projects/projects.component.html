@@ -58,26 +58,25 @@
 
   <div class="project-list">
     <div *ngFor="let project of projects" class="project-card"
-    (click)="appManagerService.addData('projectId', project.projectId);navService.gotoProjectImagesPageAsync(project.projectId)">
+      (click)="appManagerService.addData('projectId', project.projectId); navService.gotoProjectImagesPageAsync(project.projectId)">
       <div class="project-header">
         <h3>{{ project.name }}</h3>
-        <button class="more-options">&#8942;</button>
+        <button class="more-options" 
+                (click)="openDeleteDialog(project.projectId); $event.stopPropagation()">&#8942;</button>
       </div>
       <div class="project-stats">
-<!--        <div class="stat">{{ project.stats.total }} / 1</div>-->
-<!--        <div class="stat success"><span class="checkmark">&#10003;</span> {{ project.stats.success }}</div>-->
-<!--        <div class="stat error"><span class="crossmark">&#10007;</span> {{ project.stats.error }}</div>-->
-<!--        <div class="stat warning"><span class="bulb">&#128161;</span> {{ project.stats.warning }}</div>-->
+        <!-- Stats can go here -->
       </div>
       <div class="hl"></div>
       <div class="project-footer">
         <span>{{ project.dateCreated | date: 'dd MMM yy, HH:mm' }}</span>
         <div class="profile">
-<!--          <span class="initials">{{ project.initials }}</span>-->
+          <!-- Profile details can go here -->
         </div>
       </div>
     </div>
   </div>
+  
   <!-- Dialogs -->
   <div>
     <app-create-project-dialog #createProjectDialog

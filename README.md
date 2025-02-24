@@ -1,27 +1,68 @@
-# MyApp
+# Annotator - Angular Project
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.3.
+## Project Overview
+Annotator is an Angular-based application designed for annotation purposes. This project provides a user-friendly interface to annotate data effectively.
 
-## Development server
+## Prerequisites
+Before setting up the project, ensure you have the following installed:
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- [Node.js](https://nodejs.org/) (Recommended: v18.19.1 or newer)
+- [Angular CLI](https://angular.dev/cli) (Recommended: Latest version)
+- [Git](https://git-scm.com/)
 
-## Code scaffolding
+## Setup Instructions
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### 1. Clone the Repository
+```sh
+git clone https://github.com/easare377/Annotator.git
+```
 
-## Build
+### 2. Navigate to the Project Directory
+```sh
+cd Annotator
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### 3. Install Dependencies
+```sh
+npm install
+```
 
-## Running unit tests
+### 4. Start the Development Server
+Run the following command to start the local development server:
+```sh
+ng serve
+```
+The application should now be accessible at `http://localhost:4200/`.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Build the Application
+To generate a production-ready build, run:
+```sh
+ng build --configuration production
+```
+The output will be available in the `dist/` directory.
 
-## Running end-to-end tests
+## Running Tests
+### Unit Tests
+Run the unit tests using:
+```sh
+ng test
+```
+### End-to-End Tests
+Run the end-to-end tests using:
+```sh
+ng e2e
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Additional Configuration
+- If needed, update `environment.ts` and `environment.prod.ts` with necessary API configurations.
+- Adjust `angular.json` for custom build configurations.
 
-## Further help
+## Contributing
+Feel free to contribute to this project by submitting issues or pull requests.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## License
+This project is licensed under the MIT License.
+
+## Contact
+For further inquiries, reach out to the repository owner on GitHub.
+

@@ -80,8 +80,8 @@
   </div>
   <!-- Dialogs -->
   <div>
-    <app-create-project-dialog #createProjectDialog
-    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project-dialog>
+    <app-create-project #createProjectDialog
+    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project>
 <!--    <app-create-project #createProjectDialog></app-create-project>-->
   </div>
 </div>

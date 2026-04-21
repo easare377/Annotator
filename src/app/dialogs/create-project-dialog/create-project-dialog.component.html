@@ -1,37 +1,50 @@
 <div id="parent" class="dialog-container container-dark" *ngIf="visible">
   <div class="container">
-    <h2>Create Project</h2>
-    <div class="tabs">
-      <button class="tab-button" [class.active]="step === 1"
-              (click)="step = 1">Project Name
-      </button>
-      <button class="tab-button" [class.active]="step === 2"
-              (click)="step = 2">Labeling Setup
-      </button>
-      <!--      <button class="tab-button" [class.active]="activeTab === ActiveTab.DATAIMPORT"-->
-      <!--              (click)="setActiveTab(ActiveTab.DATAIMPORT)">Data Import-->
-      <!--      </button>-->
+    <h5>Create Project</h5>
+<!--    <div class="tabs">-->
+<!--    </div>-->
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-step" [class.active]="currentStep >= 1">
+        <div class="circle" [class.active]="currentStep === 1 || currentStep === 2 || currentStep === 3">1</div>
+        <p>Project Details</p>
+      </div>
+      <div class="line" [class.active]="currentStep > 1"></div>
+      <div class="progress-step" [class.active]="currentStep >= 2">
+        <div class="circle" [class.active]="currentStep === 2 || currentStep === 3 ">2</div>
+        <p>Labeling Setup</p>
+      </div>
+      <div class="line" [class.active]="currentStep > 2"></div>
+      <div class="progress-step" [class.active]="currentStep >= 3">
+        <div class="circle" [class.active]="currentStep === 3">3</div>
+        <p>Get Started</p>
+      </div>
     </div>
     <!--Create Project-->
     <div>
       <app-create-project-setup #createProjectSetup
-                                [visible]="step === 1"></app-create-project-setup>
+                                [visible]="currentStep === 1"></app-create-project-setup>
     </div>
     <!--Project Setup-->
     <div>
-      <app-labeling-setup #labelingSetup [visible]="step === 2"></app-labeling-setup>
+      <app-labeling-setup #labelingSetup [visible]="currentStep === 3"></app-labeling-setup>
+    </div>
+    <!--Upload Images Setup-->
+    <div>
+      <app-upload-images-setup #uploadImagesSetup [visible]="currentStep === 2"></app-upload-images-setup>
     </div>
     <div class="form-buttons">
       <button class="btn btn-danger delete-button" (click)="hideDialog()">Cancel</button>
       <div>
-        <button class="btn btn-success save-button" *ngIf="step !== 1"
-                (click)="step = step - 1">Back</button>
+        <button class="btn btn-success save-button" *ngIf="currentStep !== 1"
+                (click)="currentStep = currentStep - 1">Back</button>
         <button class="btn btn-success save-button"
-                (click)="step !== maxSteps? step = step + 1:
+                (click)="currentStep !== maxSteps? currentStep = currentStep + 1:
               createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
-          {{step !== maxSteps ? 'Next' : 'Create Project' }}
+          {{currentStep !== maxSteps ? 'Next' : 'Create Project' }}
         </button>
       </div>
     </div>
+
   </div>
 </div>

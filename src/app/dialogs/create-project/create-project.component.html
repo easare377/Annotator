@@ -115,7 +115,13 @@
       <h3>Review & Submit</h3>
       <div class="review-section">
         <p><strong>Project Name:</strong> {{ formData.projectName }}</p>
-        <p><strong>Project Description:</strong> {{ formData.projectDescription }}</p>
+<!--        <p><strong>Project Description:</strong> {{ formData.projectDescription }}</p>-->
+        <textarea
+          class="form-control"
+          [(ngModel)]="formData.projectDescription"
+          name="description"
+          [class.invalid]="isProjectDescriptionInvalid"
+        ></textarea>
         <p><strong>Added Classes:</strong></p>
         <ul class="class-list">
           <li *ngFor="let classItem of addedClasses" class="class-item">

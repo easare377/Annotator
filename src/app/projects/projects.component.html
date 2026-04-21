@@ -40,8 +40,8 @@
       <div id="annotation-controls">
         <!--Update Button-->
         <button id="update-button" class="progress-button" (click)="createProjectDialog.showDialog()">
-          <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg">
-          Create
+          <img src="assets/images/svgs/create-icon.svg" alt="create">
+          Create Project
         </button>
         <!--Import-button"-->
 <!--        <button id="save-button" class="progress-button" (click)="importDataDialog.showDialog()">-->
@@ -80,8 +80,9 @@
   </div>
   <!-- Dialogs -->
   <div>
-    <app-create-project #createProjectDialog
-    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project>
+<!--    <app-create-project #createProjectDialog-->
+<!--    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project>-->
 <!--    <app-create-project #createProjectDialog></app-create-project>-->
+    <app-create-project-dialog #createProjectDialog></app-create-project-dialog>
   </div>
 </div>

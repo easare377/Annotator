@@ -6,7 +6,7 @@ export class Uris {
   private static _projectsUrl = Uris._baseUrl + "/api/projects";
   private static _createProjectUrl = Uris._baseUrl + "/api/create-project";
   private static _projectDataUrl = Uris._baseUrl + "/api/projects/data";
-  private static _uploadImageUrl = Uris._baseUrl + "/api/projects/data/upload-image"
+  private static _uploadImageUrl = Uris._baseUrl + "/api/projects/data/upload-image";
   private static _imagePolygonsUrl = Uris._baseUrl + "/api/projects/data/polygons";
   private static _generatePolygonsUrl = Uris._baseUrl + "/api/projects/data/generate-polygons";
   private static _annotateImageUrl = Uris._baseUrl + "/api/projects/data/annotate-image";

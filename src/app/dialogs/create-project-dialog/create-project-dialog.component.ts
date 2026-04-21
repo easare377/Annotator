@@ -16,11 +16,11 @@ import {CreatedProjectResponseBody} from "../../../models/created-project-respon
 @Component({
   selector: 'app-create-project-dialog',
   templateUrl: './create-project-dialog.component.html',
-  styleUrls: ['./create-project-dialog.component.css', '../dialog.css']
+  styleUrls: ['./create-project-dialog.component.css', '../dialog.css', '../create-project/create-project.component.css']
 })
 export class CreateProjectDialogComponent extends Dialog implements OnInit {
 
-  step: number = 1;
+  currentStep: number = 1;
   maxSteps: number = 2;
   // files: File[] = [];
 

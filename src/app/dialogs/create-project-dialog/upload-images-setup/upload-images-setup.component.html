@@ -1,24 +1,37 @@
 <div *ngIf="visible">
-  <div class="form-group">
-    <label for="datasetUrl">Dataset URL</label>
-    <input id="datasetUrl" type="text" placeholder="Dataset URL"/>
-    <button class="btn btn-primary">Add URL</button>
+  <div *ngIf="fileUploadVms && fileUploadVms.length === 0">
+<!--    <div class="upload-title">Upload Images</div>-->
+    <div class="upload-desc">
+      Lets begin by uploading some images.
+      <br>
+<!--      <span class="accepted">(Accepted: JPG, PNG, TIFF, ZIP, CSV)</span>-->
+    </div>
+    <form>
+      <div class="drop-zone"
+           [class.dragover]="dragActive"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)"
+           (click)="fileInput.click()"
+           tabindex="0">
+        Drop files here or click to select
+      </div>
+      <input #fileInput
+             type="file"
+             (change)="onFileSelected($event)"
+             multiple
+             hidden
+             accept=".jpg,.jpeg,.png,.tif,.tiff,image/*" />
+      <button type="button" class="upload-btn" (click)="fileInput.click()">Browse Files</button>
+    </form>
+<!--    <div class="file-list" *ngIf="files.length > 0">-->
+<!--      <div class="file-item" *ngFor="let file of files">-->
+<!--        {{file.name}} ({{(file.size / 1024).toFixed(1)}} KB)-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
-  <div class="form-group">
-    <button class="btn btn-primary" (click)="uploadImageAsync()">Upload Files</button>
-    <input type="file" multiple (change)="onFileSelected($event)" #fileInput style="display: none;"/>
-  </div>
-  <div
-    class="drop-area"
-    (dragover)="$event.preventDefault()"
-    (drop)="onDrop($event)">
-    <p>Drag & drop files here<br>or click to browse</p>
-    <input type="file" multiple (change)="onFileSelected($event)" style="display: none;"/>
-  </div>
-  <div *ngIf="files.length > 0">
-    <h3>Selected Files</h3>
-    <ul>
-      <li *ngFor="let file of files">{{ file.name }}</li>
-    </ul>
+  <div id="upload-window">
+    <app-file-upload *ngFor="let fileUploadVm of fileUploadVms" [fileUploadVm]="fileUploadVm">
+    </app-file-upload>
   </div>
 </div>

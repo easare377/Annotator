@@ -10,20 +10,26 @@
   /*max-height: 100%;*/
   height: 100%;
   /*width: 1000px;*/
-  cursor: pointer;
+  cursor: grab;
+  user-select: none;
 }
 
 canvas {
   /*border: 1px solid #000;*/
   position: absolute;
-  /*top: 0;*/
-  /*left: 0;*/
+  top: 0;
+  left: 0;
   /*z-index: 1;*/
-  /*width: 100%; height: 100%;*/
+  width: 100%;
+  height: 100%;
   /*height: 100vh;*/
   /*width: 100vw;*/
   /*background: #1abc9c;*/
-  cursor: pointer;
+  cursor: grab;
+}
+
+canvas.panning {
+  cursor: grabbing;
 }
 
 #image{

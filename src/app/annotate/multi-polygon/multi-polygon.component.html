@@ -1,10 +1,13 @@
 <div id="parent" #parent (wheel)="onWheel($event)">
   <!--Canvas to show the image-->
-  <canvas #imgCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"></canvas>
+  <canvas #imgCanvas></canvas>
   <!--Canvas to show and control the polygons-->
-  <canvas id="canvas" #polygonCanvas width="{{parent.clientWidth}}" height="{{parent.clientHeight}}"
+  <canvas id="canvas" #polygonCanvas
+          [class.panning]="isPanning"
+          (mousedown)="onPanStart($event)"
+          (mouseup)="onPanEnd($event)"
+          (mouseleave)="onPanEnd($event)"
           (click)="onCanvasClicked($event)"
-          (mousemove)="onCanvasHover($event)">
+          (mousemove)="onCanvasMouseMove($event)">
   </canvas>
 </div>
-

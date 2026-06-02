@@ -4,10 +4,10 @@
   <!--Canvas to show and control the polygons-->
   <canvas id="canvas" #polygonCanvas
           [class.panning]="isPanning"
-          (mousedown)="onPanStart($event)"
-          (mouseup)="onPanEnd($event)"
-          (mouseleave)="onPanEnd($event)"
-          (click)="onCanvasClicked($event)"
-          (mousemove)="onCanvasMouseMove($event)">
+          (pointerdown)="onPointerDown($event)"
+          (pointermove)="onPointerMove($event)"
+          (pointerup)="onPointerUp($event)"
+          (pointercancel)="onPointerCancel($event)"
+          (lostpointercapture)="onPointerCancel($event)">
   </canvas>
 </div>

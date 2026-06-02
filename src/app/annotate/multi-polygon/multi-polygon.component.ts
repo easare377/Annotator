@@ -2,11 +2,13 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
+  OnChanges,
+  OnDestroy,
   Output,
-  OnInit,
-  ViewChild,
-  EventEmitter, OnChanges, SimpleChanges, AfterViewChecked
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import {PolygonViewModel} from "../../../models/polygon-view-model";
 import {Utils} from "../../utils";
@@ -22,7 +24,7 @@ import {ImageInfoViewModel} from "../../../models/image-info-view-model";
   templateUrl: './multi-polygon.component.html',
   styleUrl: './multi-polygon.component.css'
 })
-export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked {
+export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestroy {
   private image: HTMLImageElement | undefined; // Image element
   private currentPolygonVms: PolygonViewModel[] = []; // Array to hold current polygon view models
   private imagePosition: Point = new Point(0, 0);
@@ -30,8 +32,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
   private panStartImagePosition: Point = new Point(0, 0);
   private hasPanned: boolean = false;
   private hasRenderedImage: boolean = false;
-  private renderRetryCount: number = 0;
-  private suppressNextClick: boolean = false;
+  private resizeObserver: ResizeObserver | undefined;
+  private renderAnimationFrame: number | undefined;
+  private activePointerId: number | undefined;
   isPanning: boolean = false;
 
   @ViewChild('parent') parent!: ElementRef<HTMLDivElement>; // Reference to the canvas container
@@ -75,21 +78,11 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
   }
 
   /**
-   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
-   * Initializes the currentPolygonVms array with polygons from imageInfo.
-   * @throws Error if imageInfo.polygonVms is undefined.
-   */
-  ngOnInit(): void {
-    // if (!this.imageInfo.polygonVms) {
-    //   throw new Error('Polygon view models are not defined.');
-    // }
-  }
-
-  /**
    * Lifecycle hook that is called after a component's view has been fully initialized.
    * Calls onDocumentLoaded to set up the image and polygons.
    */
   ngAfterViewInit(): void {
+    this.observeCanvasSize();
     this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
   }
 
@@ -101,7 +94,9 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
         previousValue.onPolygonsChanged = undefined;
       }
       currentValue.onPolygonsChanged = ()=>{
-        this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+        if (this.imgCanvas && this.polygonCanvas) {
+          this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+        }
       }
       if (this.imgCanvas){
         this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
@@ -109,8 +104,14 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
     }
   }
 
-  ngAfterViewChecked(): void {
-
+  ngOnDestroy(): void {
+    if (this.renderAnimationFrame !== undefined) {
+      cancelAnimationFrame(this.renderAnimationFrame);
+    }
+    this.resizeObserver?.disconnect();
+    if (this.imageInfo) {
+      this.imageInfo.onPolygonsChanged = undefined;
+    }
   }
 
   /**
@@ -149,11 +150,29 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
         // });
         this.isPanning = false;
         this.hasRenderedImage = false;
-        this.renderRetryCount = 0;
-        requestAnimationFrame(() => this.zoom(this.imageInfo.zoomLevel));
+        this.queueRender(this.imageInfo.zoomLevel);
       };
       img.src = this.imageInfo.imageUrls.jpg; // Set the image source URL
     }
+  }
+
+  private observeCanvasSize(): void {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = new ResizeObserver(() => {
+      if (!this.image) return;
+      this.queueRender(this.imageInfo.zoomLevel, this.imagePosition);
+    });
+    this.resizeObserver.observe(this.parent.nativeElement);
+  }
+
+  private queueRender(zoomPer: number, imagePosition?: Point): void {
+    if (this.renderAnimationFrame !== undefined) {
+      cancelAnimationFrame(this.renderAnimationFrame);
+    }
+    this.renderAnimationFrame = requestAnimationFrame(() => {
+      this.renderAnimationFrame = undefined;
+      this.renderImageAndPolygons(zoomPer, imagePosition);
+    });
   }
 
   private syncCanvasSize(): boolean {
@@ -409,14 +428,8 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
 
   private renderImageAndPolygons(zoomPer: number, imagePosition?: Point): void {
     if (!this.image) return;
-    if (!this.syncCanvasSize()) {
-      if (this.renderRetryCount < 10) {
-        this.renderRetryCount++;
-        requestAnimationFrame(() => this.renderImageAndPolygons(zoomPer, imagePosition));
-      }
-      return;
-    }
-    this.renderRetryCount = 0;
+    if (!this.image.complete || this.image.naturalWidth === 0 || this.image.naturalHeight === 0) return;
+    if (!this.syncCanvasSize()) return;
     const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(this.image, zoomPer);
     const imgPos: Point = this.clampImagePosition(imagePosition ?? imgParams.imagePosition, imgParams.imageSize);
     const imgSize: Size = imgParams.imageSize;
@@ -440,27 +453,48 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
     });
   }
 
-  onPanStart(event: MouseEvent): void {
-    if (event.button !== 0 || !this.image) return;
+  onPointerDown(event: PointerEvent): void {
+    if (!event.isPrimary || event.button !== 0 || !this.image) return;
     event.preventDefault();
+    const canvas = event.currentTarget as HTMLCanvasElement;
+    canvas.setPointerCapture(event.pointerId);
+    this.activePointerId = event.pointerId;
     this.isPanning = true;
     this.hasPanned = false;
     this.panStartClientPosition = new Point(event.clientX, event.clientY);
     this.panStartImagePosition = new Point(this.imagePosition.x, this.imagePosition.y);
   }
 
-  onCanvasMouseMove(event: MouseEvent): void {
-    if (this.isPanning) {
+  onPointerMove(event: PointerEvent): void {
+    if (this.isActivePointer(event) && this.isPanning) {
       this.panImage(event);
       return;
     }
     this.onCanvasHover(event);
   }
 
-  private panImage(event: MouseEvent): void {
+  onPointerUp(event: PointerEvent): void {
+    if (!this.isActivePointer(event)) return;
+    const shouldSelectPolygon: boolean = !this.hasPanned;
+    this.finishPointerInteraction(event);
+    if (shouldSelectPolygon) {
+      this.selectPolygonAtPointer(event);
+    }
+  }
+
+  onPointerCancel(event: PointerEvent): void {
+    if (!this.isActivePointer(event)) return;
+    this.finishPointerInteraction(event);
+  }
+
+  private isActivePointer(event: PointerEvent): boolean {
+    return this.activePointerId === event.pointerId;
+  }
+
+  private panImage(event: PointerEvent): void {
     if (!this.image) return;
     if (event.buttons === 0) {
-      this.onPanEnd(event);
+      this.finishPointerInteraction(event);
       return;
     }
     event.preventDefault();
@@ -477,16 +511,17 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
       this.panStartImagePosition.x - dx * scaleX,
       this.panStartImagePosition.y - dy * scaleY
     );
-    this.renderImageAndPolygons(this.imageInfo.zoomLevel, nextImagePosition);
+    this.queueRender(this.imageInfo.zoomLevel, nextImagePosition);
   }
 
-  onPanEnd(event: MouseEvent): void {
-    if (!this.isPanning) return;
+  private finishPointerInteraction(event: PointerEvent): void {
     event.preventDefault();
-    this.isPanning = false;
-    if (this.hasPanned && event.type === 'mouseup') {
-      this.suppressNextClick = true;
+    const canvas = event.currentTarget as HTMLCanvasElement | null;
+    if (canvas?.hasPointerCapture(event.pointerId)) {
+      canvas.releasePointerCapture(event.pointerId);
     }
+    this.isPanning = false;
+    this.activePointerId = undefined;
   }
 
   /**
@@ -526,15 +561,11 @@ export class MultiPolygonComponent implements OnInit, AfterViewInit, OnChanges, 
   }
 
   /**
-   * Handles the canvas click event to detect clicks inside polygons.
+   * Handles pointer selection inside polygons.
    * @param event The mouse event.
    */
-  onCanvasClicked(event: MouseEvent): void {
-    if (this.suppressNextClick) {
-      this.suppressNextClick = false;
-      return;
-    }
-    const canvas = event.target as HTMLCanvasElement;
+  selectPolygonAtPointer(event: PointerEvent): void {
+    const canvas = this.polygonCanvas.nativeElement;
     const rect: DOMRect = canvas.getBoundingClientRect();
     const hPosition = this.computeHoverCoordinates(event, this.imageInfo.scaledSize, rect);
 

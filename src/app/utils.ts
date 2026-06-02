@@ -32,54 +32,14 @@ export abstract class Utils {
   }
 
   static cropPolygons(polygons: PolygonViewModel[], position: Point, size: Size): PolygonViewModel[] {
-    // Define the right and bottom boundaries of the rectangle
-    const xMin: number = position.x;
-    const yMin: number = position.y;
-    const xMax: number = position.x + size.width;
-    const yMax: number = position.y + size.height;
-    const croppedPolygons: PolygonViewModel[] = [];
-    // Function to check if a point is within the crop rectangle
-    const isWithinCropArea = (polygon: PolygonViewModel): boolean => {
-      const bbox: BBox = polygon.bbox;
-      if (bbox.xMin > xMin || bbox.yMin > yMin || bbox.xMax < xMax || bbox.yMax) {
-        return true;
-      }
-      return false;
-    };
-    polygons.forEach((p: PolygonViewModel) => {
-      if (!isWithinCropArea(p)) {
-        return;
-      }
-      // const croppedPoints = new Array<Point>
-      // p.points.forEach((point: Point): void => {
-      //   let pointX: number = point.x - position.x;
-      //   let pointY: number = point.y - position.y;
-      //   if (pointX < 0){
-      //     pointX = 0;
-      //   }
-      //   if (pointY < 0){
-      //     pointY = 0;
-      //   }
-      //   if (pointX > xMax){
-      //     pointX = xMax;
-      //   }
-      //   if (pointY > yMax){
-      //     pointY = yMax;
-      //   }
-      //   croppedPoints.push(new Point(pointX, pointY));
-      // });
-      // const newPolygonVm = new PolygonViewModel(p.id, croppedPoints, p.color);
-      croppedPolygons.push(p);
-    });
-    return croppedPolygons;
+    if (size.width <= 0 || size.height <= 0) {
+      return [];
+    }
+    const cropBox: BBox = BBox.fromRect(position.x, position.y, size.width, size.height);
+    return polygons.filter((polygon: PolygonViewModel) => Utils.bBoxIntercepts(polygon.bbox, cropBox));
   }
 
   static computeNewDisplayPoints(points: Point[], position: Point, size: Size): Array<Point> {
-    // Define the right and bottom boundaries of the rectangle
-    const xMin: number = position.x;
-    const yMin: number = position.y;
-    const xMax: number = position.x + size.width;
-    const yMax: number = position.y + size.height;
     const croppedPoints = new Array<Point>
     points.forEach((point: Point): void => {
       let pointX: number = point.x - position.x;
@@ -90,11 +50,11 @@ export abstract class Utils {
       if (pointY < 0) {
         pointY = 0;
       }
-      if (pointX > xMax) {
-        pointX = xMax;
+      if (pointX > size.width) {
+        pointX = size.width;
       }
-      if (pointY > yMax) {
-        pointY = yMax;
+      if (pointY > size.height) {
+        pointY = size.height;
       }
       croppedPoints.push(new Point(pointX, pointY));
     });

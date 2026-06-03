@@ -1,5 +1,7 @@
 <div class="ann">
+  <!-- Top bar -->
   <header class="top">
+    <!-- Breadcrumbs -->
     <div class="top-l">
       <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
       <nav class="crumbs" aria-label="Breadcrumb">
@@ -14,6 +16,7 @@
       </nav>
     </div>
 
+    <!-- Save actions -->
     <div class="actions">
       <button type="button" class="btn sec" [disabled]="updatingPolygonClasses"
               (click)="saveObjectClassesAsync()">
@@ -29,7 +32,9 @@
     </div>
   </header>
 
+  <!-- Annotation workspace -->
   <main class="ws" *ngIf="currentImageInfo as image; else noImageSelected">
+    <!-- Image rail -->
     <aside class="rail" aria-label="Project images">
       <div class="head">
         <span>Images</span>
@@ -43,8 +48,11 @@
       </div>
     </aside>
 
+    <!-- Canvas stage -->
     <section class="stage">
+      <!-- Canvas toolbar -->
       <div class="tools">
+        <!-- History controls -->
         <div class="grp">
           <button type="button" class="ico" disabled title="Undo" aria-label="Undo">
             <img src="assets/images/svgs/undo-svgrepo-com.svg" alt="">
@@ -56,6 +64,7 @@
 
         <div class="bar"></div>
 
+        <!-- Zoom controls -->
         <div class="grp">
           <button type="button" class="ico" title="Zoom Out" aria-label="Zoom Out"
                   [disabled]="image.zoomLevel <= 100"
@@ -76,13 +85,16 @@
 
         <div class="bar"></div>
 
+        <!-- Active tool -->
         <div class="mode">
           <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
           <span>Pan</span>
         </div>
       </div>
 
+      <!-- Image canvas -->
       <div class="canvas">
+        <!-- Detect overlay -->
         <div class="detect" *ngIf="!image.polygonVms">
           <button type="button" class="detect-btn" [disabled]="generatingPolygons"
                   (click)="generatePolygonsAsync(image.imageId)">
@@ -91,6 +103,7 @@
           </button>
         </div>
 
+        <!-- Polygon editor -->
         <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
                            (polygonClicked)="assignDialog.polygonVm = $event;
                                             currentObjectClassVm ? $event.objectClassVm = currentObjectClassVm : assignDialog.showDialog()"
@@ -98,6 +111,7 @@
                                                   image.annotatedPolygonVms.push($event) : undefined">
         </app-multi-polygon>
 
+        <!-- Canvas status -->
         <div class="stat">
           <span>{{ image.originalFileName }}</span>
           <span>{{ imageInfoVms.indexOf(image) + 1 }} / {{ imageInfoVms.length }}</span>
@@ -106,7 +120,9 @@
       </div>
     </section>
 
+    <!-- Inspector panel -->
     <aside class="insp" aria-label="Annotation details">
+      <!-- Object classes -->
       <section class="sec-block">
         <div class="head">
           <span>Object Classes</span>
@@ -130,6 +146,7 @@
         </div>
       </section>
 
+      <!-- Annotated objects -->
       <section class="sec-block">
         <div class="head">
           <span>Annotated Objects</span>
@@ -148,9 +165,11 @@
       </section>
     </aside>
 
+    <!-- Assign class dialog -->
     <app-assign-class-dialog #assignDialog [objectClassVms]="objectClassVms"></app-assign-class-dialog>
   </main>
 
+  <!-- Empty state -->
   <ng-template #noImageSelected>
     <div class="empty">
       <img class="empty-ico" src="assets/images/svgs/polygon-matic-icon.svg" alt="">

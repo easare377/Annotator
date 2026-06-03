@@ -1,71 +1,211 @@
-<div id="parent">
-  <div id="account-menu">
-    <div id="account-menu-left">
+<div class="pi">
+  <header class="top">
+    <div class="brand">
+      <img src="assets/images/svgs/polygon-matic-icon.svg" alt="">
+      <div class="crumb">
+        <button type="button" (click)="goToProjects()">Projects</button>
+        <span>/</span>
+        <strong>{{ projectInfo?.name || 'Project Images' }}</strong>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn ghost" [disabled]="isLoadingProjectData" (click)="refreshProjectDataAsync()">
+        <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg" alt="">
+        <span>Refresh</span>
+      </button>
+      <button type="button" class="btn ghost" (click)="importDataDialog.showDialog()">
+        <img src="assets/images/svgs/import-svgrepo-com.svg" alt="">
+        <span>Import</span>
+      </button>
+      <button type="button" class="btn main" (click)="exportData.showDialog()">
+        <img src="assets/images/svgs/export-svgrepo-com.svg" alt="">
+        <span>Export</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="summary">
       <div>
-        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
+        <span>Total</span>
+        <strong>{{ totalImages }}</strong>
       </div>
-      <div class="hl"></div>
-      <!--Web Navigation-->
-      <div id="navigation">
-        <ul>
-          <li><a style="color: #007bff">Projects</a></li>
-          <span>/</span>
-          <!--          <li *ngIf="projectInfo" style="color: #007bff"-->
-          <!--              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">-->
-          <!--            {{projectInfo.name}}-->
-          <!--          </li>-->
-          <span>/</span>
-          <li>Annotate</li>
-        </ul>
+      <div>
+        <span>Detected</span>
+        <strong>{{ detectedImages }}</strong>
       </div>
-    </div>
-    <div id="account-menu-right">
-      <div id="annotation-controls">
-        <!--Update Button-->
-        <button id="update-button" class="progress-button">
-          <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg">
-          Refresh
-        </button>
-        <!--Import-button"-->
-        <button id="save-button" class="progress-button" (click)="importDataDialog.showDialog()">
-          <img src="assets/images/svgs/import-svgrepo-com.svg">
-          Import
-        </button>
-        <button id="export-button" class="progress-button" (click)="exportData.showDialog()">
-          <img src="assets/images/svgs/export-svgrepo-com.svg">
-          Export
-        </button>
+      <div>
+        <span>Annotated</span>
+        <strong>{{ annotatedImages }}</strong>
       </div>
-    </div>
-  </div>
-  <!--Controls-->
-  <!--  <div id="controls">-->
-  <!--    &lt;!&ndash;Left Controls&ndash;&gt;-->
-  <!--    <div>-->
-  <!--      &lt;!&ndash;Sort By&ndash;&gt;-->
-  <!--      <div class="control-button">-->
-  <!--        <span>ID</span><span><img src="assets/images/svgs/sort-amount-down-svgrepo-com.svg"></span>-->
-  <!--      </div>-->
-  <!--    </div>-->
-  <!--    &lt;!&ndash;Right Controls&ndash;&gt;-->
-  <!--    <div>-->
-  <!--      <button>Refresh</button>-->
-  <!--      <button (click)="importDataDialog.showDialog()">Import</button>-->
-  <!--      <button (click)="exportDataProgressDialog.showDialog()">Export</button>-->
-  <!--    </div>-->
-  <!--  </div>-->
-  <app-image-data-table [projectId]="projectId" [imageInfoVms]="imageInfoVms">
-  </app-image-data-table>
-  <!-- Dialogs -->
-  <div>
-    <app-import-data-dialog [projectId]="projectId" #importDataDialog></app-import-data-dialog>
-    <app-export-data-progress-dialog #exportDataProgressDialog [projectId]="projectId"
-                                     [objectClasses]="objectClasses">
-    </app-export-data-progress-dialog>
-    <app-export-data-dialog #exportData
-                            [projectId]="projectId"
-                            [objectClasses]="objectClasses"
-                            (onExportData)="exportDataProgressDialog.showDialog(); exportDataProgressDialog.exportDataAsync(projectId, $event)"
-    ></app-export-data-dialog>
-  </div>
+      <div>
+        <span>In Progress</span>
+        <strong>{{ incompleteImages }}</strong>
+      </div>
+    </section>
+
+    <section class="tools">
+      <label class="search">
+        <span>Search</span>
+        <input type="search" [ngModel]="searchTerm" (ngModelChange)="setSearchTerm($event)"
+               placeholder="Filename">
+      </label>
+
+      <label>
+        <span>Status</span>
+        <select [ngModel]="statusFilter" (ngModelChange)="setStatusFilter($event)">
+          <option value="all">All</option>
+          <option value="not-detected">Not detected</option>
+          <option value="detected">Ready</option>
+          <option value="incomplete">In progress</option>
+          <option value="annotated">Annotated</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Sort</span>
+        <select [ngModel]="sortBy" (ngModelChange)="setSortBy($event)">
+          <option value="dateModified">Last modified</option>
+          <option value="dateAdded">Date added</option>
+          <option value="filename">Filename</option>
+          <option value="progress">Progress</option>
+        </select>
+      </label>
+
+      <div class="view" role="group" aria-label="View mode">
+        <button type="button" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">Grid</button>
+        <button type="button" [class.active]="viewMode === 'table'" (click)="setViewMode('table')">Table</button>
+      </div>
+    </section>
+
+    <!-- <section class="batch" *ngIf="selectedCount">
+      <strong>{{ selectedCount }} selected</strong>
+      <button type="button" class="btn ghost" [disabled]="selectedCount !== 1" (click)="annotateSelected()">Annotate</button>
+      <button type="button" class="btn ghost" (click)="clearSelection()">Clear</button>
+    </section> -->
+
+    <section class="work" [class.no-preview]="!selectedImage">
+      <div class="content">
+        <div class="loading" *ngIf="isLoadingProjectData">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+
+        <div class="empty" *ngIf="!isLoadingProjectData && hasLoadError">
+          <strong>Project images could not be loaded</strong>
+          <button type="button" class="btn main" (click)="refreshProjectDataAsync()">Refresh</button>
+        </div>
+
+        <div class="empty" *ngIf="!isLoadingProjectData && !hasLoadError && !filteredImages.length">
+          <strong>No images found</strong>
+          <button type="button" class="btn main" (click)="importDataDialog.showDialog()">Import</button>
+        </div>
+
+        <div class="grid" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'grid'">
+          <article class="card" *ngFor="let image of filteredImages" [class.sel-card]="isSelectedImage(image)"
+                   (click)="selectImage(image)">
+            <label class="sel" (click)="$event.stopPropagation()">
+              <input type="checkbox" [checked]="isSelected(image)"
+                     (change)="toggleImageSelection(image, $any($event.target).checked)">
+            </label>
+            <button type="button" class="thumb" (click)="openAnnotate(image); $event.stopPropagation()">
+              <img [src]="image.imageUrls.thumb" [alt]="image.originalFileName">
+            </button>
+            <div class="meta">
+              <div class="name" [title]="image.originalFileName">{{ image.originalFileName }}</div>
+              <span class="chip" [ngClass]="getImageStatus(image)">{{ getImageStatusLabel(image) }}</span>
+            </div>
+            <div class="progress">
+              <span [style.width.%]="getAnnotationProgress(image)"></span>
+            </div>
+            <div class="stats">
+              <span>{{ getPolygonCountText(image) }} polygons</span>
+              <span>{{ image.dateModified | date: 'yyyy-MM-dd' }}</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="table-wrap" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'table'">
+          <table>
+            <thead>
+            <tr>
+              <th>
+                <input type="checkbox" [checked]="allVisibleSelected" [indeterminate]="someVisibleSelected"
+                       (change)="toggleAllVisibleImages($any($event.target).checked)">
+              </th>
+              <th>Image</th>
+              <th>Status</th>
+              <th>Polygons</th>
+              <th>Progress</th>
+              <th>Modified</th>
+              <th>Filename</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let image of filteredImages" [class.sel-row]="isSelectedImage(image)" (click)="selectImage(image)">
+              <td>
+                <input type="checkbox" [checked]="isSelected(image)" (click)="$event.stopPropagation()"
+                       (change)="toggleImageSelection(image, $any($event.target).checked)">
+              </td>
+              <td><img class="mini" [src]="image.imageUrls.thumb" [alt]="image.originalFileName"></td>
+              <td><span class="chip" [ngClass]="getImageStatus(image)">{{ getImageStatusLabel(image) }}</span></td>
+              <td>{{ getPolygonCountText(image) }}</td>
+              <td>{{ getAnnotationProgress(image) }}%</td>
+              <td>{{ image.dateModified | date: 'yyyy-MM-dd hh:mm' }}</td>
+              <td class="file" [title]="image.originalFileName">{{ image.originalFileName }}</td>
+              <td>
+                <button type="button" class="text-btn" (click)="openAnnotate(image); $event.stopPropagation()">Annotate</button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="preview" *ngIf="selectedImage as image">
+        <img class="hero" [src]="image.imageUrls.thumb" [alt]="image.originalFileName">
+        <div class="p-head">
+          <strong [title]="image.originalFileName">{{ image.originalFileName }}</strong>
+          <span class="chip" [ngClass]="getImageStatus(image)">{{ getImageStatusLabel(image) }}</span>
+        </div>
+        <dl>
+          <div>
+            <dt>Size</dt>
+            <dd>{{ selectedImageDimensions }}</dd>
+          </div>
+          <div>
+            <dt>Polygons</dt>
+            <dd>{{ getPolygonCountText(image) }}</dd>
+          </div>
+          <div>
+            <dt>Annotated</dt>
+            <dd>{{ image.annotatedPolygonVms.length }}</dd>
+          </div>
+          <div>
+            <dt>Date Added</dt>
+            <dd>{{ image.dateAdded | date: 'yyyy-MM-dd' }}</dd>
+          </div>
+          <div>
+            <dt>Modified</dt>
+            <dd>{{ image.dateModified | date: 'yyyy-MM-dd' }}</dd>
+          </div>
+        </dl>
+        <button type="button" class="btn main wide" (click)="openAnnotate(image)">Annotate Image</button>
+      </aside>
+    </section>
+  </main>
+
+  <app-import-data-dialog [projectId]="projectId" #importDataDialog></app-import-data-dialog>
+  <app-export-data-progress-dialog #exportDataProgressDialog [projectId]="projectId"
+                                   [objectClasses]="objectClasses">
+  </app-export-data-progress-dialog>
+  <app-export-data-dialog #exportData [projectId]="projectId" [objectClasses]="objectClasses"
+                          (onExportData)="exportDataProgressDialog.showDialog(); exportDataProgressDialog.exportDataAsync(projectId, $event)">
+  </app-export-data-dialog>
 </div>

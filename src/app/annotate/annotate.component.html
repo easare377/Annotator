@@ -1,156 +1,160 @@
-<div id="parent">
-  <!--Account Menu-->
-  <div id="account-menu">
-    <div id="account-menu-left">
-      <div>
-        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
-      </div>
-      <div class="hl"></div>
-      <!--Web Navigation-->
-      <div id="navigation">
-        <ul>
-          <li><a style="color: #007bff">Projects</a></li>
-          <span>/</span>
-          <li *ngIf="projectInfo" style="color: #007bff"
-              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">
-            {{projectInfo.name}}
-          </li>
-          <span>/</span>
-          <li>Annotate</li>
-        </ul>
-      </div>
-    </div>
-    <div id="account-menu-right">
-      <div id="annotation-controls">
-        <!--Update Button-->
-        <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">
-          <img src="assets/images/svgs/update-alt-2-svgrepo-com.svg">
-          <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>
-          {{ updatingPolygonClasses ? 'Saving...' : 'Update' }}
+<div class="ann">
+  <header class="top">
+    <div class="top-l">
+      <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <span>Projects</span>
+        <span class="sep">/</span>
+        <button *ngIf="projectInfo" type="button" class="cr-link"
+                (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">
+          {{ projectInfo.name }}
         </button>
-        <!--Save-button"-->
-        <button id="save-button" class="progress-button"
-                (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">
-          <img src="assets/images/svgs/save-svgrepo-com.svg">
-          Save & Exit
-        </button>
-      </div>
+        <span class="sep">/</span>
+        <span class="cr-cur">Annotate</span>
+      </nav>
     </div>
-  </div>
-  <!--Body-->
-  <div id="body">
-    <!--Left Side Panel-->
-    <div id="left-panel">
-      <div id="image-nav-title">
 
+    <div class="actions">
+      <button type="button" class="btn sec" [disabled]="updatingPolygonClasses"
+              (click)="saveObjectClassesAsync()">
+        <img *ngIf="!updatingPolygonClasses" src="assets/images/svgs/update-alt-2-svgrepo-com.svg" alt="">
+        <span class="spinner btn-spin" *ngIf="updatingPolygonClasses"></span>
+        {{ updatingPolygonClasses ? 'Saving' : 'Update' }}
+      </button>
+      <button type="button" class="btn pri" [disabled]="updatingPolygonClasses"
+              (click)="!updatingPolygonClasses ? saveObjectClassesAsync() : undefined">
+        <img src="assets/images/svgs/save-svgrepo-com.svg" alt="">
+        Save & Exit
+      </button>
+    </div>
+  </header>
+
+  <main class="ws" *ngIf="currentImageInfo as image; else noImageSelected">
+    <aside class="rail" aria-label="Project images">
+      <div class="head">
+        <span>Images</span>
+        <span class="count">{{ imageInfoVms.length }}</span>
       </div>
-      <!--Image Navigation-->
-      <div id="image-nav-container">
-        <app-image-navigation *ngFor="let imageInfo of imageInfoVms"
-                              [imageInfo]="imageInfo"
-                              [active]="currentImageInfo === imageInfo"
+      <div class="imgs">
+        <app-image-navigation *ngFor="let imageInfo of imageInfoVms" [imageInfo]="imageInfo"
+                              [active]="image === imageInfo"
                               (click)="navService.gotoAnnotateImagesAsync(projectId, imageInfo.imageId)">
         </app-image-navigation>
       </div>
-    </div>
-    <!--Main Window-->
-    <div id="main-window">
-      <!--Annotation Window-->
-      <div id="annotation-window" *ngIf="currentImageInfo">
-        <div id="title-image-window">
-          <div>
-            <!--Image Control-->
-            <div id="controls">
-              <div id="image-controls">
-                <!--Undo-->
-                <img class="control-svg" src="assets/images/svgs/undo-svgrepo-com.svg" alt="Undo" title="Undo">
-                <!--Redo-->
-                <img class="control-svg" src="assets/images/svgs/redo-svgrepo-com.svg" alt="Redo" title="Redo">
-                <!--Separator-->
-                <div class="hl"></div>
-                <!--Zoom Out-->
-                <img (click)="currentImageInfo.zoomLevel > 100?multiPolygon.zoomOut():undefined"
-                     class="control-svg {{currentImageInfo.zoomLevel === 100?'control-svg-disabled':''}}"
-                     src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="Zoom Out" title="Zoom Out">
-                <!--Zoom level text-->
-                <span>{{ currentImageInfo.zoomLevel }}%</span>
-                <!--Zoom In-->
-                <img (click)="currentImageInfo.zoomLevel < 1000?multiPolygon.zoomIn():undefined"
-                     class="control-svg {{currentImageInfo.zoomLevel === 1000?'control-svg-disabled':''}}"
-                     src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="Zoom In" title="Zoom In">
-                <!--Zoom Fit-->
-                <img (click)="multiPolygon.zoom(100)" class="control-svg"
-                     src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="Zoom Fit" title="Zoom Fit">
-                <!--Pan-->
-                <img class="control-svg" src="assets/images/svgs/pan-svgrepo-com.svg" alt="Pan Image" title="Pan Image">
-                <!--Separator-->
-                <div class="hl"></div>
-                <!--<app-toggle-button class="toggle-button"></app-toggle-button>-->
-              </div>
-<!--              <div id="annotation-controls">-->
-<!--                &lt;!&ndash;Update Button&ndash;&gt;-->
-<!--                <button id="update-button" class="progress-button" (click)="saveObjectClassesAsync()">-->
-<!--                  <div id="update-progress" class="spinner" *ngIf="updatingPolygonClasses"></div>-->
-<!--                  {{ updatingPolygonClasses ? 'Saving...' : 'Update' }}-->
-<!--                </button>-->
-<!--                &lt;!&ndash;Save-button"&ndash;&gt;-->
-<!--                <button id="save-button" class="progress-button"-->
-<!--                        (click)="!updatingPolygonClasses ? saveObjectClassesAsync():''">Save & Exit-->
-<!--                </button>-->
-<!--              </div>-->
-            </div>
-            <div id="image-window">
-              <!--Generate Polygons-->
-              <div id="generate-polygon" *ngIf="!currentImageInfo.polygonVms">
-                <button (click)="generatePolygonsAsync(currentImageInfo.imageId)" id="generate-polygon-button">
-                  <div *ngIf="!generatingPolygons">Detect Objects</div>
-                  <div id="detect-object-progress" class="spinner" *ngIf="generatingPolygons"></div>
-                </button>
-              </div>
-              <app-multi-polygon #multiPolygon
-                                 [imageInfo]="currentImageInfo"
-                                 [thickness]="2"
-                                 [zoomFactor]="10"
-                                 (polygonClicked)="assignDialog.polygonVm = $event;
-                               currentObjectClassVm?$event.objectClassVm =currentObjectClassVm:assignDialog.showDialog()"
-                                 (objectClassAssigned)="!currentImageInfo.annotatedPolygonVms.includes($event)?
-                                 currentImageInfo.annotatedPolygonVms.push($event):''">
-              </app-multi-polygon>
-            </div>
-            <div id="object-class-container">
-              <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
-                                [objectClassVm]="objectClassVm"
-                                [active]="objectClassVm === currentObjectClassVm"
-                                (click)="objectClass.active? currentObjectClassVm = undefined: currentObjectClassVm = objectClassVm">
-              </app-object-class>
-            </div>
-          </div>
+    </aside>
+
+    <section class="stage">
+      <div class="tools">
+        <div class="grp">
+          <button type="button" class="ico" disabled title="Undo" aria-label="Undo">
+            <img src="assets/images/svgs/undo-svgrepo-com.svg" alt="">
+          </button>
+          <button type="button" class="ico" disabled title="Redo" aria-label="Redo">
+            <img src="assets/images/svgs/redo-svgrepo-com.svg" alt="">
+          </button>
+        </div>
+
+        <div class="bar"></div>
+
+        <div class="grp">
+          <button type="button" class="ico" title="Zoom Out" aria-label="Zoom Out"
+                  [disabled]="image.zoomLevel <= 100"
+                  (click)="image.zoomLevel > 100 ? multiPolygon.zoomOut() : undefined">
+            <img src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="">
+          </button>
+          <span class="zoom">{{ image.zoomLevel }}%</span>
+          <button type="button" class="ico" title="Zoom In" aria-label="Zoom In"
+                  [disabled]="image.zoomLevel >= 1000"
+                  (click)="image.zoomLevel < 1000 ? multiPolygon.zoomIn() : undefined">
+            <img src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="">
+          </button>
+          <button type="button" class="ico" title="Fit Image" aria-label="Fit Image"
+                  (click)="multiPolygon.zoom(100)">
+            <img src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="">
+          </button>
+        </div>
+
+        <div class="bar"></div>
+
+        <div class="mode">
+          <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
+          <span>Pan</span>
         </div>
       </div>
-    </div>
 
-    <!--Right panel-->
-    <div id="right-panel">
-      <div>
-        <div id="annotated-polygons">
-          <div id="">
+      <div class="canvas">
+        <div class="detect" *ngIf="!image.polygonVms">
+          <button type="button" class="detect-btn" [disabled]="generatingPolygons"
+                  (click)="generatePolygonsAsync(image.imageId)">
+            <span *ngIf="!generatingPolygons">Detect Objects</span>
+            <span class="spinner detect-spin" *ngIf="generatingPolygons"></span>
+          </button>
+        </div>
 
-          </div>
-          <div>
+        <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
+                           (polygonClicked)="assignDialog.polygonVm = $event;
+                                            currentObjectClassVm ? $event.objectClassVm = currentObjectClassVm : assignDialog.showDialog()"
+                           (objectClassAssigned)="!image.annotatedPolygonVms.includes($event) ?
+                                                  image.annotatedPolygonVms.push($event) : undefined">
+        </app-multi-polygon>
 
-          </div>
-          <div *ngIf="currentImageInfo && currentImageInfo.polygonVms">
-            <app-annotated-polygon *ngFor="let polygonInfo of currentImageInfo.annotatedPolygonVms"
-                                   [index]="currentImageInfo.annotatedPolygonVms.indexOf(polygonInfo)"
-                                   [polygonVm]="polygonInfo"></app-annotated-polygon>
-          </div>
+        <div class="stat">
+          <span>{{ image.originalFileName }}</span>
+          <span>{{ imageInfoVms.indexOf(image) + 1 }} / {{ imageInfoVms.length }}</span>
+          <span>{{ image.polygonVms ? image.polygonVms.length : 0 }} polygons</span>
         </div>
       </div>
+    </section>
+
+    <aside class="insp" aria-label="Annotation details">
+      <section class="sec-block">
+        <div class="head">
+          <span>Object Classes</span>
+          <span class="count">{{ objectClassVms.length }}</span>
+        </div>
+
+        <div class="active" *ngIf="currentObjectClassVm; else noActiveClass">
+          <span class="sw" [style.background-color]="currentObjectClassVm.color"></span>
+          <span>{{ currentObjectClassVm.className }}</span>
+        </div>
+        <ng-template #noActiveClass>
+          <div class="note">No class selected</div>
+        </ng-template>
+
+        <div class="classes">
+          <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
+                            [objectClassVm]="objectClassVm"
+                            [active]="objectClassVm === currentObjectClassVm"
+                            (click)="objectClass.active ? currentObjectClassVm = undefined : currentObjectClassVm = objectClassVm">
+          </app-object-class>
+        </div>
+      </section>
+
+      <section class="sec-block">
+        <div class="head">
+          <span>Annotated Objects</span>
+          <span class="count">{{ image.annotatedPolygonVms.length }}</span>
+        </div>
+
+        <div class="objects" *ngIf="image.polygonVms && image.annotatedPolygonVms.length; else noAnnotations">
+          <app-annotated-polygon *ngFor="let polygonInfo of image.annotatedPolygonVms"
+                                 [index]="image.annotatedPolygonVms.indexOf(polygonInfo)"
+                                 [polygonVm]="polygonInfo">
+          </app-annotated-polygon>
+        </div>
+        <ng-template #noAnnotations>
+          <div class="note">No annotated objects yet</div>
+        </ng-template>
+      </section>
+    </aside>
+
+    <app-assign-class-dialog #assignDialog [objectClassVms]="objectClassVms"></app-assign-class-dialog>
+  </main>
+
+  <ng-template #noImageSelected>
+    <div class="empty">
+      <img class="empty-ico" src="assets/images/svgs/polygon-matic-icon.svg" alt="">
+      <span>Select an image to start annotating</span>
     </div>
-    <!-- Dialogs -->
-    <div>
-      <app-assign-class-dialog #assignDialog
-                               [objectClassVms]="objectClassVms"></app-assign-class-dialog>
-    </div>
-  </div>
+  </ng-template>
 </div>

@@ -11,6 +11,9 @@ export class PolygonViewModel {
   private _objectClassVm: ObjectClassViewModel | undefined
   private _color: string;
   private _mouseOver: boolean = false;
+  private _dimmed: boolean = false;
+  private _displayPath: Path2D;
+  private _displayBbox: BBox;
   public onMouseOver: Function | undefined;
   public onClick: Function | undefined;
   public onClassSet: Function | undefined;
@@ -20,6 +23,8 @@ export class PolygonViewModel {
     this._id = id;
     this._truePoints = points;
     this._scaledPoints = points;
+    this._displayPath = this.createPath(points);
+    this._displayBbox = this.computeBbox(points);
     this._color = color;
     this._bbox = this.computeBbox(points);
   }
@@ -39,6 +44,16 @@ export class PolygonViewModel {
 
   set scaledPoints(value: Array<Point>) {
     this._scaledPoints = value;
+    this._displayPath = this.createPath(value);
+    this._displayBbox = this.computeBbox(value);
+  }
+
+  get displayPath(): Path2D {
+    return this._displayPath;
+  }
+
+  get displayBbox(): BBox {
+    return this._displayBbox;
   }
 
   get bbox(): BBox {
@@ -73,6 +88,14 @@ export class PolygonViewModel {
     this._mouseOver = value;
   }
 
+  get dimmed(): boolean {
+    return this._dimmed;
+  }
+
+  set dimmed(value: boolean) {
+    this._dimmed = value;
+  }
+
   computeBbox(points: Array<Point>): BBox {
     let xMin: number = points[0].x;
     let xMax: number = points[0].x;
@@ -93,6 +116,15 @@ export class PolygonViewModel {
       }
     });
     return BBox.fromBbox(xMin, yMin, xMax, yMax);
+  }
+
+  private createPath(points: Array<Point>): Path2D {
+    const path = new Path2D();
+    if (!points.length) return path;
+    path.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach((point: Point) => path.lineTo(point.x, point.y));
+    path.closePath();
+    return path;
   }
 
   drawPolygon(): void{

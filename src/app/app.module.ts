@@ -39,6 +39,7 @@ import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.compo
 import { ExportDataDialogComponent } from './dialogs/export-data-dialog/export-data-dialog.component';
 import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-data-type/export-data-type.component';
 import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
+import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confirmation-dialog.component';
 
 
 
@@ -75,6 +76,7 @@ import { CreateProjectComponent } from './dialogs/create-project/create-project.
         ExportDataDialogComponent,
         ExportDataTypeComponent,
         CreateProjectComponent,
+        ConfirmationDialogComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

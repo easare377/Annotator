@@ -211,6 +211,77 @@ export class AnnotateComponent implements OnInit {
     return annotatedPolygonVms;
   }
 
+  getObjectClassAnnotationCount(objectClassVm: ObjectClassViewModel): number {
+    if (!this.currentImageInfo?.polygonVms) return 0;
+    return this.currentImageInfo.polygonVms.filter(polygonVm =>
+      polygonVm.objectClassVm?.classId === objectClassVm.classId
+    ).length;
+  }
+
+  highlightObjectClassPolygons(objectClassVm: ObjectClassViewModel): void {
+    if (!this.currentImageInfo?.polygonVms) return;
+    this.currentImageInfo.polygonVms.forEach((polygonVm: PolygonViewModel) => {
+      const matchesClass: boolean = polygonVm.objectClassVm?.classId === objectClassVm.classId;
+      polygonVm.mouseOver = matchesClass;
+      polygonVm.dimmed = !matchesClass;
+    });
+    this.redrawCurrentPolygons();
+  }
+
+  clearObjectClassPolygonHighlight(): void {
+    if (!this.currentImageInfo?.polygonVms) return;
+    this.currentImageInfo.polygonVms.forEach((polygonVm: PolygonViewModel) => {
+      polygonVm.mouseOver = false;
+      polygonVm.dimmed = false;
+    });
+    this.redrawCurrentPolygons();
+  }
+
+  handleObjectClassAssigned(polygonVm: PolygonViewModel): void {
+    if (!this.currentImageInfo) return;
+    const annotatedPolygonVms = this.currentImageInfo.annotatedPolygonVms;
+    const annotatedIndex: number = annotatedPolygonVms.indexOf(polygonVm);
+    if (polygonVm.objectClassVm && annotatedIndex === -1) {
+      annotatedPolygonVms.push(polygonVm);
+      return;
+    }
+    if (!polygonVm.objectClassVm && annotatedIndex !== -1) {
+      annotatedPolygonVms.splice(annotatedIndex, 1);
+    }
+  }
+
+  clearPolygonAnnotation(polygonVm: PolygonViewModel): void {
+    polygonVm.mouseOver = false;
+    polygonVm.dimmed = false;
+    polygonVm.objectClassVm = undefined;
+    this.handleObjectClassAssigned(polygonVm);
+    polygonVm.drawPolygon();
+  }
+
+  clearAllImageAnnotations(): void {
+    if (!this.currentImageInfo) return;
+    if (this.currentImageInfo.polygonVms) {
+      this.currentImageInfo.polygonVms.forEach((polygonVm: PolygonViewModel) => {
+        polygonVm.mouseOver = false;
+        polygonVm.dimmed = false;
+        polygonVm.objectClassVm = undefined;
+      });
+    }
+    this.currentImageInfo.annotatedPolygonVms.splice(0);
+    this.redrawCurrentPolygons();
+  }
+
+  private redrawCurrentPolygons(): void {
+    const polygonVms: PolygonViewModel[] | undefined = this.currentImageInfo?.polygonVms;
+    if (!polygonVms?.length) return;
+    const redrawPolygonVm: PolygonViewModel | undefined = polygonVms.find(polygonVm => polygonVm.onMouseOver);
+    if (redrawPolygonVm?.onMouseOver) {
+      redrawPolygonVm.onMouseOver();
+      return;
+    }
+    polygonVms.forEach((polygonVm: PolygonViewModel) => polygonVm.drawPolygon());
+  }
+
   async saveObjectClassesAsync(): Promise<void> {
     this.updatingPolygonClasses = true;
     const objectClassInfos = new ObjectClassInfosRequestBody();

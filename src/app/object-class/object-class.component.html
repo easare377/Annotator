@@ -1,6 +1,6 @@
-<div id="polygon-class"
-   [style.background-color]="active?objectClassVm.color:Utils.lightenColor(objectClassVm.color, 0.7)">
-  <span [style.background-color]="objectClassVm.color"></span>
-<!--  <input #radioBtn type="radio" name="option" id="option1">-->
-  <label [class]="active? 'label-active': 'label-inactive'">{{ objectClassVm.className }}</label>
+<div class="class-row" [class.active]="active">
+  <span class="swatch" [style.background-color]="objectClassVm.color"></span>
+  <span class="name" [title]="objectClassVm.className">{{ objectClassVm.className }}</span>
+  <span class="count" [title]="annotationCount + ' annotations'">{{ annotationCount }}</span>
+  <span class="check" *ngIf="active">&#10003;</span>
 </div>

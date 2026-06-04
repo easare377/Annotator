@@ -11,10 +11,10 @@ import {
   ViewChild
 } from '@angular/core';
 import {PolygonViewModel} from "../../../models/polygon-view-model";
-import {Utils} from "../../utils";
 import {Size} from "../../../models/size";
 import {Point} from "../../../models/point";
 import {ImageInfoViewModel} from "../../../models/image-info-view-model";
+import {PolygonCanvasRendererService} from "../../../services/polygon-canvas-renderer.service";
 
 /**
  * Component to display and interact with multiple polygons overlaid on an image.
@@ -74,7 +74,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   /**
    * Initializes a new instance of the MultiPolygonComponent class.
    */
-  constructor() {
+  constructor(private renderer: PolygonCanvasRendererService) {
   }
 
   /**
@@ -120,7 +120,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   onWheel(event: WheelEvent): void {
     event.preventDefault(); // Prevent the window from scrolling
-    const zoomAnchor: Point | undefined = this.computeCanvasMousePosition(event);
+    const zoomAnchor: Point | undefined = this.renderer.computeCanvasMousePosition(this.polygonCanvas.nativeElement, event);
     if (event.deltaY < 0) {
       this.zoomIn(zoomAnchor);
     } else {
@@ -137,17 +137,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     const img: HTMLImageElement = new Image();
     this.image = img;
     if (this.imageInfo){
-      // this.currentPolygonVms = this.imageInfo.polygonVms;
       img.onload = () => {
-        // this.clearCanvas(polygonCanvas); //clears the canvas
-        // this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-        //   this.setupPolygonVms(p, polygonCanvas, this.imageInfo); // Set up each polygon view model
-        //   if (p.objectClassVm){
-        //     this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.objectClassVm.color, 1.0, this.thickness, true); // Redraw with class color
-        //   }else{
-        //     this.drawPolygon(polygonCanvas, p.scaledPoints, <Size>this.imageInfo.scaledSize, p.color, 1.0, this.thickness); // Draw each polygon
-        //   }
-        // });
         this.isPanning = false;
         this.hasRenderedImage = false;
         this.queueRender(this.imageInfo.zoomLevel);
@@ -177,149 +167,10 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
 
   private syncCanvasSize(): boolean {
     if (!this.parent || !this.imgCanvas || !this.polygonCanvas) return false;
-    const rect: DOMRect = this.parent.nativeElement.getBoundingClientRect();
-    const width: number = Math.max(0, Math.round(rect.width));
-    const height: number = Math.max(0, Math.round(rect.height));
-    if (width === 0 || height === 0) return false;
-
-    [this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement].forEach((canvas: HTMLCanvasElement) => {
-      if (canvas.width !== width) {
-        canvas.width = width;
-      }
-      if (canvas.height !== height) {
-        canvas.height = height;
-      }
-    });
-    return true;
-  }
-
-  /**
-   * Computes the zoom parameters including image position and size.
-   * @param image The image element.
-   * @param zoomPer The zoom percentage.
-   * @returns An object containing the image position and size.
-   */
-  computeZoomParameters(image: HTMLImageElement, zoomPer: number): { imagePosition: Point, imageSize: Size } {
-    const zoomFactor: number = zoomPer / 100;
-    const newWidth: number = image.naturalWidth / zoomFactor;
-    const newHeight: number = image.naturalHeight / zoomFactor;
-    const dx: number = (image.naturalWidth - newWidth) / 2;
-    const dy: number = (image.naturalHeight - newHeight) / 2;
-    const imagePosition = new Point(dx, dy);
-    const imageSize = new Size(newWidth, newHeight);
-    return {imagePosition, imageSize}; // Return the calculated image position and size
-  }
-
-  private clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
-  }
-
-  private clampImagePosition(position: Point, imageSize: Size): Point {
-    if (!this.image) return position;
-    const maxX = Math.max(0, this.image.naturalWidth - imageSize.width);
-    const maxY = Math.max(0, this.image.naturalHeight - imageSize.height);
-    return new Point(
-      this.clamp(position.x, 0, maxX),
-      this.clamp(position.y, 0, maxY)
-    );
-  }
-
-  private computeCanvasMousePosition(event: MouseEvent): Point | undefined {
-    if (!this.polygonCanvas) return undefined;
-    const rect: DOMRect = this.polygonCanvas.nativeElement.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return undefined;
-    return new Point(
-      this.clamp(event.clientX - rect.left, 0, rect.width),
-      this.clamp(event.clientY - rect.top, 0, rect.height)
-    );
-  }
-
-  private computeAnchoredImagePosition(zoomPer: number, anchorCanvasPosition?: Point): Point | undefined {
-    if (!this.image) return undefined;
-    if (!this.hasRenderedImage) return undefined;
-    const rect: DOMRect = this.polygonCanvas.nativeElement.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return undefined;
-
-    const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(this.image, zoomPer);
-    const nextImageSize: Size = imgParams.imageSize;
-    const anchorPosition: Point = anchorCanvasPosition ?? new Point(rect.width / 2, rect.height / 2);
-    const anchorXRatio: number = anchorPosition.x / rect.width;
-    const anchorYRatio: number = anchorPosition.y / rect.height;
-    const sourceAnchor = new Point(
-      this.imagePosition.x + anchorXRatio * this.imageInfo.scaledSize.width,
-      this.imagePosition.y + anchorYRatio * this.imageInfo.scaledSize.height
-    );
-    return this.clampImagePosition(
-      new Point(
-        sourceAnchor.x - anchorXRatio * nextImageSize.width,
-        sourceAnchor.y - anchorYRatio * nextImageSize.height
-      ),
-      nextImageSize
-    );
-  }
-
-  /**
-   * Clears the specified canvas.
-   * @param canvas The canvas element to clear.
-   */
-  clearCanvas(canvas: HTMLCanvasElement): void {
-    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-  }
-
-  /**
-   * Displays the image on the specified canvas with the given zoom percentage.
-   * @param image The image element.
-   * @param canvas The canvas element.
-   * @param zoomPer The zoom percentage.
-   */
-  displayImage(image: HTMLImageElement, canvas: HTMLCanvasElement, zoomPer: number, imagePosition?: Point): void {
-    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-    if (!ctx) return;
-    const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(image, zoomPer);
-    const drawPosition: Point = this.clampImagePosition(imagePosition ?? imgParams.imagePosition, imgParams.imageSize);
-    const imageSize: Size = imgParams.imageSize;
-    if (imageSize.width <= 0 || imageSize.height <= 0 || canvas.width === 0 || canvas.height === 0) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing the image
-
-    // Draw the image zoomed and centered
-    ctx.drawImage(image, drawPosition.x, drawPosition.y, imageSize.width, imageSize.height, 0, 0, canvas.width, canvas.height);
-  }
-
-  /**
-   * Draws a polygon on the specified canvas.
-   * @param canvas The canvas element.
-   * @param points The points defining the polygon.
-   * @param imageSize The size of the image.
-   * @param colorHex The color of the polygon.
-   * @param opacity The opacity of the polygon.
-   * @param thickness The thickness of the polygon border.
-   * @param fill Whether to fill the polygon.
-   * @param zoomLevel The zoom level.
-   */
-  drawPolygon(canvas: HTMLCanvasElement, points: Point[], imageSize: Size, colorHex: string, opacity: number = 1.0,
-              thickness: number, fill: boolean = false, zoomLevel: number = 100): void {
-    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-    if (!ctx) return;
-    const opacityHex: string = Utils.convertOpacityToHex(opacity);
-    const scaledPoints = points.map(point => ({
-      x: (point.x / imageSize.width) * canvas.width,
-      y: (point.y / imageSize.height) * canvas.height
-    }));
-
-    ctx.beginPath();
-    ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
-    scaledPoints.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
-    ctx.closePath();
-
-    if (fill) {
-      ctx.fillStyle = colorHex + opacityHex; // Set fill style with opacity
-      ctx.fill();
-    }
-    ctx.strokeStyle = colorHex //+ opacityHex; // Set stroke style with opacity
-    ctx.lineWidth = thickness;
-    ctx.stroke();
+    return this.renderer.syncCanvasSize(this.parent.nativeElement, [
+      this.imgCanvas.nativeElement,
+      this.polygonCanvas.nativeElement
+    ]);
   }
 
   /**
@@ -340,65 +191,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     };
     // Update the polygons if mouse over.
     polygonVm.onMouseOver = () => {
-      this.clearCanvas(canvas);
-      for (let p of this.currentPolygonVms) {
-        this.clearPolygonFill(canvas, p.scaledPoints); // Clear the fill
-        p.drawPolygon();
-      }
+      this.renderer.renderPolygons(canvas, this.currentPolygonVms, this.imageInfo.scaledSize, this.thickness);
     };
 
     polygonVm.onDrawPolygon = () => {
-      if (polygonVm.objectClassVm){
-        // Fill polygon with object class color.
-        this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
-        this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.objectClassVm.color,
-          0.6, this.thickness, true); // Redraw with class color
-      }else{
-        if (polygonVm.mouseOver){
-          // Fill polygon when mouse over.
-          this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
-          this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.color,
-            0.4, this.thickness, true); // Draw with hover effect
-        }else{
-          // Set polygon stroke color with no fill
-          this.clearPolygonFill(canvas, polygonVm.scaledPoints); // Clear the fill
-          this.drawPolygon(canvas, polygonVm.scaledPoints, imageInfo.scaledSize, polygonVm.color,
-            1.0, this.thickness, false); // Redraw without fill
-        }
-      }
+      this.renderer.renderPolygon(canvas, polygonVm, imageInfo.scaledSize, this.thickness);
     };
     return polygonVm;
-  }
-
-  /**
-   * Clears the fill of a specific polygon on the canvas.
-   * @param canvas The canvas element.
-   * @param points The points defining the polygon.
-   */
-  clearPolygonFill(canvas: HTMLCanvasElement, points: Point[]): void {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    if (!this.imageInfo) return;
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-
-    const scaleX = canvasWidth / this.imageInfo.scaledSize.width;
-    const scaleY = canvasHeight / this.imageInfo.scaledSize.height;
-
-    const scaledPoints = points.map(point => ({
-      x: point.x * scaleX,
-      y: point.y * scaleY
-    }));
-
-    ctx.save(); // Save the current drawing state
-    ctx.beginPath();
-    ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
-    scaledPoints.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
-    ctx.closePath();
-    ctx.clip(); // Clip to the polygon path
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the clipped area
-    ctx.restore(); // Restore the previous drawing state
   }
 
   /**
@@ -420,8 +219,17 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    * @param zoomPer The zoom percentage.
    */
   zoom(zoomPer: number, anchorCanvasPosition?: Point): void {
-    const clampedZoom: number = this.clamp(zoomPer, 100, 1000);
-    const imagePosition: Point | undefined = this.computeAnchoredImagePosition(clampedZoom, anchorCanvasPosition);
+    if (!this.image) return;
+    const clampedZoom: number = this.renderer.clamp(zoomPer, 100, 1000);
+    const imagePosition: Point | undefined = this.renderer.computeAnchoredImagePosition(
+      this.image,
+      this.polygonCanvas.nativeElement,
+      this.imagePosition,
+      this.imageInfo.scaledSize,
+      clampedZoom,
+      this.hasRenderedImage,
+      anchorCanvasPosition
+    );
     this.imageInfo.zoomLevel = clampedZoom;
     this.renderImageAndPolygons(clampedZoom, imagePosition);
   }
@@ -430,27 +238,28 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     if (!this.image) return;
     if (!this.image.complete || this.image.naturalWidth === 0 || this.image.naturalHeight === 0) return;
     if (!this.syncCanvasSize()) return;
-    const imgParams: { imagePosition: Point, imageSize: Size } = this.computeZoomParameters(this.image, zoomPer);
-    const imgPos: Point = this.clampImagePosition(imagePosition ?? imgParams.imagePosition, imgParams.imageSize);
+    const imgParams: { imagePosition: Point, imageSize: Size } = this.renderer.computeZoomParameters(this.image, zoomPer);
+    const imgPos: Point = this.renderer.clampImagePosition(this.image, imagePosition ?? imgParams.imagePosition, imgParams.imageSize);
     const imgSize: Size = imgParams.imageSize;
     this.imagePosition = imgPos;
     this.imageInfo.scaledSize = imgSize;
-    this.displayImage(this.image, this.imgCanvas.nativeElement, zoomPer, imgPos); // Display the zoomed image
+    this.renderer.displayImage(this.image, this.imgCanvas.nativeElement, zoomPer, imgPos); // Display the zoomed image
     this.hasRenderedImage = true;
-    this.clearCanvas(this.polygonCanvas.nativeElement); // Clear the canvas before redrawing polygons
     this.currentPolygonVms = [];
 
-    if (!this.imageInfo.polygonVms) return;
+    if (!this.imageInfo.polygonVms) {
+      this.renderer.clearCanvas(this.polygonCanvas.nativeElement);
+      return;
+    }
 
-    const croppedPolygons: PolygonViewModel[] = Utils.cropPolygons(this.imageInfo.polygonVms, imgPos, imgSize);
+    const croppedPolygons: PolygonViewModel[] = this.renderer.getVisiblePolygons(this.imageInfo.polygonVms, imgPos, imgSize);
     this.currentPolygonVms = croppedPolygons;
 
     croppedPolygons.forEach((p: PolygonViewModel) => {
-      p.scaledPoints = Utils.computeNewDisplayPoints(p.truePoints, imgPos, imgSize); // Compute new display points based on zoom/pan
-      // p.scaledPoints = Utils.computeBboxPoints(p.truePoints, imgPos, imgSize);
+      p.scaledPoints = this.renderer.computeDisplayPoints(p.truePoints, imgPos, imgSize); // Compute new display points based on zoom/pan
       this.setupPolygonVms(p, this.polygonCanvas.nativeElement, this.imageInfo);
-      p.drawPolygon();
     });
+    this.renderer.renderPolygons(this.polygonCanvas.nativeElement, croppedPolygons, this.imageInfo.scaledSize, this.thickness);
   }
 
   onPointerDown(event: PointerEvent): void {
@@ -505,12 +314,14 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
       this.hasPanned = true;
     }
-    const scaleX: number = this.imageInfo.scaledSize.width / rect.width;
-    const scaleY: number = this.imageInfo.scaledSize.height / rect.height;
-    const nextImagePosition = new Point(
-      this.panStartImagePosition.x - dx * scaleX,
-      this.panStartImagePosition.y - dy * scaleY
+    const nextImagePosition: Point | undefined = this.renderer.computePannedImagePosition(
+      this.panStartImagePosition,
+      this.panStartClientPosition,
+      event,
+      this.imageInfo.scaledSize,
+      rect
     );
+    if (!nextImagePosition) return;
     this.queueRender(this.imageInfo.zoomLevel, nextImagePosition);
   }
 
@@ -525,59 +336,14 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   }
 
   /**
-   * Checks if a point is inside a polygon using the ray casting algorithm.
-   * @param x The x-coordinate of the point.
-   * @param y The y-coordinate of the point.
-   * @param points The points defining the polygon.
-   * @returns True if the point is inside the polygon, false otherwise.
-   */
-  isPointInsidePolygon(x: number, y: number, points: Point[]): boolean {
-    let inside = false;
-    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-      const xi: number = points[i].x;
-      const yi: number = points[i].y;
-      const xj: number = points[j].x;
-      const yj: number = points[j].y;
-      const intersect: boolean = ((yi > y) !== (yj > y)) &&
-        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-      if (intersect) {
-        inside = !inside;
-      }
-    }
-    return inside; // Return whether the point is inside the polygon
-  }
-
-  /**
-   * Computes the hover coordinates relative to the canvas.
-   * @param event The mouse event.
-   * @param imageSize The size of the image.
-   * @param rect The bounding rectangle of the canvas.
-   * @returns The hover coordinates as a Point object.
-   */
-  private computeHoverCoordinates(event: MouseEvent, imageSize: Size, rect: DOMRect): Point {
-    const x: number = (event.clientX - rect.left) * (this.imageInfo.scaledSize.width / rect.width);
-    const y: number = (event.clientY - rect.top) * (this.imageInfo.scaledSize.height / rect.height);
-    return new Point(x, y); // Return the computed hover coordinates
-  }
-
-  /**
    * Handles pointer selection inside polygons.
    * @param event The mouse event.
    */
   selectPolygonAtPointer(event: PointerEvent): void {
     const canvas = this.polygonCanvas.nativeElement;
     const rect: DOMRect = canvas.getBoundingClientRect();
-    const hPosition = this.computeHoverCoordinates(event, this.imageInfo.scaledSize, rect);
-
-    // Check each polygon to see if the click is inside it
-    let polygon: PolygonViewModel | undefined;
-    this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-      if (this.isPointInsidePolygon(hPosition.x, hPosition.y, p.scaledPoints)) {
-        // if (p.onClick) {
-        polygon = p;
-        // }
-      }
-    });
+    const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
     if (polygon && polygon.onClick) {
       polygon.onClick(); // Call the polygon's onClick function if the click is inside it
     }
@@ -591,15 +357,10 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     if (!this.imageInfo) return;
     const canvas = event.target as HTMLCanvasElement;
     const rect: DOMRect = canvas.getBoundingClientRect();
-    const hPosition = this.computeHoverCoordinates(event, this.imageInfo.scaledSize, rect);
+    const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
 
     // Check each polygon to see if the mouse is over it
-    let polygon: PolygonViewModel | undefined;
-    this.currentPolygonVms.forEach((p) => {
-      if (this.isPointInsidePolygon(hPosition.x, hPosition.y, p.scaledPoints)) {
-        polygon = p;
-      }
-    });
+    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
     this.currentPolygonVms.forEach((p: PolygonViewModel) => {
       if (p !== polygon){
         p.mouseOver = false;

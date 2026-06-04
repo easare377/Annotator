@@ -1,0 +1,43 @@
+<div class="dialog-container container-dark" *ngIf="visible" role="dialog" aria-modal="true"
+     [attr.aria-label]="title">
+  <section class="confirm-dialog" [ngClass]="state">
+    <header>
+      <h3>{{ title }}</h3>
+      <button type="button" class="icon-btn" aria-label="Close dialog" (click)="cancelDialog()">&times;</button>
+    </header>
+
+    <div class="message">
+      <div class="state-icon" [ngSwitch]="state" aria-hidden="true">
+        <svg *ngSwitchCase="'critical'" viewBox="0 0 24 24">
+          <path d="M12 2 22 20H2L12 2Z"></path>
+          <path d="M12 8v5"></path>
+          <path d="M12 17h.01"></path>
+        </svg>
+        <svg *ngSwitchCase="'warning'" viewBox="0 0 24 24">
+          <path d="M12 2 22 20H2L12 2Z"></path>
+          <path d="M12 9v4"></path>
+          <path d="M12 17h.01"></path>
+        </svg>
+        <svg *ngSwitchDefault viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 10v7"></path>
+          <path d="M12 7h.01"></path>
+        </svg>
+      </div>
+      <p>{{ message }}</p>
+    </div>
+
+    <footer>
+      <button type="button" class="btn secondary" [class.active-key]="activeButton === 'cancel'"
+              (focus)="setActiveButton('cancel')" (mouseenter)="setActiveButton('cancel')"
+              (click)="cancelDialog()">
+        {{ cancelText }}
+      </button>
+      <button type="button" class="btn primary" [class.active-key]="activeButton === 'ok'"
+              (focus)="setActiveButton('ok')" (mouseenter)="setActiveButton('ok')"
+              (click)="okDialog()">
+        {{ okText }}
+      </button>
+    </footer>
+  </section>
+</div>

@@ -10,7 +10,7 @@
   /*max-height: 100%;*/
   height: 100%;
   /*width: 1000px;*/
-  cursor: grab;
+  cursor: default;
   user-select: none;
 }
 
@@ -25,10 +25,16 @@ canvas {
   /*height: 100vh;*/
   /*width: 100vw;*/
   /*background: #1abc9c;*/
-  cursor: grab;
+  cursor: default;
   touch-action: none;
 }
 
+#parent.pan-enabled,
+canvas.pan-enabled {
+  cursor: grab;
+}
+
+#parent.panning,
 canvas.panning {
   cursor: grabbing;
 }

@@ -1,17 +1,17 @@
-import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {ActiveTab} from "../../../models/enum/active-tab";
-import {Dialog} from "../dialog";
-import {CreateProjectViewModel} from "../../../models/create-project-view-model";
-import {ProjectSetupViewModel} from "../../../models/project-setup-view-model";
-import {HttpService} from "../../../services/http.service";
-import {ProjectInfoRequestBody} from "../../../models/project-info-request-body";
-import {ProjectSetupBase} from "../../../models/project-setup-base";
-import {AnnotationType} from "../../../models/enum/annotation-type";
-import {ObjectClassBase} from "../../../models/object-class-base";
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ActiveTab } from "../../../models/enum/active-tab";
+import { Dialog } from "../dialog";
+import { CreateProjectViewModel } from "../../../models/create-project-view-model";
+import { ProjectSetupViewModel } from "../../../models/project-setup-view-model";
+import { HttpService } from "../../../services/http.service";
+import { ProjectInfoRequestBody } from "../../../models/project-info-request-body";
+import { ProjectSetupBase } from "../../../models/project-setup-base";
+import { AnnotationType } from "../../../models/enum/annotation-type";
+import { ObjectClassBase } from "../../../models/object-class-base";
 import { HttpResponse } from "@angular/common/http";
-import {ProjectInfoResponseBody} from "../../../models/project-info-response-body";
-import {FileUploadService} from "../../file-upload.service";
-import {CreatedProjectResponseBody} from "../../../models/created-project-response-body";
+import { ProjectInfoResponseBody } from "../../../models/project-info-response-body";
+import { FileUploadService } from "../../file-upload.service";
+import { CreatedProjectResponseBody } from "../../../models/created-project-response-body";
 
 @Component({
   selector: 'app-create-project-dialog',
@@ -24,7 +24,7 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
   maxSteps: number = 2;
   // files: File[] = [];
 
-  @ViewChild('fileInput', {static: false}) fileInput!: ElementRef;
+  @ViewChild('fileInput', { static: false }) fileInput!: ElementRef;
   @Output() projectCreated = new EventEmitter<ProjectInfoResponseBody>();
 
   // selectedFiles?: FileList;
@@ -113,7 +113,7 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
         default:
           break;
       }
-    }catch (e){
+    } catch (e) {
 
     }
   }

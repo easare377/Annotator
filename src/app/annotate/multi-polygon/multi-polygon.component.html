@@ -1,8 +1,9 @@
-<div id="parent" #parent (wheel)="onWheel($event)">
+<div id="parent" #parent [class.pan-enabled]="panEnabled" [class.panning]="isPanning" (wheel)="onWheel($event)">
   <!--Canvas to show the image-->
   <canvas #imgCanvas></canvas>
   <!--Canvas to show and control the polygons-->
   <canvas id="canvas" #polygonCanvas
+          [class.pan-enabled]="panEnabled"
           [class.panning]="isPanning"
           (pointerdown)="onPointerDown($event)"
           (pointermove)="onPointerMove($event)"

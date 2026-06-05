@@ -35,6 +35,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   private resizeObserver: ResizeObserver | undefined;
   private renderAnimationFrame: number | undefined;
   private activePointerId: number | undefined;
+  private activePointerStartedWithPan: boolean = false;
   isPanning: boolean = false;
 
   @ViewChild('parent') parent!: ElementRef<HTMLDivElement>; // Reference to the canvas container
@@ -60,6 +61,11 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    * Factor by which the image and polygons should be zoomed in/out.
    */
   @Input() zoomFactor: number = 1;
+
+  /**
+   * Determines whether pointer drag should pan the image.
+   */
+  @Input() panEnabled: boolean = false;
 
   /**
    * Event emitted when a polygon is clicked.
@@ -186,18 +192,22 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     };
     // Update the polygons when object class is set.
     polygonVm.onClassSet = () => {
-        polygonVm.drawPolygon();
-        this.objectClassAssigned.emit(polygonVm);
+      this.redrawCurrentPolygons(canvas);
+      this.objectClassAssigned.emit(polygonVm);
     };
     // Update the polygons if mouse over.
     polygonVm.onMouseOver = () => {
-      this.renderer.renderPolygons(canvas, this.currentPolygonVms, this.imageInfo.scaledSize, this.thickness);
+      this.redrawCurrentPolygons(canvas);
     };
 
     polygonVm.onDrawPolygon = () => {
-      this.renderer.renderPolygon(canvas, polygonVm, imageInfo.scaledSize, this.thickness);
+      this.redrawCurrentPolygons(canvas);
     };
     return polygonVm;
+  }
+
+  private redrawCurrentPolygons(canvas: HTMLCanvasElement): void {
+    this.renderer.renderPolygons(canvas, this.currentPolygonVms, this.imageInfo.scaledSize, this.thickness);
   }
 
   /**
@@ -268,14 +278,18 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     const canvas = event.currentTarget as HTMLCanvasElement;
     canvas.setPointerCapture(event.pointerId);
     this.activePointerId = event.pointerId;
-    this.isPanning = true;
+    this.activePointerStartedWithPan = this.panEnabled;
+    this.isPanning = this.activePointerStartedWithPan;
     this.hasPanned = false;
     this.panStartClientPosition = new Point(event.clientX, event.clientY);
     this.panStartImagePosition = new Point(this.imagePosition.x, this.imagePosition.y);
   }
 
   onPointerMove(event: PointerEvent): void {
-    if (this.isActivePointer(event) && this.isPanning) {
+    if (this.isActivePointer(event)) {
+      this.updatePointerMovement(event);
+    }
+    if (this.isActivePointer(event) && this.activePointerStartedWithPan && this.isPanning) {
       this.panImage(event);
       return;
     }
@@ -284,7 +298,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
 
   onPointerUp(event: PointerEvent): void {
     if (!this.isActivePointer(event)) return;
-    const shouldSelectPolygon: boolean = !this.hasPanned;
+    const shouldSelectPolygon: boolean = !this.activePointerStartedWithPan && !this.hasPanned;
     this.finishPointerInteraction(event);
     if (shouldSelectPolygon) {
       this.selectPolygonAtPointer(event);
@@ -309,11 +323,6 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     event.preventDefault();
     const rect: DOMRect = this.polygonCanvas.nativeElement.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
-    const dx: number = event.clientX - this.panStartClientPosition.x;
-    const dy: number = event.clientY - this.panStartClientPosition.y;
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-      this.hasPanned = true;
-    }
     const nextImagePosition: Point | undefined = this.renderer.computePannedImagePosition(
       this.panStartImagePosition,
       this.panStartClientPosition,
@@ -333,6 +342,15 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     }
     this.isPanning = false;
     this.activePointerId = undefined;
+    this.activePointerStartedWithPan = false;
+  }
+
+  private updatePointerMovement(event: PointerEvent): void {
+    const dx: number = event.clientX - this.panStartClientPosition.x;
+    const dy: number = event.clientY - this.panStartClientPosition.y;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+      this.hasPanned = true;
+    }
   }
 
   /**

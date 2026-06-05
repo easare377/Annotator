@@ -1,22 +1,54 @@
-<div class="dialog-container" *ngIf="visible">
-  <div class="standard-dialog">
-    <div id="title">
-      <h4>Select Class</h4>
+<div class="dialog-container picker-shell" *ngIf="visible" (keydown)="onKeyDown($event)">
+  <div class="assign-dialog" role="dialog" aria-modal="true" aria-labelledby="assign-title">
+    <header class="picker-head">
+      <div>
+        <h4 id="assign-title">Assign class</h4>
+        <span *ngIf="polygonVm?.objectClassVm as currentClass">
+          Current: {{ currentClass.className }}
+        </span>
+      </div>
+      <button type="button" class="close-btn" aria-label="Close" (click)="hideDialog()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6L6 18"></path>
+          <path d="M6 6l12 12"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="class-list" role="listbox" aria-label="Object classes">
+      <button #classOption type="button" class="class-row"
+              *ngFor="let objectClassVm of objectClassVms; let i = index; trackBy: trackByClassId"
+              [class.active]="activeIndex === i"
+              [class.selected]="isSelectedClass(objectClassVm)"
+              role="option"
+              [attr.aria-selected]="isSelectedClass(objectClassVm)"
+              (pointerenter)="activeIndex = i"
+              (click)="setClass(objectClassVm)">
+        <span class="class-dot" [style.background-color]="objectClassVm.color"></span>
+        <span class="class-name">{{ objectClassVm.className }}</span>
+        <svg *ngIf="isSelectedClass(objectClassVm)" class="row-icon" width="18" height="18"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+
+      <button #classOption *ngIf="hasAssignedClass" type="button" class="class-row clear-row"
+              [class.active]="activeIndex === clearOptionIndex"
+              role="option"
+              aria-selected="false"
+              (pointerenter)="activeIndex = clearOptionIndex"
+              (click)="setClass(undefined)">
+        <span class="clear-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6L6 18"></path>
+            <path d="M6 6l12 12"></path>
+          </svg>
+        </span>
+        <span class="class-name">Clear annotation</span>
+      </button>
     </div>
-    <form>
-      <p *ngFor="let objectClassVm of objectClassVms" id="polygon-class"
-         [style.background-color]="objectClassVm?.color"
-         (click)="radioBtn.checked = true; setClass(objectClassVm); hideDialog()">
-        <input #radioBtn type="radio" name="option" id="option1">
-        <label style="color:white;" for="option1">{{objectClassVm?.className}}</label>
-      </p>
-<!--      <p><input type="radio" name="option" id="option2"> <label for="option2">Option 2</label></p>-->
-<!--      <p><input type="radio" name="option" id="option3"> <label for="option3">Option 3</label></p>-->
-<!--      <p><input type="radio" name="option" id="option4"> <label for="option4">Option 4</label></p>-->
-    </form>
-<!--    <div>-->
-<!--      <-->
-<!--    </div>-->
   </div>
 </div>
-

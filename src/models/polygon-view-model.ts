@@ -14,6 +14,8 @@ export class PolygonViewModel {
   private _dimmed: boolean = false;
   private _displayPath: Path2D;
   private _displayBbox: BBox;
+  private readonly _area: number;
+  private _displayArea: number;
   public onMouseOver: Function | undefined;
   public onClick: Function | undefined;
   public onClassSet: Function | undefined;
@@ -25,6 +27,8 @@ export class PolygonViewModel {
     this._scaledPoints = points;
     this._displayPath = this.createPath(points);
     this._displayBbox = this.computeBbox(points);
+    this._area = this.computeArea(points);
+    this._displayArea = this._area;
     this._color = color;
     this._bbox = this.computeBbox(points);
   }
@@ -46,6 +50,7 @@ export class PolygonViewModel {
     this._scaledPoints = value;
     this._displayPath = this.createPath(value);
     this._displayBbox = this.computeBbox(value);
+    this._displayArea = this.computeArea(value);
   }
 
   get displayPath(): Path2D {
@@ -54,6 +59,14 @@ export class PolygonViewModel {
 
   get displayBbox(): BBox {
     return this._displayBbox;
+  }
+
+  get area(): number {
+    return this._area;
+  }
+
+  get displayArea(): number {
+    return this._displayArea;
   }
 
   get bbox(): BBox {
@@ -125,6 +138,16 @@ export class PolygonViewModel {
     points.slice(1).forEach((point: Point) => path.lineTo(point.x, point.y));
     path.closePath();
     return path;
+  }
+
+  private computeArea(points: Array<Point>): number {
+    if (points.length < 3) return 0;
+    let area: number = 0;
+    points.forEach((point: Point, index: number) => {
+      const nextPoint: Point = points[(index + 1) % points.length];
+      area += point.x * nextPoint.y - point.y * nextPoint.x;
+    });
+    return Math.abs(area) / 2;
   }
 
   drawPolygon(): void{

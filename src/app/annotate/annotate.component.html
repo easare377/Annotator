@@ -54,10 +54,14 @@
       <div class="tools">
         <!-- History controls -->
         <div class="grp">
-          <button type="button" class="ico" disabled title="Undo" aria-label="Undo">
+          <button type="button" class="ico" title="Undo" aria-label="Undo"
+                  [disabled]="!canUndoClassification"
+                  (click)="undoClassification()">
             <img src="assets/images/svgs/undo-svgrepo-com.svg" alt="">
           </button>
-          <button type="button" class="ico" disabled title="Redo" aria-label="Redo">
+          <button type="button" class="ico" title="Redo" aria-label="Redo"
+                  [disabled]="!canRedoClassification"
+                  (click)="redoClassification()">
             <img src="assets/images/svgs/redo-svgrepo-com.svg" alt="">
           </button>
         </div>
@@ -86,14 +90,16 @@
         <div class="bar"></div>
 
         <!-- Active tool -->
-        <div class="mode">
+        <button type="button" class="mode" [class.active]="panModeEnabled"
+                title="Pan" aria-label="Pan" [attr.aria-pressed]="panModeEnabled"
+                (click)="panModeEnabled = !panModeEnabled">
           <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
           <span>Pan</span>
-        </div>
+        </button>
       </div>
 
       <!-- Image canvas -->
-      <div class="canvas">
+      <div class="canvas" (pointermove)="updateStatFade($event, stat)" (pointerleave)="statFaded = false">
         <!-- Detect overlay -->
         <div class="detect" *ngIf="!image.polygonVms">
           <button type="button" class="detect-btn" [disabled]="generatingPolygons"
@@ -105,14 +111,14 @@
 
         <!-- Polygon editor -->
         <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
-                           (polygonClicked)="assignDialog.polygonVm = $event;
-                                            currentObjectClassVm ? $event.objectClassVm = currentObjectClassVm : assignDialog.showDialog()"
+                           [panEnabled]="panModeEnabled"
+                           (polygonClicked)="handlePolygonClicked($event, assignDialog)"
                            (objectClassAssigned)="handleObjectClassAssigned($event)">
         </app-multi-polygon>
 
         <!-- Canvas status -->
-        <div class="stat">
-          <span>{{ image.originalFileName }}</span>
+        <div #stat class="stat" [class.fade]="statFaded">
+          <span>image.jpg{{ image.originalFileName }}</span>
           <span>{{ imageInfoVms.indexOf(image) + 1 }} / {{ imageInfoVms.length }}</span>
           <span>{{ image.polygonVms ? image.polygonVms.length : 0 }} polygons</span>
         </div>
@@ -185,7 +191,9 @@
     </aside>
 
     <!-- Assign class dialog -->
-    <app-assign-class-dialog #assignDialog [objectClassVms]="objectClassVms"></app-assign-class-dialog>
+    <app-assign-class-dialog #assignDialog [objectClassVms]="objectClassVms"
+                             (objectClassSelected)="assignClassFromDialog(assignDialog.polygonVm, $event)">
+    </app-assign-class-dialog>
     <app-confirmation-dialog #clearAnnotationsDialog
                              title="Clear annotations"
                              message="Are you sure you want to clear all annotations for this image?"
@@ -204,11 +212,4 @@
       <span>Select an image to start annotating</span>
     </div>
   </ng-template>
-  <button type="button" (click)="removeImageDialog.showDialog()">
-    Remove image
-  </button>
-  
-  <app-confirmation-dialog #removeImageDialog title="Remove image" message="Are you sure you want to remove this image?"
-    state="critical" okText="OK" cancelText="Cancel" defaultButton="cancel">
-  </app-confirmation-dialog>
 </div>

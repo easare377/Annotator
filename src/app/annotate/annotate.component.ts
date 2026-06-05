@@ -20,6 +20,19 @@ import {UploadState} from "../../models/enum/upload-state";
 import {ObjectClassInfosRequestBody} from "../../models/object-class-infos-request-body";
 import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
 import {ImageUrls} from "../../models/image-urls";
+import Stack from "easare-utils-module/dist/collection/stack/stack";
+import {AssignClassDialogComponent} from "../dialogs/assign-class-dialog/assign-class-dialog.component";
+
+interface ClassificationChange {
+  polygonId: string;
+  beforeClassId: string | undefined;
+  afterClassId: string | undefined;
+}
+
+interface ClassificationHistoryAction {
+  imageId: string;
+  changes: ClassificationChange[];
+}
 
 @Component({
   selector: 'app-annotate',
@@ -36,8 +49,12 @@ export class AnnotateComponent implements OnInit {
   // progresses
   public generatingPolygons = false;
   public updatingPolygonClasses = false;
+  public panModeEnabled = false;
+  public statFaded = false;
   public projectName: string | undefined;
   public projectInfo: ProjectInfoResponseBody | undefined;
+  private undoStack = new Stack<ClassificationHistoryAction>();
+  private redoStack = new Stack<ClassificationHistoryAction>();
 
   constructor(public httpService: HttpService, public navService: NavigationService,
               public appManagerService: AppManagerService, private route: ActivatedRoute) {
@@ -50,6 +67,7 @@ export class AnnotateComponent implements OnInit {
     // Init logic anytime the page is routed to.
     this.imageInfoVms = [];
     this.objectClassVms = new Array<ObjectClassViewModel>();
+    this.resetClassificationHistory();
   }
 
   ngOnInit(): void {
@@ -237,6 +255,63 @@ export class AnnotateComponent implements OnInit {
     this.redrawCurrentPolygons();
   }
 
+  get canUndoClassification(): boolean {
+    return this.undoStack.size > 0;
+  }
+
+  get canRedoClassification(): boolean {
+    return this.redoStack.size > 0;
+  }
+
+  handlePolygonClicked(polygonVm: PolygonViewModel, assignDialog: AssignClassDialogComponent): void {
+    if (this.currentObjectClassVm) {
+      this.assignPolygonClass(polygonVm, this.currentObjectClassVm);
+      return;
+    }
+    assignDialog.polygonVm = polygonVm;
+    assignDialog.showDialog();
+  }
+
+  assignClassFromDialog(polygonVm: PolygonViewModel | undefined, objectClassVm: ObjectClassViewModel | undefined): void {
+    if (!polygonVm) return;
+    this.assignPolygonClass(polygonVm, objectClassVm);
+  }
+
+  updateStatFade(event: PointerEvent, statElement: HTMLElement): void {
+    const rect: DOMRect = statElement.getBoundingClientRect();
+    this.statFaded = event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom;
+  }
+
+  assignPolygonClass(polygonVm: PolygonViewModel, objectClassVm: ObjectClassViewModel | undefined): void {
+    if (!this.currentImageInfo) return;
+    const action: ClassificationHistoryAction = {
+      imageId: this.currentImageInfo.imageId,
+      changes: [{
+        polygonId: polygonVm.id,
+        beforeClassId: polygonVm.objectClassVm?.classId,
+        afterClassId: objectClassVm?.classId
+      }]
+    };
+    this.applyNewClassificationAction(action);
+  }
+
+  undoClassification(): void {
+    const action: ClassificationHistoryAction | undefined = this.popHistoryAction(this.undoStack);
+    if (!action) return;
+    this.applyClassificationAction(action, 'before');
+    this.redoStack.push(action);
+  }
+
+  redoClassification(): void {
+    const action: ClassificationHistoryAction | undefined = this.popHistoryAction(this.redoStack);
+    if (!action) return;
+    this.applyClassificationAction(action, 'after');
+    this.undoStack.push(action);
+  }
+
   handleObjectClassAssigned(polygonVm: PolygonViewModel): void {
     if (!this.currentImageInfo) return;
     const annotatedPolygonVms = this.currentImageInfo.annotatedPolygonVms;
@@ -251,24 +326,89 @@ export class AnnotateComponent implements OnInit {
   }
 
   clearPolygonAnnotation(polygonVm: PolygonViewModel): void {
-    polygonVm.mouseOver = false;
-    polygonVm.dimmed = false;
-    polygonVm.objectClassVm = undefined;
-    this.handleObjectClassAssigned(polygonVm);
-    polygonVm.drawPolygon();
+    if (!this.currentImageInfo || !polygonVm.objectClassVm) return;
+    this.applyNewClassificationAction({
+      imageId: this.currentImageInfo.imageId,
+      changes: [{
+        polygonId: polygonVm.id,
+        beforeClassId: polygonVm.objectClassVm.classId,
+        afterClassId: undefined
+      }]
+    });
   }
 
   clearAllImageAnnotations(): void {
-    if (!this.currentImageInfo) return;
-    if (this.currentImageInfo.polygonVms) {
-      this.currentImageInfo.polygonVms.forEach((polygonVm: PolygonViewModel) => {
-        polygonVm.mouseOver = false;
-        polygonVm.dimmed = false;
-        polygonVm.objectClassVm = undefined;
-      });
+    if (!this.currentImageInfo?.polygonVms) return;
+    const changes: ClassificationChange[] = this.currentImageInfo.polygonVms
+      .filter((polygonVm: PolygonViewModel) => !!polygonVm.objectClassVm)
+      .map((polygonVm: PolygonViewModel) => ({
+        polygonId: polygonVm.id,
+        beforeClassId: polygonVm.objectClassVm?.classId,
+        afterClassId: undefined
+      }));
+    this.applyNewClassificationAction({
+      imageId: this.currentImageInfo.imageId,
+      changes
+    });
+  }
+
+  private applyNewClassificationAction(action: ClassificationHistoryAction): void {
+    const actionableChanges: ClassificationChange[] = action.changes.filter((change: ClassificationChange) =>
+      change.beforeClassId !== change.afterClassId
+    );
+    if (!actionableChanges.length) return;
+    const normalizedAction: ClassificationHistoryAction = {
+      imageId: action.imageId,
+      changes: actionableChanges
+    };
+    this.applyClassificationAction(normalizedAction, 'after');
+    this.undoStack.push(normalizedAction);
+    this.redoStack = new Stack<ClassificationHistoryAction>();
+  }
+
+  private applyClassificationAction(action: ClassificationHistoryAction, target: 'before' | 'after'): void {
+    const imageInfo: ImageInfoViewModel | undefined = this.imageInfoVms.find((image: ImageInfoViewModel) =>
+      image.imageId === action.imageId
+    );
+    if (!imageInfo?.polygonVms) return;
+    action.changes.forEach((change: ClassificationChange) => {
+      const polygonVm: PolygonViewModel | undefined = imageInfo.polygonVms?.find((polygon: PolygonViewModel) =>
+        polygon.id === change.polygonId
+      );
+      if (!polygonVm) return;
+      const classId: string | undefined = target === 'before' ? change.beforeClassId : change.afterClassId;
+      polygonVm.mouseOver = false;
+      polygonVm.dimmed = false;
+      polygonVm.objectClassVm = this.getObjectClassById(classId);
+    });
+    this.rebuildAnnotatedPolygons(imageInfo);
+    if (imageInfo === this.currentImageInfo) {
+      this.redrawCurrentPolygons();
     }
-    this.currentImageInfo.annotatedPolygonVms.splice(0);
-    this.redrawCurrentPolygons();
+  }
+
+  private rebuildAnnotatedPolygons(imageInfo: ImageInfoViewModel): void {
+    imageInfo.annotatedPolygonVms.splice(0);
+    imageInfo.polygonVms?.forEach((polygonVm: PolygonViewModel) => {
+      if (polygonVm.objectClassVm) {
+        imageInfo.annotatedPolygonVms.push(polygonVm);
+      }
+    });
+  }
+
+  private getObjectClassById(classId: string | undefined): ObjectClassViewModel | undefined {
+    if (!classId) return undefined;
+    return this.objectClassVms.find((objectClassVm: ObjectClassViewModel) => objectClassVm.classId === classId);
+  }
+
+  private popHistoryAction(stack: Stack<ClassificationHistoryAction>): ClassificationHistoryAction | undefined {
+    if (stack.size === 0) return undefined;
+    return stack.pop().value;
+  }
+
+  private resetClassificationHistory(): void {
+    this.undoStack = new Stack<ClassificationHistoryAction>();
+    this.redoStack = new Stack<ClassificationHistoryAction>();
   }
 
   private redrawCurrentPolygons(): void {

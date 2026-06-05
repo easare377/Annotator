@@ -136,7 +136,7 @@ export class PolygonCanvasRendererService {
 
   renderPolygons(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], imageSize: Size, thickness: number): void {
     this.clearCanvas(canvas);
-    polygons.forEach((polygon: PolygonViewModel) => {
+    this.getRenderOrderedPolygons(polygons).forEach((polygon: PolygonViewModel) => {
       this.renderPolygon(canvas, polygon, imageSize, thickness, false);
     });
   }
@@ -184,17 +184,37 @@ export class PolygonCanvasRendererService {
   findPolygonAtPoint(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], point: Point): PolygonViewModel | undefined {
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if (!ctx) return undefined;
-    let polygon: PolygonViewModel | undefined;
-    polygons.forEach((p: PolygonViewModel) => {
+    for (const p of this.getHitTestOrderedPolygons(polygons)) {
       if (this.isPointInsideBbox(point, p.displayBbox) && ctx.isPointInPath(p.displayPath, point.x, point.y)) {
-        polygon = p;
+        return p;
       }
-    });
-    return polygon;
+    }
+    return undefined;
+  }
+
+  getRenderOrderedPolygons(polygons: PolygonViewModel[]): PolygonViewModel[] {
+    return this.orderPolygonsByDisplayArea(polygons, 'descending');
+  }
+
+  getHitTestOrderedPolygons(polygons: PolygonViewModel[]): PolygonViewModel[] {
+    return this.orderPolygonsByDisplayArea(polygons, 'ascending');
   }
 
   private isPointInsideBbox(point: Point, bbox: BBox): boolean {
     return point.x >= bbox.xMin && point.x <= bbox.xMax && point.y >= bbox.yMin && point.y <= bbox.yMax;
+  }
+
+  private orderPolygonsByDisplayArea(polygons: PolygonViewModel[], direction: 'ascending' | 'descending'): PolygonViewModel[] {
+    return polygons
+      .map((polygon: PolygonViewModel, index: number) => ({polygon, index}))
+      .sort((a, b) => {
+        const areaDifference: number = a.polygon.displayArea - b.polygon.displayArea;
+        if (areaDifference !== 0) {
+          return direction === 'ascending' ? areaDifference : -areaDifference;
+        }
+        return direction === 'ascending' ? b.index - a.index : a.index - b.index;
+      })
+      .map(({polygon}) => polygon);
   }
 
   private getPolygonStyle(polygon: PolygonViewModel, baseThickness: number): { color: string, opacity: number, thickness: number, fill: boolean } {

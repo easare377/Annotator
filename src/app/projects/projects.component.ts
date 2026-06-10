@@ -11,10 +11,12 @@ import { HttpResponse } from "@angular/common/http";
 @Component({
   selector: 'app-projects',
   templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.css', '../temporal.css']
+  styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
   projects: ProjectViewModel[] = [];
+  isLoadingProjects = false;
+  loadProjectsError: string | undefined;
 
   constructor(private httpService: HttpService, public navService: NavigationService, public appManagerService: AppManagerService) {
   }
@@ -31,6 +33,8 @@ export class ProjectsComponent implements OnInit {
   }
 
   async loadProjectsAsync(): Promise<void> {
+    this.isLoadingProjects = true;
+    this.loadProjectsError = undefined;
     try {
       const resp: HttpResponse<Array<ProjectInfoResponseBody>> = await this.httpService.getProjectsAsync(new RequestBody())
       switch (resp.status) {
@@ -38,21 +42,21 @@ export class ProjectsComponent implements OnInit {
           if (!resp.body) {
             throw new Error();
           }
-          const projectsRespBody: Array<ProjectInfoResponseBody> = resp.body;
-          projectsRespBody.forEach(projectRespBody => {
-            this.displayProject(projectRespBody);
-          })
+          this.displayProjects(resp.body);
           break;
         default:
-          break;
+          this.loadProjectsError = 'Unable to load projects.';
       }
     } catch (e) {
       console.log(e);
+      this.loadProjectsError = 'Unable to load projects.';
+    } finally {
+      this.isLoadingProjects = false;
     }
   }
 
   displayProjects(projectsRespBody: ProjectInfoResponseBody[]): void {
-    this.projects.splice(0, this.projects.length - 1);
+    this.projects.splice(0);
     projectsRespBody.forEach(projectRespBody => {
       this.displayProject(projectRespBody);
     })
@@ -67,6 +71,20 @@ export class ProjectsComponent implements OnInit {
     this.projects.push(projectVm);
   }
 
+  openProject(project: ProjectViewModel): void {
+    this.appManagerService.addData('projectId', project.projectId);
+    this.navService.gotoProjectImagesPageAsync(project.projectId).then();
+  }
+
+  getProjectInitials(project: ProjectViewModel): string {
+    return project.name
+      .split(' ')
+      .filter((part: string) => part.length > 0)
+      .slice(0, 2)
+      .map((part: string) => part[0].toUpperCase())
+      .join('') || 'P';
+  }
+
   // Use step approach.
   createProject(): void {
     const projectCount = this.projects.length + 1;
@@ -78,4 +96,3 @@ export class ProjectsComponent implements OnInit {
     // });
   }
 }
-

@@ -1,88 +1,83 @@
-<div>
-<!--  <div class="header">-->
-<!--    <div class="logo">-->
-<!--      &lt;!&ndash; <img src="/my-app/src/assets/images/Fort.jpg" alt="Label Studio Logo" /> &ndash;&gt;-->
-<!--      <span>Annotator</span>-->
-<!--    </div>-->
-<!--    <div class="menu">-->
-<!--      <button class="menu-button">-->
-<!--        <span class="hamburger-icon">&#9776;</span>-->
-<!--      </button>-->
-<!--      <span class="title">Projects</span>-->
-<!--    </div>-->
-<!--    <button class="btn-primary" (click)="createProjectDialog.showDialog()">Create</button>-->
-<!--    <div class="profile">-->
-<!--      <span class="initials">GK</span>-->
-<!--    </div>-->
-<!--  </div>-->
+<div class="projects-page">
+  <header class="topbar">
+    <div class="top-left">
+      <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
+      <div class="divider"></div>
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <span class="current">Projects</span>
+      </nav>
+    </div>
 
-  <div id="account-menu">
-    <div id="account-menu-left">
+    <button type="button" class="create-btn" (click)="createProjectDialog.showDialog()">
+      <img src="assets/images/svgs/create-icon.svg" alt="">
+      <span>Create Project</span>
+    </button>
+  </header>
+
+  <main class="content">
+    <section class="page-head">
       <div>
-        <img id="icon" src="assets/images/svgs/polygon-matic-icon.svg">
+        <h1>Projects</h1>
+        <p>{{ projects.length }} {{ projects.length === 1 ? 'project' : 'projects' }}</p>
       </div>
-      <div class="hl"></div>
-      <!--Web Navigation-->
-      <div id="navigation">
-        <ul>
-          <li><a style="color: #007bff">Projects</a></li>
-<!--          <span>/</span>-->
-<!--          &lt;!&ndash;          <li *ngIf="projectInfo" style="color: #007bff"&ndash;&gt;-->
-<!--          &lt;!&ndash;              (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">&ndash;&gt;-->
-<!--          &lt;!&ndash;            {{projectInfo.name}}&ndash;&gt;-->
-<!--          &lt;!&ndash;          </li>&ndash;&gt;-->
-<!--          <span>/</span>-->
-<!--          <li>Annotate</li>-->
-        </ul>
-      </div>
-    </div>
-    <div id="account-menu-right">
-      <div id="annotation-controls">
-        <!--Update Button-->
-        <button id="update-button" class="progress-button" (click)="createProjectDialog.showDialog()">
-          <img src="assets/images/svgs/create-icon.svg" alt="create">
-          Create Project
-        </button>
-        <!--Import-button"-->
-<!--        <button id="save-button" class="progress-button" (click)="importDataDialog.showDialog()">-->
-<!--          <img src="assets/images/svgs/import-svgrepo-com.svg">-->
-<!--          Import-->
-<!--        </button>-->
-<!--        <button id="export-button" class="progress-button" (click)="exportData.showDialog()">-->
-<!--          <img src="assets/images/svgs/export-svgrepo-com.svg">-->
-<!--          Export-->
-<!--        </button>-->
-      </div>
-    </div>
-  </div>
+      <button type="button" class="new-btn" (click)="createProjectDialog.showDialog()">
+        <img src="assets/images/svgs/create-icon.svg" alt="">
+        <span>New</span>
+      </button>
+    </section>
 
-  <div class="project-list">
-    <div *ngFor="let project of projects" class="project-card"
-    (click)="appManagerService.addData('projectId', project.projectId);navService.gotoProjectImagesPageAsync(project.projectId)">
-      <div class="project-header">
-        <h3>{{ project.name }}</h3>
-        <button class="more-options">&#8942;</button>
-      </div>
-      <div class="project-stats">
-<!--        <div class="stat">{{ project.stats.total }} / 1</div>-->
-<!--        <div class="stat success"><span class="checkmark">&#10003;</span> {{ project.stats.success }}</div>-->
-<!--        <div class="stat error"><span class="crossmark">&#10007;</span> {{ project.stats.error }}</div>-->
-<!--        <div class="stat warning"><span class="bulb">&#128161;</span> {{ project.stats.warning }}</div>-->
-      </div>
-      <div class="hl"></div>
-      <div class="project-footer">
-        <span>{{ project.dateCreated | date: 'dd MMM yy, HH:mm' }}</span>
-        <div class="profile">
-<!--          <span class="initials">{{ project.initials }}</span>-->
+    <section class="state" *ngIf="isLoadingProjects">
+      <span class="spinner"></span>
+      <span>Loading projects</span>
+    </section>
+
+    <section class="state error" *ngIf="!isLoadingProjects && loadProjectsError">
+      <span>{{ loadProjectsError }}</span>
+      <button type="button" (click)="loadProjectsAsync()">Retry</button>
+    </section>
+
+    <section class="empty" *ngIf="!isLoadingProjects && !loadProjectsError && !projects.length">
+      <img src="assets/images/svgs/polygon-matic-icon.svg" alt="">
+      <h2>No projects yet</h2>
+      <p>Create your first annotation project.</p>
+      <button type="button" class="create-btn" (click)="createProjectDialog.showDialog()">
+        <img src="assets/images/svgs/create-icon.svg" alt="">
+        <span>Create Project</span>
+      </button>
+    </section>
+
+    <section class="project-grid" *ngIf="!isLoadingProjects && !loadProjectsError && projects.length">
+      <article *ngFor="let project of projects" class="project-card" role="button" tabindex="0"
+               (click)="openProject(project)"
+               (keydown.enter)="openProject(project)"
+               (keydown.space)="openProject(project)">
+        <div class="card-head">
+          <div class="avatar" aria-hidden="true">{{ getProjectInitials(project) }}</div>
+          <button type="button" class="icon-btn" title="Project actions" aria-label="Project actions"
+                  (click)="$event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5h.01"></path>
+              <path d="M12 12h.01"></path>
+              <path d="M12 19h.01"></path>
+            </svg>
+          </button>
         </div>
-      </div>
-    </div>
-  </div>
-  <!-- Dialogs -->
-  <div>
-<!--    <app-create-project #createProjectDialog-->
-<!--    (projectCreated)="navService.gotoProjectImagesPageAsync($event.projectId);"></app-create-project>-->
-<!--    <app-create-project #createProjectDialog></app-create-project>-->
-    <app-create-project-dialog #createProjectDialog></app-create-project-dialog>
-  </div>
+
+        <div class="card-body">
+          <h2>{{ project.name }}</h2>
+          <p>{{ project.description || 'No description added.' }}</p>
+        </div>
+
+        <footer class="card-foot">
+          <span>{{ project.dateCreated | date: 'dd MMM yy, HH:mm' }}</span>
+          <button type="button" class="open-btn" (click)="$event.stopPropagation(); openProject(project)">
+            Open
+          </button>
+        </footer>
+      </article>
+    </section>
+  </main>
+
+  <app-create-project-dialog #createProjectDialog></app-create-project-dialog>
 </div>

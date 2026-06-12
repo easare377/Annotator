@@ -1,7 +1,8 @@
-import {Size} from "./size";
-import {PolygonViewModel} from "./polygon-view-model";
-import {ImageInfoBase} from "./image-info-base";
-import {ImageUrls} from "./image-urls";
+import { Size } from "./size";
+import { PolygonViewModel } from "./polygon-view-model";
+import { ImageInfoBase } from "./image-info-base";
+import { ImageUrls } from "./image-urls";
+import { PromptsViewModel } from "./prompts-view-model";
 
 export class ImageInfoViewModel extends ImageInfoBase {
   // private readonly _imageId: string;
@@ -13,8 +14,10 @@ export class ImageInfoViewModel extends ImageInfoBase {
   private _scaledSize: Size;
   private _zoomLevel: number = 100;
   private _polygonVms: PolygonViewModel[] | undefined;
+  private readonly _promptsVms: PromptsViewModel[] = [];
   private readonly _annotatedPolygonVms: PolygonViewModel[] = [];
   public onPolygonsChanged: Function | undefined;
+
 
 
   constructor(imageId: string, imageUrls: ImageUrls, trueSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
@@ -62,6 +65,9 @@ export class ImageInfoViewModel extends ImageInfoBase {
     }
   }
 
+  get promptsVms(): PromptsViewModel[] {
+    return this._promptsVms;
+  }
 
   get annotatedPolygonVms(): PolygonViewModel[] {
     return this._annotatedPolygonVms;

@@ -85,30 +85,83 @@
                   (click)="multiPolygon.zoom(100)">
             <img src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="">
           </button>
+          <!-- Pan tool -->
+          <button type="button" class="mode" [class.active]="panModeEnabled" title="Pan" aria-label="Pan"
+            [attr.aria-pressed]="panModeEnabled" (click)="panModeEnabled = !panModeEnabled">
+            <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
+            <span>Pan</span>
+          </button>
         </div>
 
         <div class="bar"></div>
 
-        <!-- Active tool -->
-        <button type="button" class="mode" [class.active]="panModeEnabled"
-                title="Pan" aria-label="Pan" [attr.aria-pressed]="panModeEnabled"
-                (click)="panModeEnabled = !panModeEnabled">
-          <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
-          <span>Pan</span>
-        </button>
+        <!-- Prompt tools -->
+        <div class="prompt-tools" role="group" aria-label="SAM prompt tools">
+          <button type="button" class="prompt-tool active" title="Positive point"
+                  aria-label="Positive point" aria-pressed="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M12 8v8"></path>
+              <path d="M8 12h8"></path>
+            </svg>
+            <span>Positive</span>
+          </button>
+          <button type="button" class="prompt-tool" title="Negative point"
+                  aria-label="Negative point" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M8 12h8"></path>
+            </svg>
+            <span>Negative</span>
+          </button>
+          <button type="button" class="prompt-tool" title="Bounding box"
+                  aria-label="Bounding box" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 9V4h5"></path>
+              <path d="M15 4h5v5"></path>
+              <path d="M20 15v5h-5"></path>
+              <path d="M9 20H4v-5"></path>
+            </svg>
+            <span>Box</span>
+          </button>
+          <button type="button" class="prompt-tool" title="Refine mask"
+                  aria-label="Refine mask" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7l8-4 8 4-8 4-8-4Z"></path>
+              <path d="M4 12l8 4 8-4"></path>
+              <path d="M4 17l8 4 8-4"></path>
+            </svg>
+            <span>Refine</span>
+          </button>
+        </div>
+
+        <div class="prompt-actions" role="group" aria-label="Prompt actions">
+          <button type="button" class="ico" title="Undo prompt" aria-label="Undo prompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 7 4 12l5 5"></path>
+              <path d="M20 17a7 7 0 0 0-7-7H4"></path>
+            </svg>
+          </button>
+          <button type="button" class="ico" title="Clear prompts" aria-label="Clear prompts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="m19 6-1 14H6L5 6"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="bar"></div>
       </div>
 
       <!-- Image canvas -->
       <div class="canvas" (pointermove)="updateStatFade($event, stat)" (pointerleave)="statFaded = false">
-        <!-- Detect overlay -->
-        <div class="detect" *ngIf="!image.polygonVms">
-          <button type="button" class="detect-btn" [disabled]="generatingPolygons"
-                  (click)="generatePolygonsAsync(image.imageId)">
-            <span *ngIf="!generatingPolygons">Detect Objects</span>
-            <span class="spinner detect-spin" *ngIf="generatingPolygons"></span>
-          </button>
-        </div>
-
         <!-- Polygon editor -->
         <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
                            [panEnabled]="panModeEnabled"
@@ -122,6 +175,36 @@
           <span>{{ imageInfoVms.indexOf(image) + 1 }} / {{ imageInfoVms.length }}</span>
           <span>{{ image.polygonVms ? image.polygonVms.length : 0 }} polygons</span>
         </div>
+
+      </div>
+
+      <!-- Mask actions -->
+      <div class="mask-action-bar">
+        <button type="button" class="clear-mask-btn"
+                [disabled]="!image.polygonVms || generatingPolygons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7l8-4 8 4-8 4-8-4Z"></path>
+            <path d="M4 12l8 4 8-4"></path>
+            <path d="m16 17 5 5"></path>
+            <path d="m21 17-5 5"></path>
+          </svg>
+          <span>Clear Masks</span>
+        </button>
+        <button type="button" class="generate-mask-btn" [disabled]="generatingPolygons"
+                (click)="generatePolygonsAsync(image.imageId)">
+          <svg *ngIf="!generatingPolygons" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 3 1.15 3.1L16 7.5l-2.85 1.4L12 12l-1.15-3.1L8 7.5l2.85-1.4L12 3Z"></path>
+            <path d="m18.5 12 .75 2 1.75.75-1.75.75-.75 2-.75-2-1.75-.75 1.75-.75.75-2Z"></path>
+            <path d="M4 13.5h8v6H4z"></path>
+            <path d="M7 13.5v6"></path>
+            <path d="M10 13.5v6"></path>
+          </svg>
+          <span class="spinner generate-spin" *ngIf="generatingPolygons"></span>
+          <span>{{ generatingPolygons ? 'Generating' : 'Generate Masks' }}</span>
+        </button>
       </div>
     </section>
 

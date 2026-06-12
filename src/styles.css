@@ -583,3 +583,154 @@ app-project-images .loading div {
     display: none;
   }
 }
+
+/* Annotate SAM prompt UI */
+app-annotate .tools {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+app-annotate .tools::-webkit-scrollbar {
+  display: none;
+}
+
+app-annotate .prompt-tools,
+app-annotate .prompt-actions {
+  display: flex;
+  align-items: center;
+}
+
+app-annotate .prompt-tools {
+  flex: 0 0 auto;
+  border: 1px solid #cfd6e3;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+app-annotate .prompt-tool {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-right: 1px solid #dfe4ec;
+  padding: 0 9px;
+  background: #fff;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+app-annotate .prompt-tool:last-child {
+  border-right: 0;
+}
+
+app-annotate .prompt-tool svg,
+app-annotate .prompt-actions svg,
+app-annotate .ico svg,
+app-annotate .generate-mask-btn svg,
+app-annotate .clear-mask-btn svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+app-annotate .prompt-tool:hover {
+  background: #f8fafc;
+}
+
+app-annotate .prompt-tool.active {
+  background: #e9f8ef;
+  color: #167445;
+  box-shadow: inset 0 -2px #22a564;
+}
+
+app-annotate .prompt-tool:nth-child(2):hover {
+  color: #c53030;
+}
+
+app-annotate .prompt-tool:nth-child(3):hover {
+  color: #087d9d;
+}
+
+app-annotate .prompt-actions {
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+app-annotate .stage {
+  grid-template-rows: 48px minmax(0, 1fr) 52px;
+}
+
+app-annotate .canvas {
+  margin-bottom: 0;
+}
+
+app-annotate .mask-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px 10px;
+}
+
+app-annotate .generate-mask-btn,
+app-annotate .clear-mask-btn {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+app-annotate .generate-mask-btn {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
+app-annotate .generate-mask-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+app-annotate .clear-mask-btn {
+  border: 1px solid #cfd6e3;
+  background: #fff;
+  color: #b42318;
+}
+
+app-annotate .clear-mask-btn:hover:not(:disabled) {
+  border-color: #f0b4ae;
+  background: #fff5f4;
+}
+
+app-annotate .generate-mask-btn:disabled,
+app-annotate .clear-mask-btn:disabled {
+  opacity: .72;
+  cursor: default;
+}
+
+app-annotate .generate-spin {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 1180px) {
+  app-annotate .prompt-tool span {
+    display: none;
+  }
+
+  app-annotate .prompt-tool {
+    width: 34px;
+    padding: 0;
+  }
+}

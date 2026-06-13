@@ -82,12 +82,13 @@
             <img src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="">
           </button>
           <button type="button" class="ico" title="Fit Image" aria-label="Fit Image"
-                  (click)="multiPolygon.zoom(100)">
+                  [disabled]="image.zoomLevel <= 100"
+                  (click)="image.zoomLevel > 100 ? multiPolygon.zoom(100) : undefined">
             <img src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="">
           </button>
           <!-- Pan tool -->
           <button type="button" class="mode" [class.active]="panModeEnabled" title="Pan" aria-label="Pan"
-            [attr.aria-pressed]="panModeEnabled" (click)="panModeEnabled = !panModeEnabled">
+            [attr.aria-pressed]="panModeEnabled" (click)="togglePanMode()">
             <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
             <span>Pan</span>
           </button>
@@ -97,8 +98,12 @@
 
         <!-- Prompt tools -->
         <div class="prompt-tools" role="group" aria-label="SAM prompt tools">
-          <button type="button" class="prompt-tool active" title="Positive point"
-                  aria-label="Positive point" aria-pressed="true">
+          <!-- Positive point -->
+          <button type="button" class="prompt-tool positive"
+                  [class.active]="currentPromptType === PromptType.POSITIVE"
+                  title="Positive point" aria-label="Positive point"
+                  [attr.aria-pressed]="currentPromptType === PromptType.POSITIVE"
+                  (click)="togglePromptType(PromptType.POSITIVE)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <circle cx="12" cy="12" r="8"></circle>
@@ -107,8 +112,12 @@
             </svg>
             <span>Positive</span>
           </button>
-          <button type="button" class="prompt-tool" title="Negative point"
-                  aria-label="Negative point" aria-pressed="false">
+          <!-- Negative point -->
+          <button type="button" class="prompt-tool negative"
+                  [class.active]="currentPromptType === PromptType.NEGATIVE"
+                  title="Negative point" aria-label="Negative point"
+                  [attr.aria-pressed]="currentPromptType === PromptType.NEGATIVE"
+                  (click)="togglePromptType(PromptType.NEGATIVE)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <circle cx="12" cy="12" r="8"></circle>
@@ -116,8 +125,12 @@
             </svg>
             <span>Negative</span>
           </button>
-          <button type="button" class="prompt-tool" title="Bounding box"
-                  aria-label="Bounding box" aria-pressed="false">
+          <!-- Bounding box -->
+          <button type="button" class="prompt-tool bbox"
+                  [class.active]="currentPromptType === PromptType.BBOX"
+                  title="Bounding box" aria-label="Bounding box"
+                  [attr.aria-pressed]="currentPromptType === PromptType.BBOX"
+                  (click)="togglePromptType(PromptType.BBOX)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 9V4h5"></path>
@@ -127,8 +140,9 @@
             </svg>
             <span>Box</span>
           </button>
+          <!-- Refine mask (placeholder, no functionality yet) -->
           <button type="button" class="prompt-tool" title="Refine mask"
-                  aria-label="Refine mask" aria-pressed="false">
+                  aria-label="Refine mask" aria-pressed="false" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 7l8-4 8 4-8 4-8-4Z"></path>
@@ -140,14 +154,16 @@
         </div>
 
         <div class="prompt-actions" role="group" aria-label="Prompt actions">
-          <button type="button" class="ico" title="Undo prompt" aria-label="Undo prompt">
+          <button type="button" class="ico" title="Undo prompt" aria-label="Undo prompt"
+                  [disabled]="!hasPrompts" (click)="undoPrompt()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 7 4 12l5 5"></path>
               <path d="M20 17a7 7 0 0 0-7-7H4"></path>
             </svg>
           </button>
-          <button type="button" class="ico" title="Clear prompts" aria-label="Clear prompts">
+          <button type="button" class="ico" title="Clear prompts" aria-label="Clear prompts"
+                  [disabled]="!hasPrompts" (click)="clearPrompts()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 6h18"></path>

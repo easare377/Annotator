@@ -5,10 +5,13 @@
   <canvas id="canvas" #polygonCanvas
           [class.pan-enabled]="panEnabled"
           [class.panning]="isPanning"
+          [class.prompt-enabled]="isPromptModeActive"
           (pointerdown)="onPointerDown($event)"
           (pointermove)="onPointerMove($event)"
           (pointerup)="onPointerUp($event)"
           (pointercancel)="onPointerCancel($event)"
           (lostpointercapture)="onPointerCancel($event)">
   </canvas>
+  <!--Canvas to show point and bounding-box prompts-->
+  <canvas #promptCanvas class="prompt-canvas"></canvas>
 </div>

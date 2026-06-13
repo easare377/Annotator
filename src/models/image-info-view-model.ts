@@ -3,6 +3,7 @@ import { PolygonViewModel } from "./polygon-view-model";
 import { ImageInfoBase } from "./image-info-base";
 import { ImageUrls } from "./image-urls";
 import { PromptsViewModel } from "./prompts-view-model";
+import { Point } from "./point";
 
 export class ImageInfoViewModel extends ImageInfoBase {
   // private readonly _imageId: string;
@@ -13,9 +14,10 @@ export class ImageInfoViewModel extends ImageInfoBase {
   private readonly _originalFileName: string;
   private _scaledSize: Size;
   private _zoomLevel: number = 100;
+  private _viewportPosition: Point | undefined;
   private _polygonVms: PolygonViewModel[] | undefined;
-  private readonly _promptsVms: PromptsViewModel[] = [];
-  private readonly _annotatedPolygonVms: PolygonViewModel[] = [];
+  private readonly _promptsVm: PromptsViewModel;
+  private readonly _annotatedPolygonVms: PolygonViewModel[];
   public onPolygonsChanged: Function | undefined;
 
 
@@ -29,6 +31,8 @@ export class ImageInfoViewModel extends ImageInfoBase {
     this._originalFileName = originalFileName;
     this._dateAdded = dateAdded;
     this._dateModified = dateModified;
+    this._promptsVm = new PromptsViewModel();
+    this._annotatedPolygonVms = [];
     // this._polygonVms = polygonVms;
   }
 
@@ -65,8 +69,8 @@ export class ImageInfoViewModel extends ImageInfoBase {
     }
   }
 
-  get promptsVms(): PromptsViewModel[] {
-    return this._promptsVms;
+  get promptsVm(): PromptsViewModel {
+    return this._promptsVm;
   }
 
   get annotatedPolygonVms(): PolygonViewModel[] {
@@ -80,6 +84,14 @@ export class ImageInfoViewModel extends ImageInfoBase {
 
   set zoomLevel(value: number) {
     this._zoomLevel = value;
+  }
+
+  get viewportPosition(): Point | undefined {
+    return this._viewportPosition;
+  }
+
+  set viewportPosition(value: Point | undefined) {
+    this._viewportPosition = value;
   }
 
 

@@ -4,6 +4,8 @@ import {Size} from "../models/size";
 import {PolygonViewModel} from "../models/polygon-view-model";
 import {Utils} from "../app/utils";
 import {BBox} from "../models/bbox";
+import {PromptsViewModel} from "../models/prompts-view-model";
+import {PromptType} from "../models/enum/prompt-type";
 
 @Injectable({
   providedIn: 'root'
@@ -141,6 +143,39 @@ export class PolygonCanvasRendererService {
     });
   }
 
+  renderPrompts(canvas: HTMLCanvasElement, promptsVm: PromptsViewModel | undefined, imagePosition: Point,
+                imageSize: Size, draftBbox?: BBox): void {
+    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+    if (!ctx) return;
+    this.clearCanvas(canvas);
+    if (imageSize.width <= 0 || imageSize.height <= 0) return;
+
+    const scaleX: number = canvas.width / imageSize.width;
+    const scaleY: number = canvas.height / imageSize.height;
+    const pixelRatio: number = this.getCanvasPixelRatio(canvas);
+
+    promptsVm?.bboxes.forEach((bbox: BBox) => {
+      this.drawPromptBbox(ctx, bbox, imagePosition, scaleX, scaleY, pixelRatio, false);
+    });
+    if (draftBbox) {
+      this.drawPromptBbox(ctx, draftBbox, imagePosition, scaleX, scaleY, pixelRatio, true);
+    }
+    promptsVm?.pointVms.forEach(pointVm => {
+      const point: Point = pointVm.point;
+      const x: number = (point.x - imagePosition.x) * scaleX;
+      const y: number = (point.y - imagePosition.y) * scaleY;
+      if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
+      const color: string = pointVm.pointType === PromptType.POSITIVE ? '#22c55e' : '#ef4444';
+      ctx.beginPath();
+      ctx.arc(x, y, 6 * pixelRatio, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2 * pixelRatio;
+      ctx.stroke();
+    });
+  }
+
   clearPolygonFill(canvas: HTMLCanvasElement, path: Path2D, imageSize: Size): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -233,6 +268,22 @@ export class PolygonCanvasRendererService {
       return {color: polygon.color, opacity: 0.4, thickness: baseThickness, fill: true};
     }
     return {color: polygon.color, opacity: 1, thickness: baseThickness, fill: false};
+  }
+
+  private drawPromptBbox(ctx: CanvasRenderingContext2D, bbox: BBox, imagePosition: Point,
+                         scaleX: number, scaleY: number, pixelRatio: number, draft: boolean): void {
+    const x: number = (bbox.xMin - imagePosition.x) * scaleX;
+    const y: number = (bbox.yMin - imagePosition.y) * scaleY;
+    const width: number = (bbox.xMax - bbox.xMin) * scaleX;
+    const height: number = (bbox.yMax - bbox.yMin) * scaleY;
+    ctx.save();
+    ctx.strokeStyle = '#1e90ff';
+    ctx.fillStyle = draft ? 'rgba(30, 144, 255, 0.12)' : 'rgba(30, 144, 255, 0.08)';
+    ctx.lineWidth = 2 * pixelRatio;
+    ctx.setLineDash(draft ? [6 * pixelRatio, 4 * pixelRatio] : []);
+    ctx.fillRect(x, y, width, height);
+    ctx.strokeRect(x, y, width, height);
+    ctx.restore();
   }
 
   private getCanvasPixelRatio(canvas: HTMLCanvasElement): number {

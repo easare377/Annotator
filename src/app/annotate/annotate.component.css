@@ -317,7 +317,7 @@ app-multi-polygon {
     border-bottom: 1px solid #dfe4ec
 }
 
-.active,
+
 .note {
     min-height: 38px;
     margin: 12px 14px 8px;
@@ -367,4 +367,171 @@ app-multi-polygon {
     gap: 14px;
     color: #4b5563;
     font-weight: 700
+}
+
+.tools {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tools::-webkit-scrollbar {
+    display: none;
+}
+
+.prompt-tools,
+.prompt-actions {
+    display: flex;
+    align-items: center;
+}
+
+.prompt-tools {
+    flex: 0 0 auto;
+    border: 1px solid #cfd6e3;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.prompt-tool {
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 0;
+    border-right: 1px solid #dfe4ec;
+    padding: 0 9px;
+    background: #fff;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.prompt-tool:last-child {
+    border-right: 0;
+}
+
+.prompt-tool svg,
+.prompt-actions svg,
+.ico svg,
+.generate-mask-btn svg,
+.clear-mask-btn svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
+.prompt-tool:hover:not(:disabled) {
+    background: #f8fafc;
+}
+
+.prompt-tool:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.prompt-tool.positive.active {
+    background: #e9f8ef;
+    color: #167445;
+    box-shadow: inset 0 -2px #22a564;
+}
+
+.prompt-tool.negative:hover:not(:disabled),
+.prompt-tool.negative.active {
+    color: #c53030;
+}
+
+.prompt-tool.negative.active {
+    background: #fff0f0;
+    box-shadow: inset 0 -2px #ef4444;
+}
+
+.prompt-tool.bbox:hover:not(:disabled),
+.prompt-tool.bbox.active {
+    color: #1e90ff;
+}
+
+.prompt-tool.bbox.active {
+    background: #eef7ff;
+    box-shadow: inset 0 -2px #1e90ff;
+}
+
+.prompt-actions {
+    flex: 0 0 auto;
+    gap: 4px;
+}
+
+.stage {
+    grid-template-rows: 48px minmax(0, 1fr) 52px;
+}
+
+.canvas {
+    margin-bottom: 0;
+}
+
+.mask-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px 10px;
+}
+
+.generate-mask-btn,
+.clear-mask-btn {
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 6px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.generate-mask-btn {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+
+.generate-mask-btn:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.clear-mask-btn {
+    border: 1px solid #cfd6e3;
+    background: #fff;
+    color: #b42318;
+}
+
+.clear-mask-btn:hover:not(:disabled) {
+    border-color: #f0b4ae;
+    background: #fff5f4;
+}
+
+.generate-mask-btn:disabled,
+.clear-mask-btn:disabled {
+    opacity: .72;
+    cursor: default;
+}
+
+.generate-spin {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 1180px) {
+    .prompt-tool span {
+        display: none;
+    }
+
+    .prompt-tool {
+        width: 34px;
+        padding: 0;
+    }
 }

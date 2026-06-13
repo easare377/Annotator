@@ -39,6 +39,14 @@ canvas.panning {
   cursor: grabbing;
 }
 
+canvas.prompt-enabled {
+  cursor: crosshair;
+}
+
+.prompt-canvas {
+  pointer-events: none;
+}
+
 #image{
   position: absolute;
   /*top: 0;*/

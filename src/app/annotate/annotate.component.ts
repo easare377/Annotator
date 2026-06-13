@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ImageInfoViewModel} from "../../models/image-info-view-model";
 import {Point} from "../../models/point";
 import {Utils} from "../utils";
@@ -22,6 +22,9 @@ import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
 import {ImageUrls} from "../../models/image-urls";
 import Stack from "easare-utils-module/dist/collection/stack/stack";
 import {AssignClassDialogComponent} from "../dialogs/assign-class-dialog/assign-class-dialog.component";
+import {PromptType} from "../../models/enum/prompt-type";
+import {PromptsViewModel} from "../../models/prompts-view-model";
+import {MultiPolygonComponent} from "./multi-polygon/multi-polygon.component";
 
 interface ClassificationChange {
   polygonId: string;
@@ -40,6 +43,7 @@ interface ClassificationHistoryAction {
   styleUrl: './annotate.component.css'
 })
 export class AnnotateComponent implements OnInit {
+  protected readonly PromptType = PromptType;
   public projectId!: string;
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
@@ -55,6 +59,7 @@ export class AnnotateComponent implements OnInit {
   public projectInfo: ProjectInfoResponseBody | undefined;
   private undoStack = new Stack<ClassificationHistoryAction>();
   private redoStack = new Stack<ClassificationHistoryAction>();
+  @ViewChild(MultiPolygonComponent) private multiPolygon: MultiPolygonComponent | undefined;
 
   constructor(public httpService: HttpService, public navService: NavigationService,
               public appManagerService: AppManagerService, private route: ActivatedRoute) {
@@ -72,26 +77,38 @@ export class AnnotateComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(async params => {
-      this.projectId = params['pid'];
-      const currentImageId = params['imid'];
-      this.initializeData();
-      if (!this.projectId) {
+      const projectId: string | undefined = params['pid'];
+      const currentImageId: string | undefined = params['imid'];
+
+      if (!projectId) {
         await this.navService.gotoProjectPageAsync();
-      } else {
-        await this.getProjectDataAsync(this.projectId);
-        this.currentImageInfo = this.imageInfoVms.find(image => image.imageId === currentImageId);
-        const polygonsRespBody: PolygonInfoResponseBody[] = await this.getImagePolygonsAsync(currentImageId);
-        // const polygonVms: PolygonViewModel[] = [];
-        if (polygonsRespBody.length > 0) {
-          this.createPolygonVms(polygonsRespBody);
-        }
+        return;
+      }
+
+      if (this.projectId !== projectId || this.imageInfoVms.length === 0) {
+        this.projectId = projectId;
+        this.initializeData();
+        await this.getProjectDataAsync(projectId);
+      }
+
+      const imageInfo: ImageInfoViewModel | undefined =
+        this.imageInfoVms.find(image => image.imageId === currentImageId);
+      this.currentImageInfo = imageInfo;
+
+      if (imageInfo && imageInfo.polygonVms === undefined) {
+        const polygonsRespBody: PolygonInfoResponseBody[] =
+          await this.getImagePolygonsAsync(imageInfo.imageId);
+        this.createPolygonVms(polygonsRespBody, imageInfo);
       }
     });
   }
 
   // Creates the polygon view models
-  createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[]): void {
+  createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[],
+                   imageInfo: ImageInfoViewModel | undefined = this.currentImageInfo): void {
+    if (!imageInfo) return;
     const polygonVms: PolygonViewModel[] = [];
+    imageInfo.annotatedPolygonVms.splice(0);
     polygonsRespBody.forEach(polygonRspBody => {
       const polygonId: string = polygonRspBody.polygonId;
       const points = polygonRspBody.points;
@@ -103,15 +120,18 @@ export class AnnotateComponent implements OnInit {
         polygonVm.objectClassVm = this.objectClassVms.find(x => x.classId === classId);
         // update the annotated classes.
         if (polygonVm.objectClassVm) {
-          this.currentImageInfo!.annotatedPolygonVms.push(polygonVm);
+          imageInfo.annotatedPolygonVms.push(polygonVm);
         }
       }
       polygonVms.push(polygonVm)
     });
-    this.currentImageInfo!.polygonVms = polygonVms;
+    imageInfo.polygonVms = polygonVms;
   }
 
   async generatePolygonsAsync(imageId: string): Promise<void> {
+    const imageInfo: ImageInfoViewModel | undefined =
+      this.imageInfoVms.find(image => image.imageId === imageId);
+    if (!imageInfo) return;
     this.generatingPolygons = true;
     const resp: HttpResponse<PolygonInfoResponseBody[]> =
       await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageId));
@@ -121,7 +141,7 @@ export class AnnotateComponent implements OnInit {
           throw new Error();
         }
         // Display classes
-        this.createPolygonVms(resp.body);
+        this.createPolygonVms(resp.body, imageInfo);
         break;
       default:
         this.generatingPolygons = false;
@@ -285,6 +305,40 @@ export class AnnotateComponent implements OnInit {
       event.clientY <= rect.bottom;
   }
 
+  get currentPromptType(): PromptType {
+    return this.currentPromptsVm?.promptType ?? PromptType.NONE;
+  }
+
+  get hasPrompts(): boolean {
+    return this.currentPromptsVm?.hasPrompts ?? false;
+  }
+
+  togglePromptType(promptType: PromptType): void {
+    const promptsVm: PromptsViewModel | undefined = this.currentPromptsVm;
+    if (!promptsVm) return;
+    promptsVm.promptType = promptsVm.promptType === promptType ? PromptType.NONE : promptType;
+    if (promptsVm.promptType !== PromptType.NONE) {
+      this.panModeEnabled = false;
+    }
+  }
+
+  togglePanMode(): void {
+    this.panModeEnabled = !this.panModeEnabled;
+    if (this.panModeEnabled && this.currentPromptsVm) {
+      this.currentPromptsVm.promptType = PromptType.NONE;
+    }
+  }
+
+  undoPrompt(): void {
+    this.currentPromptsVm?.undo();
+    this.multiPolygon?.redrawPrompts();
+  }
+
+  clearPrompts(): void {
+    this.currentPromptsVm?.clear();
+    this.multiPolygon?.redrawPrompts();
+  }
+
   assignPolygonClass(polygonVm: PolygonViewModel, objectClassVm: ObjectClassViewModel | undefined): void {
     if (!this.currentImageInfo) return;
     const action: ClassificationHistoryAction = {
@@ -399,6 +453,10 @@ export class AnnotateComponent implements OnInit {
   private getObjectClassById(classId: string | undefined): ObjectClassViewModel | undefined {
     if (!classId) return undefined;
     return this.objectClassVms.find((objectClassVm: ObjectClassViewModel) => objectClassVm.classId === classId);
+  }
+
+  private get currentPromptsVm(): PromptsViewModel | undefined {
+    return this.currentImageInfo?.promptsVm;
   }
 
   private popHistoryAction(stack: Stack<ClassificationHistoryAction>): ClassificationHistoryAction | undefined {

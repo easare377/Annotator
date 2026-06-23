@@ -1,5 +1,4 @@
 import { BBox } from "./bbox";
-import { PromptType } from "./enum/prompt-type";
 import { PointViewModel } from "./point-view-model";
 
 type PromptHistoryEntry =
@@ -8,28 +7,19 @@ type PromptHistoryEntry =
 
 export class PromptsViewModel {
     private readonly _pointVms: PointViewModel[] = [];
-    private readonly _bboxes: BBox[] = [];
+    private _bbox: BBox | undefined;
     private readonly _history: PromptHistoryEntry[] = [];
-    private _promptType: PromptType = PromptType.NONE;
 
     get pointVms(): PointViewModel[] {
         return this._pointVms;
     }
 
-    get bboxes(): BBox[] {
-        return this._bboxes;
-    }
-
-    get promptType(): PromptType {
-        return this._promptType;
-    }
-
-    set promptType(value: PromptType) {
-        this._promptType = value;
+    get bbox(): BBox | undefined {
+        return this._bbox;
     }
 
     get hasPrompts(): boolean {
-        return this._pointVms.length > 0 || this._bboxes.length > 0;
+        return this._pointVms.length > 0 || this._bbox !== undefined;
     }
 
     addPoint(pointVm: PointViewModel): void {
@@ -38,7 +28,7 @@ export class PromptsViewModel {
     }
 
     addBbox(bbox: BBox): void {
-        this._bboxes.push(bbox);
+        this._bbox = bbox;
         this._history.push({kind: "bbox", value: bbox});
     }
 
@@ -52,15 +42,14 @@ export class PromptsViewModel {
             }
             return;
         }
-        const index: number = this._bboxes.indexOf(entry.value);
-        if (index !== -1) {
-            this._bboxes.splice(index, 1);
+        if (this._bbox === entry.value) {
+            this._bbox = undefined;
         }
     }
 
     clear(): void {
         this._pointVms.splice(0);
-        this._bboxes.splice(0);
+        this._bbox = undefined;
         this._history.splice(0);
     }
 }

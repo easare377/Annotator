@@ -14,4 +14,14 @@
   </canvas>
   <!--Canvas to show point and bounding-box prompts-->
   <canvas #promptCanvas class="prompt-canvas"></canvas>
+
+  <div class="image-load-state" *ngIf="isImageLoading" role="status" aria-live="polite">
+    <span class="image-loader" aria-hidden="true"></span>
+    <span>Loading image</span>
+  </div>
+
+  <div class="image-load-state image-load-error" *ngIf="imageLoadFailed" role="alert">
+    <span>Image could not be loaded.</span>
+    <button type="button" (click)="retryImageLoad()">Retry</button>
+  </div>
 </div>

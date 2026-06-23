@@ -47,6 +47,51 @@ canvas.prompt-enabled {
   pointer-events: none;
 }
 
+.image-load-state {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #0f1115;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.image-loader {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, .25);
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: image-loader-spin .8s linear infinite;
+}
+
+.image-load-error button {
+  height: 34px;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  padding: 0 16px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.image-load-error button:hover {
+  background: #1d4ed8;
+}
+
+@keyframes image-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 #image{
   position: absolute;
   /*top: 0;*/

@@ -22,9 +22,11 @@ import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
 import {ImageUrls} from "../../models/image-urls";
 import Stack from "easare-utils-module/dist/collection/stack/stack";
 import {AssignClassDialogComponent} from "../dialogs/assign-class-dialog/assign-class-dialog.component";
-import {PromptType} from "../../models/enum/prompt-type";
 import {PromptsViewModel} from "../../models/prompts-view-model";
 import {MultiPolygonComponent} from "./multi-polygon/multi-polygon.component";
+import {PromptTool} from "../../models/enum/prompt-tool";
+import { PointType } from '../../models/enum/point-type';
+import { Prompts } from '../../models/prompts';
 
 interface ClassificationChange {
   polygonId: string;
@@ -43,7 +45,7 @@ interface ClassificationHistoryAction {
   styleUrl: './annotate.component.css'
 })
 export class AnnotateComponent implements OnInit {
-  protected readonly PromptType = PromptType;
+  protected readonly PromptTool = PromptTool;
   public projectId!: string;
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
@@ -54,6 +56,7 @@ export class AnnotateComponent implements OnInit {
   public generatingPolygons = false;
   public updatingPolygonClasses = false;
   public panModeEnabled = false;
+  public currentPromptTool: PromptTool = PromptTool.NONE;
   public statFaded = false;
   public projectName: string | undefined;
   public projectInfo: ProjectInfoResponseBody | undefined;
@@ -133,21 +136,31 @@ export class AnnotateComponent implements OnInit {
       this.imageInfoVms.find(image => image.imageId === imageId);
     if (!imageInfo) return;
     this.generatingPolygons = true;
-    const resp: HttpResponse<PolygonInfoResponseBody[]> =
-      await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageId));
-    switch (resp.status) {
-      case 200:
-        if (!resp.body) {
+    try {
+      const promptsVm = imageInfo.promptsVm;
+      const positivePoints: Point[] = promptsVm.pointVms
+        .filter(pointVm => pointVm.pointType === PointType.POSITIVE)
+        .map(pointVm => pointVm.point);
+      const negativePoints: Point[] = promptsVm.pointVms
+        .filter(pointVm => pointVm.pointType === PointType.NEGATIVE)
+        .map(pointVm => pointVm.point);
+      const prompts = new Prompts(positivePoints, negativePoints, promptsVm.bbox);
+      const resp: HttpResponse<PolygonInfoResponseBody[]> =
+        await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageId, prompts));
+      switch (resp.status) {
+        case 200:
+          if (!resp.body) {
+            throw new Error();
+          }
+          // Display classes
+          this.createPolygonVms(resp.body, imageInfo);
+          break;
+        default:
           throw new Error();
-        }
-        // Display classes
-        this.createPolygonVms(resp.body, imageInfo);
-        break;
-      default:
-        this.generatingPolygons = false;
-        throw new Error();
+      }
+    } finally {
+      this.generatingPolygons = false;
     }
-    this.generatingPolygons = false;
   }
 
   async getImagePolygonsAsync(imageId: string): Promise<PolygonInfoResponseBody[]> {
@@ -305,27 +318,21 @@ export class AnnotateComponent implements OnInit {
       event.clientY <= rect.bottom;
   }
 
-  get currentPromptType(): PromptType {
-    return this.currentPromptsVm?.promptType ?? PromptType.NONE;
-  }
-
   get hasPrompts(): boolean {
     return this.currentPromptsVm?.hasPrompts ?? false;
   }
 
-  togglePromptType(promptType: PromptType): void {
-    const promptsVm: PromptsViewModel | undefined = this.currentPromptsVm;
-    if (!promptsVm) return;
-    promptsVm.promptType = promptsVm.promptType === promptType ? PromptType.NONE : promptType;
-    if (promptsVm.promptType !== PromptType.NONE) {
+  togglePromptTool(promptTool: PromptTool): void {
+    this.currentPromptTool = this.currentPromptTool === promptTool ? PromptTool.NONE : promptTool;
+    if (this.currentPromptTool !== PromptTool.NONE) {
       this.panModeEnabled = false;
     }
   }
 
   togglePanMode(): void {
     this.panModeEnabled = !this.panModeEnabled;
-    if (this.panModeEnabled && this.currentPromptsVm) {
-      this.currentPromptsVm.promptType = PromptType.NONE;
+    if (this.panModeEnabled) {
+      this.currentPromptTool = PromptTool.NONE;
     }
   }
 

@@ -5,7 +5,7 @@ import {PolygonViewModel} from "../models/polygon-view-model";
 import {Utils} from "../app/utils";
 import {BBox} from "../models/bbox";
 import {PromptsViewModel} from "../models/prompts-view-model";
-import {PromptType} from "../models/enum/prompt-type";
+import {PointType} from "../models/enum/point-type";
 
 @Injectable({
   providedIn: 'root'
@@ -154,9 +154,9 @@ export class PolygonCanvasRendererService {
     const scaleY: number = canvas.height / imageSize.height;
     const pixelRatio: number = this.getCanvasPixelRatio(canvas);
 
-    promptsVm?.bboxes.forEach((bbox: BBox) => {
-      this.drawPromptBbox(ctx, bbox, imagePosition, scaleX, scaleY, pixelRatio, false);
-    });
+    if (promptsVm?.bbox) {
+      this.drawPromptBbox(ctx, promptsVm.bbox, imagePosition, scaleX, scaleY, pixelRatio, false);
+    }
     if (draftBbox) {
       this.drawPromptBbox(ctx, draftBbox, imagePosition, scaleX, scaleY, pixelRatio, true);
     }
@@ -165,7 +165,7 @@ export class PolygonCanvasRendererService {
       const x: number = (point.x - imagePosition.x) * scaleX;
       const y: number = (point.y - imagePosition.y) * scaleY;
       if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
-      const color: string = pointVm.pointType === PromptType.POSITIVE ? '#22c55e' : '#ef4444';
+      const color: string = pointVm.pointType === PointType.POSITIVE ? '#22c55e' : '#ef4444';
       ctx.beginPath();
       ctx.arc(x, y, 6 * pixelRatio, 0, Math.PI * 2);
       ctx.fillStyle = color;

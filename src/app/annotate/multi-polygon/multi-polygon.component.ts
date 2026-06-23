@@ -15,10 +15,12 @@ import {Size} from "../../../models/size";
 import {Point} from "../../../models/point";
 import {ImageInfoViewModel} from "../../../models/image-info-view-model";
 import {PolygonCanvasRendererService} from "../../../services/polygon-canvas-renderer.service";
-import {PromptType} from "../../../models/enum/prompt-type";
+import {PointType} from "../../../models/enum/point-type";
 import {PointViewModel} from "../../../models/point-view-model";
 import {BBox} from "../../../models/bbox";
 import {PromptsViewModel} from "../../../models/prompts-view-model";
+import {ImageCacheService} from "../../../services/image-cache.service";
+import {PromptTool} from "../../../models/enum/prompt-tool";
 
 /**
  * Component to display and interact with multiple polygons overlaid on an image.
@@ -40,10 +42,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   private renderAnimationFrame: number | undefined;
   private activePointerId: number | undefined;
   private activePointerStartedWithPan: boolean = false;
-  private activePointerPromptType: PromptType = PromptType.NONE;
+  private activePointerPromptTool: PromptTool = PromptTool.NONE;
+  private imageLoadRequestId: number = 0;
   private draftBboxStart: Point | undefined;
   private draftBbox: BBox | undefined;
   isPanning: boolean = false;
+  isImageLoading: boolean = false;
+  imageLoadFailed: boolean = false;
 
   @ViewChild('parent') parent!: ElementRef<HTMLDivElement>; // Reference to the canvas container
   @ViewChild('imgCanvas') imgCanvas!: ElementRef<HTMLCanvasElement>; // Reference to the image canvas
@@ -76,6 +81,11 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   @Input() panEnabled: boolean = false;
 
   /**
+   * Current prompt drawing tool selected by the parent toolbar.
+   */
+  @Input() promptTool: PromptTool = PromptTool.NONE;
+
+  /**
    * Event emitted when a polygon is clicked.
    */
   @Output() polygonClicked = new EventEmitter<PolygonViewModel>();
@@ -88,7 +98,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   /**
    * Initializes a new instance of the MultiPolygonComponent class.
    */
-  constructor(private renderer: PolygonCanvasRendererService) {
+  constructor(private renderer: PolygonCanvasRendererService, private imageCache: ImageCacheService) {
   }
 
   /**
@@ -97,7 +107,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   ngAfterViewInit(): void {
     this.observeCanvasSize();
-    this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+    this.onDocumentLoaded();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -110,17 +120,17 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       this.imagePosition = currentValue.viewportPosition ?? new Point(0, 0);
       this.hasRenderedImage = false;
       currentValue.onPolygonsChanged = ()=>{
-        if (this.imgCanvas && this.polygonCanvas) {
-          this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
-        }
+        if (!this.image || !this.image.complete || this.image.naturalWidth === 0) return;
+        this.queueRender(currentValue.zoomLevel, currentValue.viewportPosition);
       }
       if (this.imgCanvas){
-        this.onDocumentLoaded(this.imgCanvas.nativeElement, this.polygonCanvas.nativeElement);
+        this.onDocumentLoaded();
       }
     }
   }
 
   ngOnDestroy(): void {
+    this.imageLoadRequestId++;
     if (this.renderAnimationFrame !== undefined) {
       cancelAnimationFrame(this.renderAnimationFrame);
     }
@@ -136,6 +146,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   onWheel(event: WheelEvent): void {
     event.preventDefault(); // Prevent the window from scrolling
+    if (this.isImageLoading || this.imageLoadFailed) return;
     const zoomAnchor: Point | undefined = this.renderer.computeCanvasMousePosition(this.polygonCanvas.nativeElement, event);
     if (event.deltaY < 0) {
       this.zoomIn(zoomAnchor);
@@ -146,22 +157,45 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
 
   /**
    * Loads the image and sets up the polygons on the canvas.
-   * @param imgCanvas The image canvas element.
-   * @param polygonCanvas The polygon canvas element.
    */
-  onDocumentLoaded(imgCanvas: HTMLCanvasElement, polygonCanvas: HTMLCanvasElement): void {
+  onDocumentLoaded(): void {
+    this.loadImage();
+  }
+
+  private loadImage(forceReload: boolean = false): void {
     const imageInfo: ImageInfoViewModel | undefined = this.imageInfo;
     if (!imageInfo) return;
-    const img: HTMLImageElement = new Image();
-    this.image = img;
+    const imageUrl: string = imageInfo.imageUrls.jpg;
+    const requestId: number = ++this.imageLoadRequestId;
+    this.isImageLoading = true;
+    this.imageLoadFailed = false;
+    this.image = undefined;
     this.imagePosition = imageInfo.viewportPosition ?? new Point(0, 0);
-    img.onload = () => {
-      if (this.image !== img || this.imageInfo !== imageInfo) return;
+
+    if (forceReload) {
+      this.imageCache.invalidate(imageUrl);
+    }
+
+    this.imageCache.load(imageUrl).then((image: HTMLImageElement) => {
+      if (requestId !== this.imageLoadRequestId || this.imageInfo !== imageInfo) return;
+      this.image = image;
+      this.isImageLoading = false;
+      this.imageLoadFailed = false;
       this.isPanning = false;
       this.hasRenderedImage = false;
       this.queueRender(imageInfo.zoomLevel, imageInfo.viewportPosition);
-    };
-    img.src = imageInfo.imageUrls.jpg; // Set the image source URL
+    }).catch(() => {
+      if (requestId !== this.imageLoadRequestId || this.imageInfo !== imageInfo) return;
+      this.image = undefined;
+      this.isImageLoading = false;
+      this.imageLoadFailed = true;
+      this.isPanning = false;
+      this.hasRenderedImage = false;
+    });
+  }
+
+  retryImageLoad(): void {
+    this.loadImage(true);
   }
 
   private observeCanvasSize(): void {
@@ -306,12 +340,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     canvas.setPointerCapture(event.pointerId);
     this.activePointerId = event.pointerId;
     this.activePointerStartedWithPan = this.panEnabled;
-    this.activePointerPromptType = this.panEnabled ? PromptType.NONE : this.activePromptType;
+    this.activePointerPromptTool = this.panEnabled ? PromptTool.NONE : this.promptTool;
     this.isPanning = this.activePointerStartedWithPan;
     this.hasPanned = false;
     this.panStartClientPosition = new Point(event.clientX, event.clientY);
     this.panStartImagePosition = new Point(this.imagePosition.x, this.imagePosition.y);
-    if (this.activePointerPromptType === PromptType.BBOX) {
+    if (this.activePointerPromptTool === PromptTool.BBOX) {
       this.draftBboxStart = this.computePointerSourcePosition(event);
       this.draftBbox = this.draftBboxStart
         ? BBox.fromBbox(this.draftBboxStart.x, this.draftBboxStart.y, this.draftBboxStart.x, this.draftBboxStart.y)
@@ -328,19 +362,19 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       this.panImage(event);
       return;
     }
-    if (this.isActivePointer(event) && this.activePointerPromptType === PromptType.BBOX) {
+    if (this.isActivePointer(event) && this.activePointerPromptTool === PromptTool.BBOX) {
       this.updateDraftBbox(event);
       return;
     }
-    if (this.activePromptType !== PromptType.NONE) return;
+    if (this.promptTool !== PromptTool.NONE) return;
     this.onCanvasHover(event);
   }
 
   onPointerUp(event: PointerEvent): void {
     if (!this.isActivePointer(event)) return;
-    const promptType: PromptType = this.activePointerPromptType;
-    if (promptType !== PromptType.NONE) {
-      this.completePrompt(event, promptType);
+    const promptTool: PromptTool = this.activePointerPromptTool;
+    if (promptTool !== PromptTool.NONE) {
+      this.completePrompt(event, promptTool);
       this.finishPointerInteraction(event);
       this.redrawPrompts();
       return;
@@ -391,7 +425,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     this.isPanning = false;
     this.activePointerId = undefined;
     this.activePointerStartedWithPan = false;
-    this.activePointerPromptType = PromptType.NONE;
+    this.activePointerPromptTool = PromptTool.NONE;
     this.draftBboxStart = undefined;
     this.draftBbox = undefined;
   }
@@ -442,15 +476,11 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   }
 
   get isPromptModeActive(): boolean {
-    return !this.panEnabled && this.activePromptType !== PromptType.NONE;
+    return !this.panEnabled && this.promptTool !== PromptTool.NONE;
   }
 
   private get currentPromptsVm(): PromptsViewModel | undefined {
     return this.imageInfo?.promptsVm;
-  }
-
-  private get activePromptType(): PromptType {
-    return this.currentPromptsVm?.promptType ?? PromptType.NONE;
   }
 
   private computePointerSourcePosition(event: MouseEvent): Point | undefined {
@@ -477,20 +507,33 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     this.redrawPrompts();
   }
 
-  private completePrompt(event: PointerEvent, promptType: PromptType): void {
+  private completePrompt(event: PointerEvent, promptTool: PromptTool): void {
     const promptsVm: PromptsViewModel | undefined = this.currentPromptsVm;
     if (!promptsVm) return;
-    if (promptType === PromptType.BBOX) {
+    if (promptTool === PromptTool.BBOX) {
       this.updateDraftBbox(event);
       if (this.draftBbox && this.isUsableBbox(this.draftBbox)) {
         promptsVm.addBbox(this.draftBbox);
       }
       return;
     }
-    if (this.hasPanned || (promptType !== PromptType.POSITIVE && promptType !== PromptType.NEGATIVE)) return;
+    if (this.hasPanned) return;
+    const pointType: PointType | undefined = this.getPointType(promptTool);
+    if (pointType === undefined) return;
     const point: Point | undefined = this.computePointerSourcePosition(event);
     if (point) {
-      promptsVm.addPoint(new PointViewModel(promptType, point));
+      promptsVm.addPoint(new PointViewModel(pointType, point));
+    }
+  }
+
+  private getPointType(promptTool: PromptTool): PointType | undefined {
+    switch (promptTool) {
+      case PromptTool.POSITIVE_POINT:
+        return PointType.POSITIVE;
+      case PromptTool.NEGATIVE_POINT:
+        return PointType.NEGATIVE;
+      default:
+        return undefined;
     }
   }
 

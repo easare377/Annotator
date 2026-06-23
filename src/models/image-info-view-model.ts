@@ -22,7 +22,8 @@ export class ImageInfoViewModel extends ImageInfoBase {
 
 
 
-  constructor(imageId: string, imageUrls: ImageUrls, trueSize: Size, originalFileName: string, dateAdded: Date, dateModified: Date) {
+  constructor(imageId: string, imageUrls: ImageUrls, trueSize: Size, 
+    originalFileName: string, dateAdded: Date, dateModified: Date) {
     super(imageId, imageUrls, trueSize)
     // this._imageId = imageId;
     // this._imageUrl = imageUrl;

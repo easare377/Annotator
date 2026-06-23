@@ -100,10 +100,10 @@
         <div class="prompt-tools" role="group" aria-label="SAM prompt tools">
           <!-- Positive point -->
           <button type="button" class="prompt-tool positive"
-                  [class.active]="currentPromptType === PromptType.POSITIVE"
+                  [class.active]="currentPromptTool === PromptTool.POSITIVE_POINT"
                   title="Positive point" aria-label="Positive point"
-                  [attr.aria-pressed]="currentPromptType === PromptType.POSITIVE"
-                  (click)="togglePromptType(PromptType.POSITIVE)">
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.POSITIVE_POINT"
+                  (click)="togglePromptTool(PromptTool.POSITIVE_POINT)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <circle cx="12" cy="12" r="8"></circle>
@@ -114,10 +114,10 @@
           </button>
           <!-- Negative point -->
           <button type="button" class="prompt-tool negative"
-                  [class.active]="currentPromptType === PromptType.NEGATIVE"
+                  [class.active]="currentPromptTool === PromptTool.NEGATIVE_POINT"
                   title="Negative point" aria-label="Negative point"
-                  [attr.aria-pressed]="currentPromptType === PromptType.NEGATIVE"
-                  (click)="togglePromptType(PromptType.NEGATIVE)">
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.NEGATIVE_POINT"
+                  (click)="togglePromptTool(PromptTool.NEGATIVE_POINT)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <circle cx="12" cy="12" r="8"></circle>
@@ -127,10 +127,10 @@
           </button>
           <!-- Bounding box -->
           <button type="button" class="prompt-tool bbox"
-                  [class.active]="currentPromptType === PromptType.BBOX"
+                  [class.active]="currentPromptTool === PromptTool.BBOX"
                   title="Bounding box" aria-label="Bounding box"
-                  [attr.aria-pressed]="currentPromptType === PromptType.BBOX"
-                  (click)="togglePromptType(PromptType.BBOX)">
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.BBOX"
+                  (click)="togglePromptTool(PromptTool.BBOX)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 9V4h5"></path>
@@ -177,13 +177,21 @@
       </div>
 
       <!-- Image canvas -->
-      <div class="canvas" (pointermove)="updateStatFade($event, stat)" (pointerleave)="statFaded = false">
+      <div class="canvas" [attr.aria-busy]="generatingPolygons"
+           (pointermove)="updateStatFade($event, stat)" (pointerleave)="statFaded = false">
         <!-- Polygon editor -->
         <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
                            [panEnabled]="panModeEnabled"
+                           [promptTool]="currentPromptTool"
                            (polygonClicked)="handlePolygonClicked($event, assignDialog)"
                            (objectClassAssigned)="handleObjectClassAssigned($event)">
         </app-multi-polygon>
+
+        <!-- Mask generation overlay -->
+        <div class="mask-generation-overlay" *ngIf="generatingPolygons" role="status" aria-live="polite">
+          <span class="spinner mask-generation-spinner" aria-hidden="true"></span>
+          <span>Generating masks</span>
+        </div>
 
         <!-- Canvas status -->
         <div #stat class="stat" [class.fade]="statFaded">

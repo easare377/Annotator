@@ -1,4 +1,4 @@
-import { PromptType } from "./enum/prompt-type";
+import { PointType } from "./enum/point-type";
 import { Point } from "./point";
 
 /**
@@ -10,7 +10,7 @@ import { Point } from "./point";
  */
 export class PointViewModel {
     /** The category/type of the point. */
-    private readonly _pointType: PromptType;
+    private readonly _pointType: PointType;
 
     /** The underlying point data. */
     private readonly _point: Point;
@@ -20,13 +20,13 @@ export class PointViewModel {
      * @param pointType - The type/classification of the point.
      * @param point - The `Point` instance containing coordinates and metadata.
      */
-    constructor(pointType: PromptType, point: Point) {
+    constructor(pointType: PointType, point: Point) {
         this._pointType = pointType;
         this._point = point;
     }
 
     /** The `PointType` for this view model (read-only). */
-    get pointType(): PromptType {
+    get pointType(): PointType {
         return this._pointType;
     }
 

@@ -326,7 +326,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     this.currentPolygonVms = croppedPolygons;
 
     croppedPolygons.forEach((p: PolygonViewModel) => {
-      p.scaledPoints = this.renderer.computeDisplayPoints(p.truePoints, imgPos, imgSize); // Compute new display points based on zoom/pan
+      p.setScaledGeometry(
+        this.renderer.computeDisplayPoints(p.truePoints, imgPos, imgSize),
+        p.trueInnerPolygons.map((innerPolygon: Point[]) =>
+          this.renderer.computeDisplayPoints(innerPolygon, imgPos, imgSize)
+        )
+      );
       this.setupPolygonVms(p, this.polygonCanvas.nativeElement, this.imageInfo);
     });
     this.renderer.renderPolygons(this.polygonCanvas.nativeElement, croppedPolygons, this.imageInfo.scaledSize, this.thickness);

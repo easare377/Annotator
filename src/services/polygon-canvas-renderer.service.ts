@@ -119,7 +119,7 @@ export class PolygonCanvasRendererService {
     ctx.scale(scaleX, scaleY);
     if (fill) {
       ctx.fillStyle = colorWithOpacity;
-      ctx.fill(path);
+      ctx.fill(path, 'evenodd');
     }
     ctx.strokeStyle = colorWithOpacity;
     ctx.lineWidth = (thickness * this.getCanvasPixelRatio(canvas)) / Math.max(scaleX, scaleY);
@@ -183,7 +183,7 @@ export class PolygonCanvasRendererService {
     const scaleY: number = canvas.height / imageSize.height;
     ctx.save();
     ctx.scale(scaleX, scaleY);
-    ctx.clip(path);
+    ctx.clip(path, 'evenodd');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
@@ -220,7 +220,7 @@ export class PolygonCanvasRendererService {
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if (!ctx) return undefined;
     for (const p of this.getHitTestOrderedPolygons(polygons)) {
-      if (this.isPointInsideBbox(point, p.displayBbox) && ctx.isPointInPath(p.displayPath, point.x, point.y)) {
+      if (this.isPointInsideBbox(point, p.displayBbox) && ctx.isPointInPath(p.displayPath, point.x, point.y, 'evenodd')) {
         return p;
       }
     }

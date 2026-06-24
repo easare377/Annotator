@@ -115,8 +115,9 @@ export class AnnotateComponent implements OnInit {
     polygonsRespBody.forEach(polygonRspBody => {
       const polygonId: string = polygonRspBody.polygonId;
       const points = polygonRspBody.points;
+      const innerPolygons = polygonRspBody.innerPolygons?.map(innerPolygon => innerPolygon.points) ?? [];
       const classId: string | undefined = polygonRspBody.classId;
-      const polygonVm = new PolygonViewModel(polygonId, points, Utils.generateRandomColor());
+      const polygonVm = new PolygonViewModel(polygonId, points, Utils.generateRandomColor(), innerPolygons);
       // assign the selected class of the polygon using the class id.
       if (classId){
         polygonVm.objectClassVm = this.objectClassVms.find(x => x.classId === classId);

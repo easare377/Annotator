@@ -1,8 +1,15 @@
 import {Point} from "./point";
 
+export interface InnerPolygonInfoResponseBody {
+  innerPolygonId?: string;
+  points: Point[];
+  dateCreated?: Date;
+}
+
 export class PolygonInfoResponseBody {
   private readonly _polygonId: string;
   private readonly _points: Point[];
+  private readonly _innerPolygons: InnerPolygonInfoResponseBody[];
   private readonly _stabilityScore: number;
   private readonly _predictedIoU: number;
   private readonly _dateCreated: Date;
@@ -11,9 +18,10 @@ export class PolygonInfoResponseBody {
 
 
   constructor(polygonId: string, points: Point[], stabilityScore: number, predictedIoU: number, dateCreated: Date,
-              dateModified: Date, classId?: string) {
+              dateModified: Date, classId?: string, innerPolygons: InnerPolygonInfoResponseBody[] = []) {
     this._polygonId = polygonId;
     this._points = points;
+    this._innerPolygons = innerPolygons;
     this._stabilityScore = stabilityScore;
     this._predictedIoU = predictedIoU;
     this._dateCreated = dateCreated;
@@ -28,6 +36,10 @@ export class PolygonInfoResponseBody {
 
   get points(): Point[] {
     return this._points;
+  }
+
+  get innerPolygons(): InnerPolygonInfoResponseBody[] {
+    return this._innerPolygons;
   }
 
   get stabilityScore(): number {

@@ -116,9 +116,8 @@ export class AnnotateComponent implements OnInit {
       const polygonId: string = polygonRspBody.polygonId;
       const points = polygonRspBody.points;
       const classId: string | undefined = polygonRspBody.classId;
-      // console.log(polygonRspBody);
       const polygonVm = new PolygonViewModel(polygonId, points, Utils.generateRandomColor());
-      //re-assign the selected class of the polygon.
+      // assign the selected class of the polygon using the class id.
       if (classId){
         polygonVm.objectClassVm = this.objectClassVms.find(x => x.classId === classId);
         // update the annotated classes.
@@ -152,7 +151,7 @@ export class AnnotateComponent implements OnInit {
           if (!resp.body) {
             throw new Error();
           }
-          // Display classes
+          // Display polygons
           this.createPolygonVms(resp.body, imageInfo);
           break;
         default:
@@ -232,22 +231,22 @@ export class AnnotateComponent implements OnInit {
     this.imageInfoVms.push(imageInfoVm);
   }
 
-  async getPolygonDataAsync(dataUrl: string): Promise<PolygonViewModel[]> {
-    const multiPoints: number[][][] = await this.httpService.getJsonDataAsync(dataUrl);
-    let polygonVms: PolygonViewModel[] = [];
-    if (multiPoints) {
-      multiPoints.forEach((polygonPoints: number[][]) => {
-        const points: Array<Point> = polygonPoints.map(point => new Point(point[0], point[1]));
-        const color: string = Utils.generateRandomColor();
-        const polygonVm = new PolygonViewModel(Utils.generateUUID(), points, color);
-        // const polygonVm = this.createPolygonVms(canvas, points, <ImageInfo>this.imageInfo, color);
-        polygonVms.push(polygonVm);
-      });
-      polygonVms = Utils.sortPolygonsByArea(polygonVms);
-      // this.currentImageInfo.polygonVms = polygonVms;
-    }
-    return polygonVms;
-  }
+  // async getPolygonDataAsync(dataUrl: string): Promise<PolygonViewModel[]> {
+  //   const multiPoints: number[][][] = await this.httpService.getJsonDataAsync(dataUrl);
+  //   let polygonVms: PolygonViewModel[] = [];
+  //   if (multiPoints) {
+  //     multiPoints.forEach((polygonPoints: number[][]) => {
+  //       const points: Array<Point> = polygonPoints.map(point => new Point(point[0], point[1]));
+  //       const color: string = Utils.generateRandomColor();
+  //       const polygonVm = new PolygonViewModel(Utils.generateUUID(), points, color);
+  //       // const polygonVm = this.createPolygonVms(canvas, points, <ImageInfo>this.imageInfo, color);
+  //       polygonVms.push(polygonVm);
+  //     });
+  //     polygonVms = Utils.sortPolygonsByArea(polygonVms);
+  //     // this.currentImageInfo.polygonVms = polygonVms;
+  //   }
+  //   return polygonVms;
+  // }
 
   getAnnotatedPolygon(polygonVms: PolygonViewModel[]): { index: number, polygonVm: PolygonViewModel }[] {
     let annotatedPolygonIndex = 0;

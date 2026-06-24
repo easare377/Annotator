@@ -19,7 +19,7 @@ import {ProjectDataResponseBody} from "../models/project-data-response-body";
   providedIn: 'root'
 })
 export class HttpService {
-  private readonly dataUrl = 'assets/data/DJI_0183_AS_0320_03.json';  // Path to the JSON file
+  //private readonly dataUrl = 'assets/data/DJI_0183_AS_0320_03.json';  // Path to the JSON file
   constructor(private http: HttpClient) {
 
   }
@@ -32,15 +32,15 @@ export class HttpService {
   }
 
   // Method to fetch data
-  async getJsonDataAsync(dataUrl: string): Promise<Promise<Array<Array<Array<number>>>>> {
-    // return await this.http.get<Array<Array<number>>>(this.dataUrl);
-    try {
-      return await firstValueFrom(this.http.get<Array<Array<Array<number>>>>(dataUrl));
-    } catch (error) {
-      console.error('Error fetching JSON data:', error);
-      return [];
-    }
-  }
+  // async getJsonDataAsync(dataUrl: string): Promise<Promise<Array<Array<Array<number>>>>> {
+  //   // return await this.http.get<Array<Array<number>>>(this.dataUrl);
+  //   try {
+  //     return await firstValueFrom(this.http.get<Array<Array<Array<number>>>>(dataUrl));
+  //   } catch (error) {
+  //     console.error('Error fetching JSON data:', error);
+  //     return [];
+  //   }
+  // }
 
   async getProjectsAsync(requestBody: RequestBody | null): Promise<HttpResponse<Array<ProjectInfoResponseBody>>> {
     return new Promise<HttpResponse<Array<ProjectInfoResponseBody>>>((resolve, reject) => {

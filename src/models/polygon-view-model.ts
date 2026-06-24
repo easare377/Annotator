@@ -21,7 +21,7 @@ export class PolygonViewModel {
   public onClassSet: Function | undefined;
   public onDrawPolygon: Function | undefined;
 
-  constructor(id: string, points: Array<Point>, color: string = '#FF0000FF') {
+  constructor(id: string, points: Array<Point>, color: string) {
     this._id = id;
     this._truePoints = points;
     this._scaledPoints = points;

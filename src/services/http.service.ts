@@ -14,6 +14,7 @@ import {ImageInfoRequestBody} from "../models/imageInfo-request-body";
 import {PolygonInfoRequestBody} from "../models/polygon-info-request-body";
 import {PolygonInfoResponseBody} from "../models/polygon-info-response-body";
 import {ProjectDataResponseBody} from "../models/project-data-response-body";
+import { ClearEmptyPolygonsRequestBody } from '../models/clear-empty-polygons-request-body';
 
 @Injectable({
   providedIn: 'root'
@@ -199,6 +200,20 @@ export class HttpService {
   async exportProjectAsVocAsync(exportProjectInfo: RequestBody): Promise<HttpResponse<string>>{
     return new Promise<HttpResponse<string>>((resolve, reject) => {
       this.http.post<string>(Uris.exportProjectAsVocUrl, exportProjectInfo,
+        {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
+        next: response => {
+          resolve(response);
+        },
+        error: error => {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  async clearEmptyPolygonsAsync(requestBody: ClearEmptyPolygonsRequestBody): Promise<HttpResponse<PolygonInfoResponseBody[]>>{
+    return new Promise<HttpResponse<PolygonInfoResponseBody[]>>((resolve, reject) => {
+      this.http.post<PolygonInfoResponseBody[]>(Uris.clearEmptyPolygonsUrl, requestBody,
         {observe: 'response', headers: this.getRequestHeaders()}).subscribe({
         next: response => {
           resolve(response);

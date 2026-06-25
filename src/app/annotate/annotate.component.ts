@@ -1,32 +1,33 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
-import {ImageInfoViewModel} from "../../models/image-info-view-model";
-import {Point} from "../../models/point";
-import {Utils} from "../utils";
-import {PolygonViewModel} from "../../models/polygon-view-model";
-import {HttpService} from "../../services/http.service";
-import {ObjectClassViewModel} from "../../models/object-class-view-model";
-import {AppManagerService} from "../../services/app-manager.service";
-import {NavigationService} from "../../services/navigation.service";
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ImageInfoViewModel } from "../../models/image-info-view-model";
+import { Point } from "../../models/point";
+import { Utils } from "../utils";
+import { PolygonViewModel } from "../../models/polygon-view-model";
+import { HttpService } from "../../services/http.service";
+import { ObjectClassViewModel } from "../../models/object-class-view-model";
+import { AppManagerService } from "../../services/app-manager.service";
+import { NavigationService } from "../../services/navigation.service";
 import { HttpResponse } from "@angular/common/http";
-import {ImageInfoResponseBody} from "../../models/image-info-response-body";
-import {ImageInfoRequestBody} from "../../models/imageInfo-request-body";
-import {Size} from "../../models/size";
-import {ActivatedRoute} from "@angular/router";
-import {ProjectDataResponseBody} from "../../models/project-data-response-body";
-import {ObjectClassResponseBody} from "../../models/object-class-response-body";
-import {PolygonInfoResponseBody} from "../../models/polygon-info-response-body";
-import {PolygonInfoRequestBody} from "../../models/polygon-info-request-body";
-import {UploadState} from "../../models/enum/upload-state";
-import {ObjectClassInfosRequestBody} from "../../models/object-class-infos-request-body";
-import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
-import {ImageUrls} from "../../models/image-urls";
+import { ImageInfoResponseBody } from "../../models/image-info-response-body";
+import { ImageInfoRequestBody } from "../../models/imageInfo-request-body";
+import { Size } from "../../models/size";
+import { ActivatedRoute } from "@angular/router";
+import { ProjectDataResponseBody } from "../../models/project-data-response-body";
+import { ObjectClassResponseBody } from "../../models/object-class-response-body";
+import { PolygonInfoResponseBody } from "../../models/polygon-info-response-body";
+import { PolygonInfoRequestBody } from "../../models/polygon-info-request-body";
+import { UploadState } from "../../models/enum/upload-state";
+import { ObjectClassInfosRequestBody } from "../../models/object-class-infos-request-body";
+import { ProjectInfoResponseBody } from "../../models/project-info-response-body";
+import { ImageUrls } from "../../models/image-urls";
 import Stack from "easare-utils-module/dist/collection/stack/stack";
-import {AssignClassDialogComponent} from "../dialogs/assign-class-dialog/assign-class-dialog.component";
-import {PromptsViewModel} from "../../models/prompts-view-model";
-import {MultiPolygonComponent} from "./multi-polygon/multi-polygon.component";
-import {PromptTool} from "../../models/enum/prompt-tool";
+import { AssignClassDialogComponent } from "../dialogs/assign-class-dialog/assign-class-dialog.component";
+import { PromptsViewModel } from "../../models/prompts-view-model";
+import { MultiPolygonComponent } from "./multi-polygon/multi-polygon.component";
+import { PromptTool } from "../../models/enum/prompt-tool";
 import { PointType } from '../../models/enum/point-type';
 import { Prompts } from '../../models/prompts';
+import { ClearEmptyPolygonsRequestBody } from '../../models/clear-empty-polygons-request-body';
 
 interface ClassificationChange {
   polygonId: string;
@@ -65,7 +66,7 @@ export class AnnotateComponent implements OnInit {
   @ViewChild(MultiPolygonComponent) private multiPolygon: MultiPolygonComponent | undefined;
 
   constructor(public httpService: HttpService, public navService: NavigationService,
-              public appManagerService: AppManagerService, private route: ActivatedRoute) {
+    public appManagerService: AppManagerService, private route: ActivatedRoute) {
     // super(httpService, navService,appManagerService);
     this.imageInfoVms = [];
     this.objectClassVms = new Array<ObjectClassViewModel>();
@@ -108,7 +109,7 @@ export class AnnotateComponent implements OnInit {
 
   // Creates the polygon view models
   createPolygonVms(polygonsRespBody: PolygonInfoResponseBody[],
-                   imageInfo: ImageInfoViewModel | undefined = this.currentImageInfo): void {
+    imageInfo: ImageInfoViewModel | undefined = this.currentImageInfo): void {
     if (!imageInfo) return;
     const polygonVms: PolygonViewModel[] = [];
     imageInfo.annotatedPolygonVms.splice(0);
@@ -119,7 +120,7 @@ export class AnnotateComponent implements OnInit {
       const classId: string | undefined = polygonRspBody.classId;
       const polygonVm = new PolygonViewModel(polygonId, points, Utils.generateRandomColor(), innerPolygons);
       // assign the selected class of the polygon using the class id.
-      if (classId){
+      if (classId) {
         polygonVm.objectClassVm = this.objectClassVms.find(x => x.classId === classId);
         // update the annotated classes.
         if (polygonVm.objectClassVm) {
@@ -131,13 +132,19 @@ export class AnnotateComponent implements OnInit {
     imageInfo.polygonVms = polygonVms;
   }
 
-  async generatePolygonsAsync(imageId: string): Promise<void> {
-    const imageInfo: ImageInfoViewModel | undefined =
-      this.imageInfoVms.find(image => image.imageId === imageId);
-    if (!imageInfo) return;
+  async saveThenGeneratePolygonsAsync(image: ImageInfoViewModel): Promise<void> {
+    await this.saveObjectClassesAsync();
+    await this.generatePolygonsAsync(image);
+  }
+
+  async generatePolygonsAsync(imageInfo: ImageInfoViewModel): Promise<void> {
+    //const imageInfo: ImageInfoViewModel | undefined =
+      //this.imageInfoVms.find(image => image.imageId === imageId);
+    //if (!imageInfo) return;
     this.generatingPolygons = true;
     try {
       const promptsVm = imageInfo.promptsVm;
+      //Get the positive and negative points from the promptsVm and convert them to Point objects
       const positivePoints: Point[] = promptsVm.pointVms
         .filter(pointVm => pointVm.pointType === PointType.POSITIVE)
         .map(pointVm => pointVm.point);
@@ -145,8 +152,9 @@ export class AnnotateComponent implements OnInit {
         .filter(pointVm => pointVm.pointType === PointType.NEGATIVE)
         .map(pointVm => pointVm.point);
       const prompts = new Prompts(positivePoints, negativePoints, promptsVm.bbox);
+      // Generate new polygons
       const resp: HttpResponse<PolygonInfoResponseBody[]> =
-        await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageId, prompts));
+        await this.httpService.generateImagePolygonsAsync(new PolygonInfoRequestBody(imageInfo.imageId, prompts));
       switch (resp.status) {
         case 200:
           if (!resp.body) {
@@ -160,6 +168,22 @@ export class AnnotateComponent implements OnInit {
       }
     } finally {
       this.generatingPolygons = false;
+    }
+  }
+
+  async clearEmptyPolygonsAsync(imageInfo: ImageInfoViewModel): Promise<void> {
+    const resp: HttpResponse<PolygonInfoResponseBody[]> = 
+    await this.httpService.clearEmptyPolygonsAsync(new ClearEmptyPolygonsRequestBody(imageInfo.imageId));
+    switch (resp.status) {
+      case 200:
+        if (!resp.body) {
+          throw new Error();
+        }
+        // Display polygons
+        this.createPolygonVms(resp.body, imageInfo);
+        break;
+      default:
+        throw new Error();
     }
   }
 
@@ -256,7 +280,7 @@ export class AnnotateComponent implements OnInit {
       const polygonVm = polygonVms[i];
       if (polygonVm.objectClassVm) {
         annotatedPolygonIndex++;
-        annotatedPolygonVms.push({index: annotatedPolygonIndex, polygonVm: polygonVm})
+        annotatedPolygonVms.push({ index: annotatedPolygonIndex, polygonVm: polygonVm })
       }
     }
     return annotatedPolygonVms;
@@ -325,6 +349,16 @@ export class AnnotateComponent implements OnInit {
   togglePromptTool(promptTool: PromptTool): void {
     this.currentPromptTool = this.currentPromptTool === promptTool ? PromptTool.NONE : promptTool;
     if (this.currentPromptTool !== PromptTool.NONE) {
+      this.panModeEnabled = false;
+      this.currentObjectClassVm = undefined;
+    }
+  }
+
+  toggleObjectClassSelection(objectClassVm: ObjectClassViewModel): void {
+    const isSelectedClass: boolean = this.currentObjectClassVm === objectClassVm;
+    this.currentObjectClassVm = isSelectedClass ? undefined : objectClassVm;
+    this.currentPromptTool = PromptTool.NONE;
+    if (this.currentObjectClassVm) {
       this.panModeEnabled = false;
     }
   }
@@ -511,10 +545,9 @@ export class AnnotateComponent implements OnInit {
         default:
           throw new Error();
       }
-    } catch (e) {
-      console.log(e);
-    }
-    this.updatingPolygonClasses  = false;
+    } finally {
+      this.updatingPolygonClasses = false;
+    } 
   }
 
 }

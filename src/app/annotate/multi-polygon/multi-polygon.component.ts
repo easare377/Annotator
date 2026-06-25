@@ -375,25 +375,38 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     this.onCanvasHover(event);
   }
 
+  onPointerLeave(event: PointerEvent): void {
+    if (this.isActivePointer(event)) return;
+    this.clearHoveredPolygons();
+  }
+
   onPointerUp(event: PointerEvent): void {
     if (!this.isActivePointer(event)) return;
     const promptTool: PromptTool = this.activePointerPromptTool;
+    const pointerInsideCanvas: boolean = this.isPointerInsideCanvas(event, this.polygonCanvas.nativeElement);
     if (promptTool !== PromptTool.NONE) {
       this.completePrompt(event, promptTool);
       this.finishPointerInteraction(event);
       this.redrawPrompts();
+      if (!pointerInsideCanvas) {
+        this.clearHoveredPolygons();
+      }
       return;
     }
     const shouldSelectPolygon: boolean = !this.activePointerStartedWithPan && !this.hasPanned;
     this.finishPointerInteraction(event);
-    if (shouldSelectPolygon) {
+    if (shouldSelectPolygon && pointerInsideCanvas) {
       this.selectPolygonAtPointer(event);
+    }
+    if (!pointerInsideCanvas) {
+      this.clearHoveredPolygons();
     }
   }
 
   onPointerCancel(event: PointerEvent): void {
     if (!this.isActivePointer(event)) return;
     this.finishPointerInteraction(event);
+    this.clearHoveredPolygons();
     this.redrawPrompts();
   }
 
@@ -449,6 +462,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   selectPolygonAtPointer(event: PointerEvent): void {
     const canvas = this.polygonCanvas.nativeElement;
+    if (!this.isPointerInsideCanvas(event, canvas)) return;
     const rect: DOMRect = canvas.getBoundingClientRect();
     const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
     const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
@@ -464,20 +478,47 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   onCanvasHover(event: MouseEvent): void {
     if (!this.imageInfo) return;
     const canvas = event.target as HTMLCanvasElement;
+    if (!this.isPointerInsideCanvas(event, canvas)) {
+      this.clearHoveredPolygons();
+      return;
+    }
     const rect: DOMRect = canvas.getBoundingClientRect();
     const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
 
     // Check each polygon to see if the mouse is over it
     const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
+    let hoverChanged: boolean = false;
     this.currentPolygonVms.forEach((p: PolygonViewModel) => {
-      if (p !== polygon){
-        p.mouseOver = false;
+      const shouldHover: boolean = p === polygon;
+      if (p.mouseOver !== shouldHover) {
+        p.mouseOver = shouldHover;
+        hoverChanged = true;
       }
     });
-    if (polygon && !polygon.mouseOver && polygon.onMouseOver) {
-      polygon.mouseOver = true;
-      polygon.onMouseOver();// Call the polygon's onMouseOver function if the mouse is over it
+    if (hoverChanged) {
+      this.redrawCurrentPolygons(canvas);
     }
+  }
+
+  private clearHoveredPolygons(): void {
+    let hoverChanged: boolean = false;
+    this.currentPolygonVms.forEach((polygon: PolygonViewModel) => {
+      if (polygon.mouseOver) {
+        polygon.mouseOver = false;
+        hoverChanged = true;
+      }
+    });
+    if (hoverChanged && this.polygonCanvas) {
+      this.redrawCurrentPolygons(this.polygonCanvas.nativeElement);
+    }
+  }
+
+  private isPointerInsideCanvas(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
+    const rect: DOMRect = canvas.getBoundingClientRect();
+    return event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom;
   }
 
   get isPromptModeActive(): boolean {

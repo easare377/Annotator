@@ -13,6 +13,7 @@ export class Uris {
   private static _exportProjectUrl = Uris._baseUrl + "/api/projects/data/export/segmentation-mask";
   private static _exportProjectAsJsonUrl = Uris._baseUrl + "/api/projects/data/export/json";
   private static _exportProjectAsVocUrl = Uris._baseUrl + "/api/projects/data/export/export-data-voc";
+  private static _clear_empty_polygons_url = Uris._baseUrl + "/api/projects/data/clear-empty-polygons";
 
   static get baseUrl(): string {
     return this._baseUrl;
@@ -56,5 +57,9 @@ export class Uris {
 
   static get exportProjectAsVocUrl(): string{
     return this._exportProjectAsVocUrl;
+  }
+
+  static get clearEmptyPolygonsUrl(): string {
+    return this._clear_empty_polygons_url;
   }
 }

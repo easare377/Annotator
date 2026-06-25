@@ -8,6 +8,7 @@
           [class.prompt-enabled]="isPromptModeActive"
           (pointerdown)="onPointerDown($event)"
           (pointermove)="onPointerMove($event)"
+          (pointerleave)="onPointerLeave($event)"
           (pointerup)="onPointerUp($event)"
           (pointercancel)="onPointerCancel($event)"
           (lostpointercapture)="onPointerCancel($event)">

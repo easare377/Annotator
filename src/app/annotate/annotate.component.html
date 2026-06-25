@@ -204,7 +204,9 @@
 
       <!-- Mask actions -->
       <div class="mask-action-bar">
+        <!-- Clear masks -->
         <button type="button" class="clear-mask-btn"
+                (click)="clearMasksDialog.showDialog()"
                 [disabled]="!image.polygonVms || generatingPolygons">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -215,8 +217,9 @@
           </svg>
           <span>Clear Masks</span>
         </button>
+        <!-- Generate masks -->
         <button type="button" class="generate-mask-btn" [disabled]="generatingPolygons"
-                (click)="generatePolygonsAsync(image.imageId)">
+                (click)="saveThenGeneratePolygonsAsync(image)">
           <svg *ngIf="!generatingPolygons" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2" stroke-linecap="round"
                stroke-linejoin="round" aria-hidden="true">
@@ -256,7 +259,7 @@
                             [active]="objectClassVm === currentObjectClassVm"
                             (pointerenter)="highlightObjectClassPolygons(objectClassVm)"
                             (pointerleave)="clearObjectClassPolygonHighlight()"
-                            (click)="objectClass.active ? currentObjectClassVm = undefined : currentObjectClassVm = objectClassVm">
+                            (click)="toggleObjectClassSelection(objectClassVm)">
           </app-object-class>
         </div>
       </section>
@@ -309,6 +312,15 @@
                              cancelText="Cancel"
                              defaultButton="cancel"
                              (ok)="clearAllImageAnnotations()">
+    </app-confirmation-dialog>
+    <app-confirmation-dialog #clearMasksDialog
+                             title="Clear masks"
+                             message="Are you sure you want to remove all empty masks for this image?"
+                             state="warning"
+                             okText="Clear"
+                             cancelText="Cancel"
+                             defaultButton="cancel"
+                             (ok)="clearEmptyPolygonsAsync(image)">
     </app-confirmation-dialog>
   </main>
 

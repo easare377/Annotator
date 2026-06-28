@@ -16,7 +16,28 @@ import {UploadState} from "../../../models/enum/upload-state";
   styleUrls: ['./import-data-dialog.component.css', '../dialog.css']
 })
 export class ImportDataDialogComponent extends Dialog implements OnInit {
-  // files: File[] = [];
+  private readonly supportedImageTypes: Set<string> = new Set<string>([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/bmp',
+    'image/tiff'
+  ]);
+  private readonly supportedImageExtensions: Set<string> = new Set<string>([
+    'jpg',
+    'jpeg',
+    'png',
+    'webp',
+    'gif',
+    'bmp',
+    'tif',
+    'tiff'
+  ]);
+  private readonly maxConcurrentUploads: number = 3;
+  private activeUploadCount: number = 0;
+  private uploadCompletionPromise: Promise<void> | undefined;
+  private resolveUploadCompletion: (() => void) | undefined;
   fileUploadVms: FileUploadViewModel[] = [];
   @Input() projectId!: string;
 
@@ -33,57 +54,92 @@ export class ImportDataDialogComponent extends Dialog implements OnInit {
     //   this.getProjectDataAsync(this.projectId).then();
   }
 
-  onFileSelected(event: any): void {
-    const selectedFiles = event.target.files;
-    if (selectedFiles) {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file: File = selectedFiles[i];
-        this.fileUploadVms.push(new FileUploadViewModel(file))
-      }
-    }
-    this.uploadImageAsync().then();
+  onFileSelected(event: Event): void {
+    const input: HTMLInputElement = event.target as HTMLInputElement;
+    Array.from(input.files ?? []).filter((file: File) => this.isSupportedImage(file)).forEach((file: File) => {
+      this.fileUploadVms.push(new FileUploadViewModel(file));
+    });
+    input.value = '';
+    void this.uploadImageAsync();
   }
 
-  async uploadImageAsync(): Promise<void> {
-    for (let fileUploadVm of this.fileUploadVms) {
-      const uploadImageRequestBody = new UploadFileRequestBody(this.projectId);
-      try {
-        fileUploadVm.uploadState = UploadState.UPLOADING
-        const resp: HttpResponse<ImageInfoResponseBody[]> =
-          await this.httpService.uploadImageAsync(uploadImageRequestBody, fileUploadVm.file);
-        switch (resp.status) {
-          case 200:
-            if (!resp.body) {
-              throw new Error();
-            }
-            this.imagesUploaded.emit(resp.body);
-            fileUploadVm.uploadState = UploadState.UPLOADED
-            // this.hideDialog();
-            break;
-          default:
-            throw new Error();
-        }
-      } catch (e) {
-        fileUploadVm.uploadState = UploadState.FAILED
-        console.log(e);
-      }
+  private isSupportedImage(file: File): boolean {
+    const extension: string = file.name.split('.').pop()?.toLowerCase() ?? '';
+    return this.supportedImageTypes.has(file.type.toLowerCase()) &&
+      this.supportedImageExtensions.has(extension);
+  }
+
+  uploadImageAsync(): Promise<void> {
+    if (!this.hasOutstandingUploads()) {
+      return Promise.resolve();
     }
-    // for (let i = 0)
-    // if (this.selectedFiles) {
-    //   const uploadImageRequestBody = new UploadFileRequestBody(this.projectId);
-    //   for (let i = 0; i < this.selectedFiles.length; i++) {
-    //     const file: File = this.selectedFiles[i];
-    //     await this.httpService.uploadImageAsync(uploadImageRequestBody,file);
-    //   }
-    // }
+
+    if (!this.uploadCompletionPromise) {
+      this.uploadCompletionPromise = new Promise<void>((resolve: () => void) => {
+        this.resolveUploadCompletion = resolve;
+      });
+    }
+
+    this.startPendingUploads();
+    return this.uploadCompletionPromise;
+  }
+
+  private startPendingUploads(): void {
+    while (this.activeUploadCount < this.maxConcurrentUploads) {
+      const fileUploadVm: FileUploadViewModel | undefined =
+        this.fileUploadVms.find((item: FileUploadViewModel) => item.uploadState === UploadState.PENDING);
+      if (!fileUploadVm) break;
+
+      fileUploadVm.uploadState = UploadState.UPLOADING;
+      this.activeUploadCount++;
+      void this.uploadFileAsync(fileUploadVm).finally(() => {
+        this.activeUploadCount--;
+        this.startPendingUploads();
+        this.completeQueueWhenIdle();
+      });
+    }
+    this.completeQueueWhenIdle();
+  }
+
+  private async uploadFileAsync(fileUploadVm: FileUploadViewModel): Promise<void> {
+    const uploadImageRequestBody = new UploadFileRequestBody(this.projectId);
+    try {
+      const resp: HttpResponse<ImageInfoResponseBody[]> =
+        await this.httpService.uploadImageAsync(uploadImageRequestBody, fileUploadVm.file);
+      if (resp.status !== 200 || !resp.body) {
+        throw new Error('Image upload failed.');
+      }
+      this.imagesUploaded.emit(resp.body);
+      fileUploadVm.uploadState = UploadState.UPLOADED;
+    } catch (error) {
+      fileUploadVm.uploadState = UploadState.FAILED;
+      console.error(error);
+    }
+  }
+
+  private hasOutstandingUploads(): boolean {
+    return this.activeUploadCount > 0 ||
+      this.fileUploadVms.some((item: FileUploadViewModel) => item.uploadState === UploadState.PENDING);
+  }
+
+  private completeQueueWhenIdle(): void {
+    if (this.hasOutstandingUploads()) return;
+    this.resolveUploadCompletion?.();
+    this.resolveUploadCompletion = undefined;
+    this.uploadCompletionPromise = undefined;
+  }
+
+  retryUpload(fileUploadVm: FileUploadViewModel): void {
+    if (fileUploadVm.uploadState !== UploadState.FAILED) return;
+    fileUploadVm.uploadState = UploadState.PENDING;
+    void this.uploadImageAsync();
   }
 
   private resetDialog(): void {
     this.fileUploadVms = [];
-    // this.projectId = undefined;
   }
 
-  override hideDialog() {
+  override hideDialog(): void {
     this.resetDialog();
     super.hideDialog();
   }

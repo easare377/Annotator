@@ -31,14 +31,15 @@
   saturate(2017%) hue-rotate(81deg) brightness(89%) contrast(98%);
 }
 
-#failed-svg{
-  width: 20px;
-  height: 20px;
-  filter: brightness(0) saturate(100%) invert(16%) sepia(91%)
-  saturate(5780%) hue-rotate(357deg) brightness(118%) contrast(117%);
+#queued {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 #retry-button{
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: red;
   cursor: pointer;
 }

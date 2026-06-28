@@ -149,8 +149,9 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
   }
 
   get selectedImageDimensions(): string {
-    if (!this.selectedImage) return '-';
-    return `${this.selectedImage.imageSize.width} x ${this.selectedImage.imageSize.height}`;
+    const imageSize: Size | undefined = this.selectedImage?.imageSize;
+    if (!imageSize) return '-';
+    return `${imageSize.width} x ${imageSize.height}`;
   }
 
   setSearchTerm(value: string): void {

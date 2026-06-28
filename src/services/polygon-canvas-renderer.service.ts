@@ -7,6 +7,14 @@ import {BBox} from "../models/bbox";
 import {PromptsViewModel} from "../models/prompts-view-model";
 import {PointType} from "../models/enum/point-type";
 
+export interface ImageViewport {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+  width: number;
+  height: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,6 +64,26 @@ export class PolygonCanvasRendererService {
     );
   }
 
+  computeImageViewport(containerSize: Size, imageSize: Size): ImageViewport {
+    if (containerSize.width <= 0 || containerSize.height <= 0 ||
+      imageSize.width <= 0 || imageSize.height <= 0) {
+      return {scale: 0, offsetX: 0, offsetY: 0, width: 0, height: 0};
+    }
+    const scale: number = Math.min(
+      containerSize.width / imageSize.width,
+      containerSize.height / imageSize.height
+    );
+    const width: number = imageSize.width * scale;
+    const height: number = imageSize.height * scale;
+    return {
+      scale,
+      offsetX: (containerSize.width - width) / 2,
+      offsetY: (containerSize.height - height) / 2,
+      width,
+      height
+    };
+  }
+
   computeCanvasMousePosition(canvas: HTMLCanvasElement, event: MouseEvent): Point | undefined {
     const rect: DOMRect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return undefined;
@@ -74,8 +102,13 @@ export class PolygonCanvasRendererService {
 
     const nextImageSize: Size = this.computeZoomParameters(image, zoomPer).imageSize;
     const anchorPosition: Point = anchorCanvasPosition ?? new Point(rect.width / 2, rect.height / 2);
-    const anchorXRatio: number = anchorPosition.x / rect.width;
-    const anchorYRatio: number = anchorPosition.y / rect.height;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(rect.width, rect.height),
+      currentImageSize
+    );
+    if (viewport.scale === 0) return undefined;
+    const anchorXRatio: number = this.clamp((anchorPosition.x - viewport.offsetX) / viewport.width, 0, 1);
+    const anchorYRatio: number = this.clamp((anchorPosition.y - viewport.offsetY) / viewport.height, 0, 1);
     const sourceAnchor = new Point(
       currentImagePosition.x + anchorXRatio * currentImageSize.width,
       currentImagePosition.y + anchorYRatio * currentImageSize.height
@@ -103,8 +136,22 @@ export class PolygonCanvasRendererService {
     const drawPosition: Point = this.clampImagePosition(image, imagePosition ?? imgParams.imagePosition, imgParams.imageSize);
     const imageSize: Size = imgParams.imageSize;
     if (imageSize.width <= 0 || imageSize.height <= 0 || canvas.width === 0 || canvas.height === 0) return;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvas.width, canvas.height),
+      imageSize
+    );
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, drawPosition.x, drawPosition.y, imageSize.width, imageSize.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(
+      image,
+      drawPosition.x,
+      drawPosition.y,
+      imageSize.width,
+      imageSize.height,
+      viewport.offsetX,
+      viewport.offsetY,
+      viewport.width,
+      viewport.height
+    );
   }
 
   drawPolygon(canvas: HTMLCanvasElement, path: Path2D, imageSize: Size, colorHex: string, opacity: number = 1.0,
@@ -113,16 +160,20 @@ export class PolygonCanvasRendererService {
     if (!ctx) return;
     const opacityHex: string = Utils.convertOpacityToHex(opacity);
     const colorWithOpacity: string = colorHex.length === 7 ? colorHex + opacityHex : colorHex;
-    const scaleX: number = canvas.width / imageSize.width;
-    const scaleY: number = canvas.height / imageSize.height;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvas.width, canvas.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return;
     ctx.save();
-    ctx.scale(scaleX, scaleY);
+    ctx.translate(viewport.offsetX, viewport.offsetY);
+    ctx.scale(viewport.scale, viewport.scale);
     if (fill) {
       ctx.fillStyle = colorWithOpacity;
       ctx.fill(path, 'evenodd');
     }
     ctx.strokeStyle = colorWithOpacity;
-    ctx.lineWidth = (thickness * this.getCanvasPixelRatio(canvas)) / Math.max(scaleX, scaleY);
+    ctx.lineWidth = (thickness * this.getCanvasPixelRatio(canvas)) / viewport.scale;
     ctx.stroke(path);
     ctx.restore();
   }
@@ -150,21 +201,29 @@ export class PolygonCanvasRendererService {
     this.clearCanvas(canvas);
     if (imageSize.width <= 0 || imageSize.height <= 0) return;
 
-    const scaleX: number = canvas.width / imageSize.width;
-    const scaleY: number = canvas.height / imageSize.height;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvas.width, canvas.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return;
     const pixelRatio: number = this.getCanvasPixelRatio(canvas);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(viewport.offsetX, viewport.offsetY, viewport.width, viewport.height);
+    ctx.clip();
 
     if (promptsVm?.bbox) {
-      this.drawPromptBbox(ctx, promptsVm.bbox, imagePosition, scaleX, scaleY, pixelRatio, false);
+      this.drawPromptBbox(ctx, promptsVm.bbox, imagePosition, viewport, pixelRatio, false);
     }
     if (draftBbox) {
-      this.drawPromptBbox(ctx, draftBbox, imagePosition, scaleX, scaleY, pixelRatio, true);
+      this.drawPromptBbox(ctx, draftBbox, imagePosition, viewport, pixelRatio, true);
     }
     promptsVm?.pointVms.forEach(pointVm => {
       const point: Point = pointVm.point;
-      const x: number = (point.x - imagePosition.x) * scaleX;
-      const y: number = (point.y - imagePosition.y) * scaleY;
-      if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
+      const x: number = viewport.offsetX + (point.x - imagePosition.x) * viewport.scale;
+      const y: number = viewport.offsetY + (point.y - imagePosition.y) * viewport.scale;
+      if (x < viewport.offsetX || x > viewport.offsetX + viewport.width ||
+        y < viewport.offsetY || y > viewport.offsetY + viewport.height) return;
       const color: string = pointVm.pointType === PointType.POSITIVE ? '#22c55e' : '#ef4444';
       ctx.beginPath();
       ctx.arc(x, y, 6 * pixelRatio, 0, Math.PI * 2);
@@ -174,15 +233,20 @@ export class PolygonCanvasRendererService {
       ctx.lineWidth = 2 * pixelRatio;
       ctx.stroke();
     });
+    ctx.restore();
   }
 
   clearPolygonFill(canvas: HTMLCanvasElement, path: Path2D, imageSize: Size): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const scaleX: number = canvas.width / imageSize.width;
-    const scaleY: number = canvas.height / imageSize.height;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvas.width, canvas.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return;
     ctx.save();
-    ctx.scale(scaleX, scaleY);
+    ctx.translate(viewport.offsetX, viewport.offsetY);
+    ctx.scale(viewport.scale, viewport.scale);
     ctx.clip(path, 'evenodd');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -202,18 +266,32 @@ export class PolygonCanvasRendererService {
     if (canvasRect.width === 0 || canvasRect.height === 0) return undefined;
     const dx: number = event.clientX - startClientPosition.x;
     const dy: number = event.clientY - startClientPosition.y;
-    const scaleX: number = imageSize.width / canvasRect.width;
-    const scaleY: number = imageSize.height / canvasRect.height;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvasRect.width, canvasRect.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return undefined;
     return new Point(
-      startImagePosition.x - dx * scaleX,
-      startImagePosition.y - dy * scaleY
+      startImagePosition.x - dx / viewport.scale,
+      startImagePosition.y - dy / viewport.scale
     );
   }
 
-  computePointerImagePosition(event: MouseEvent, imageSize: Size, rect: DOMRect): Point {
-    const x: number = (event.clientX - rect.left) * (imageSize.width / rect.width);
-    const y: number = (event.clientY - rect.top) * (imageSize.height / rect.height);
-    return new Point(x, y);
+  computePointerImagePosition(event: MouseEvent, imageSize: Size, rect: DOMRect,
+                              clampToImage: boolean = false): Point | undefined {
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(rect.width, rect.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return undefined;
+    const x: number = event.clientX - rect.left - viewport.offsetX;
+    const y: number = event.clientY - rect.top - viewport.offsetY;
+    const isInside: boolean = x >= 0 && x <= viewport.width && y >= 0 && y <= viewport.height;
+    if (!isInside && !clampToImage) return undefined;
+    return new Point(
+      this.clamp(x / viewport.scale, 0, imageSize.width),
+      this.clamp(y / viewport.scale, 0, imageSize.height)
+    );
   }
 
   findPolygonAtPoint(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], point: Point): PolygonViewModel | undefined {
@@ -271,11 +349,11 @@ export class PolygonCanvasRendererService {
   }
 
   private drawPromptBbox(ctx: CanvasRenderingContext2D, bbox: BBox, imagePosition: Point,
-                         scaleX: number, scaleY: number, pixelRatio: number, draft: boolean): void {
-    const x: number = (bbox.xMin - imagePosition.x) * scaleX;
-    const y: number = (bbox.yMin - imagePosition.y) * scaleY;
-    const width: number = (bbox.xMax - bbox.xMin) * scaleX;
-    const height: number = (bbox.yMax - bbox.yMin) * scaleY;
+                         viewport: ImageViewport, pixelRatio: number, draft: boolean): void {
+    const x: number = viewport.offsetX + (bbox.xMin - imagePosition.x) * viewport.scale;
+    const y: number = viewport.offsetY + (bbox.yMin - imagePosition.y) * viewport.scale;
+    const width: number = (bbox.xMax - bbox.xMin) * viewport.scale;
+    const height: number = (bbox.yMax - bbox.yMin) * viewport.scale;
     ctx.save();
     ctx.strokeStyle = '#1e90ff';
     ctx.fillStyle = draft ? 'rgba(30, 144, 255, 0.12)' : 'rgba(30, 144, 255, 0.08)';

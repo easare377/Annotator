@@ -1,5 +1,7 @@
 <div class="pi">
+  <!-- Top bar -->
   <header class="top">
+    <!-- Project breadcrumb -->
     <div class="brand">
       <img src="assets/images/svgs/polygon-matic-icon.svg" alt="">
       <div class="crumb">
@@ -9,6 +11,7 @@
       </div>
     </div>
 
+    <!-- Project actions -->
     <div class="actions">
       <button type="button" class="btn ghost" [disabled]="isLoadingProjectData" (click)="refreshProjectDataAsync()">
         <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg" alt="">
@@ -26,6 +29,7 @@
   </header>
 
   <main class="page">
+    <!-- Project image summary -->
     <section class="summary">
       <div>
         <span>Total</span>
@@ -45,6 +49,7 @@
       </div>
     </section>
 
+    <!-- Search, filters, sorting, and view controls -->
     <section class="tools">
       <label class="search">
         <span>Search</span>
@@ -85,8 +90,10 @@
       <button type="button" class="btn ghost" (click)="clearSelection()">Clear</button>
     </section> -->
 
+    <!-- Image browser workspace -->
     <section class="work" [class.no-preview]="!selectedImage">
       <div class="content">
+        <!-- Loading placeholders -->
         <div class="loading" *ngIf="isLoadingProjectData">
           <div></div>
           <div></div>
@@ -96,16 +103,19 @@
           <div></div>
         </div>
 
+        <!-- Project data load error -->
         <div class="empty" *ngIf="!isLoadingProjectData && hasLoadError">
           <strong>Project images could not be loaded</strong>
           <button type="button" class="btn main" (click)="refreshProjectDataAsync()">Refresh</button>
         </div>
 
+        <!-- No matching images -->
         <div class="empty" *ngIf="!isLoadingProjectData && !hasLoadError && !filteredImages.length">
           <strong>No images found</strong>
           <button type="button" class="btn main" (click)="importDataDialog.showDialog()">Import</button>
         </div>
 
+        <!-- Image grid -->
         <div class="grid" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'grid'">
           <article class="card" *ngFor="let image of filteredImages" [class.sel-card]="isSelectedImage(image)"
                    (click)="selectImage(image)">
@@ -130,6 +140,7 @@
           </article>
         </div>
 
+        <!-- Image table -->
         <div class="table-wrap" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'table'">
           <table>
             <thead>
@@ -168,6 +179,7 @@
         </div>
       </div>
 
+      <!-- Selected image preview -->
       <aside class="preview" *ngIf="selectedImage as image">
         <img class="hero" [src]="image.imageUrls.thumb" [alt]="image.originalFileName">
         <div class="p-head">
@@ -201,6 +213,7 @@
     </section>
   </main>
 
+  <!-- Import and export dialogs -->
   <app-import-data-dialog [projectId]="projectId" #importDataDialog></app-import-data-dialog>
   <app-export-data-progress-dialog #exportDataProgressDialog [projectId]="projectId"
                                    [objectClasses]="objectClasses">

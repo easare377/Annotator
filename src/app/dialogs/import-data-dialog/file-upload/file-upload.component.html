@@ -2,9 +2,11 @@
   <span id="name">{{fileUploadVm.file.name}}</span>
   <span id="file-type">{{fileUploadVm.file.type.split('/')[1]}}</span>
   <div>
+    <span id="queued" *ngIf="fileUploadVm.uploadState === UploadState.PENDING">Queued</span>
     <div id="progress" class="spinner" *ngIf="fileUploadVm.uploadState === UploadState.UPLOADING"></div>
     <img id="check-svg" src="assets/images/svgs/check-svgrepo-com.svg"
          *ngIf="fileUploadVm.uploadState === UploadState.UPLOADED" alt="check">
-    <div id="retry-button" *ngIf="fileUploadVm.uploadState === UploadState.FAILED">Retry</div>
+    <button type="button" id="retry-button" *ngIf="fileUploadVm.uploadState === UploadState.FAILED"
+            (click)="retry.emit()">Retry</button>
   </div>
 </div>

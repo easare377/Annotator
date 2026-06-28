@@ -2,7 +2,7 @@ import {UploadState} from "./enum/upload-state";
 
 export class FileUploadViewModel {
   private readonly _file: File;
-  private _uploadState: UploadState = UploadState.UPLOADING;
+  private _uploadState: UploadState = UploadState.PENDING;
 
   constructor(file: File) {
     this._file = file;

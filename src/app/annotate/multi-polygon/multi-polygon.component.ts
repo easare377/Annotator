@@ -6,6 +6,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  OnInit,
   Output,
   SimpleChanges,
   ViewChild
@@ -30,7 +31,7 @@ import {PromptTool} from "../../../models/enum/prompt-tool";
   templateUrl: './multi-polygon.component.html',
   styleUrl: './multi-polygon.component.css'
 })
-export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestroy, OnInit {
   private image: HTMLImageElement | undefined; // Image element
   private currentPolygonVms: PolygonViewModel[] = []; // Array to hold current polygon view models
   private imagePosition: Point = new Point(0, 0);
@@ -101,13 +102,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   constructor(private renderer: PolygonCanvasRendererService, private imageCache: ImageCacheService) {
   }
 
-  /**
-   * Lifecycle hook that is called after a component's view has been fully initialized.
-   * Calls onDocumentLoaded to set up the image and polygons.
-   */
+  ngOnInit(): void {
+    this.onDocumentLoaded();
+  }
+
   ngAfterViewInit(): void {
     this.observeCanvasSize();
-    this.onDocumentLoaded();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -340,6 +340,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
 
   onPointerDown(event: PointerEvent): void {
     if (!event.isPrimary || event.button !== 0 || !this.image) return;
+    if (!this.isPointerInsideImage(event)) return;
     event.preventDefault();
     const canvas = event.currentTarget as HTMLCanvasElement;
     canvas.setPointerCapture(event.pointerId);
@@ -383,22 +384,22 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   onPointerUp(event: PointerEvent): void {
     if (!this.isActivePointer(event)) return;
     const promptTool: PromptTool = this.activePointerPromptTool;
-    const pointerInsideCanvas: boolean = this.isPointerInsideCanvas(event, this.polygonCanvas.nativeElement);
+    const pointerInsideImage: boolean = this.isPointerInsideImage(event);
     if (promptTool !== PromptTool.NONE) {
       this.completePrompt(event, promptTool);
       this.finishPointerInteraction(event);
       this.redrawPrompts();
-      if (!pointerInsideCanvas) {
+      if (!pointerInsideImage) {
         this.clearHoveredPolygons();
       }
       return;
     }
     const shouldSelectPolygon: boolean = !this.activePointerStartedWithPan && !this.hasPanned;
     this.finishPointerInteraction(event);
-    if (shouldSelectPolygon && pointerInsideCanvas) {
+    if (shouldSelectPolygon && pointerInsideImage) {
       this.selectPolygonAtPointer(event);
     }
-    if (!pointerInsideCanvas) {
+    if (!pointerInsideImage) {
       this.clearHoveredPolygons();
     }
   }
@@ -462,9 +463,10 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   selectPolygonAtPointer(event: PointerEvent): void {
     const canvas = this.polygonCanvas.nativeElement;
-    if (!this.isPointerInsideCanvas(event, canvas)) return;
     const rect: DOMRect = canvas.getBoundingClientRect();
-    const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    const hPosition: Point | undefined =
+      this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    if (!hPosition) return;
     const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
     if (polygon && polygon.onClick) {
       polygon.onClick(); // Call the polygon's onClick function if the click is inside it
@@ -483,7 +485,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       return;
     }
     const rect: DOMRect = canvas.getBoundingClientRect();
-    const hPosition: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    const hPosition: Point | undefined =
+      this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    if (!hPosition) {
+      this.clearHoveredPolygons();
+      return;
+    }
 
     // Check each polygon to see if the mouse is over it
     const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
@@ -521,6 +528,16 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       event.clientY <= rect.bottom;
   }
 
+  private isPointerInsideImage(event: MouseEvent): boolean {
+    if (!this.polygonCanvas || !this.imageInfo?.scaledSize) return false;
+    const canvas: HTMLCanvasElement = this.polygonCanvas.nativeElement;
+    return this.renderer.computePointerImagePosition(
+      event,
+      this.imageInfo.scaledSize,
+      canvas.getBoundingClientRect()
+    ) !== undefined;
+  }
+
   get isPromptModeActive(): boolean {
     return !this.panEnabled && this.promptTool !== PromptTool.NONE;
   }
@@ -529,11 +546,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     return this.imageInfo?.promptsVm;
   }
 
-  private computePointerSourcePosition(event: MouseEvent): Point | undefined {
+  private computePointerSourcePosition(event: MouseEvent, clampToImage: boolean = false): Point | undefined {
     if (!this.image) return undefined;
     const rect: DOMRect = this.polygonCanvas.nativeElement.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return undefined;
-    const visiblePoint: Point = this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
+    const visiblePoint: Point | undefined =
+      this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect, clampToImage);
+    if (!visiblePoint) return undefined;
     return new Point(
       this.renderer.clamp(visiblePoint.x + this.imagePosition.x, 0, this.image.naturalWidth),
       this.renderer.clamp(visiblePoint.y + this.imagePosition.y, 0, this.image.naturalHeight)
@@ -542,7 +561,7 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
 
   private updateDraftBbox(event: PointerEvent): void {
     if (!this.draftBboxStart) return;
-    const current: Point | undefined = this.computePointerSourcePosition(event);
+    const current: Point | undefined = this.computePointerSourcePosition(event, true);
     if (!current) return;
     this.draftBbox = BBox.fromBbox(
       Math.min(this.draftBboxStart.x, current.x),
@@ -586,8 +605,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   private isUsableBbox(bbox: BBox): boolean {
     const rect: DOMRect = this.polygonCanvas.nativeElement.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return false;
-    const minWidth: number = (this.imageInfo.scaledSize.width / rect.width) * 3;
-    const minHeight: number = (this.imageInfo.scaledSize.height / rect.height) * 3;
+    const viewport = this.renderer.computeImageViewport(
+      new Size(rect.width, rect.height),
+      this.imageInfo.scaledSize
+    );
+    if (viewport.scale === 0) return false;
+    const minWidth: number = 3 / viewport.scale;
+    const minHeight: number = 3 / viewport.scale;
     return bbox.xMax - bbox.xMin >= minWidth && bbox.yMax - bbox.yMin >= minHeight;
   }
 

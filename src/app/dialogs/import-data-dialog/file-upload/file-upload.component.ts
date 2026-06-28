@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FileUploadViewModel} from "../../../../models/file-upload-view-model";
 import {UploadState} from "../../../../models/enum/upload-state";
 
@@ -10,4 +10,5 @@ import {UploadState} from "../../../../models/enum/upload-state";
 export class FileUploadComponent {
   protected readonly UploadState = UploadState;
   @Input() fileUploadVm!: FileUploadViewModel;
+  @Output() retry = new EventEmitter<void>();
 }

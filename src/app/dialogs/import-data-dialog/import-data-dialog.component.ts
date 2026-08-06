@@ -1,13 +1,14 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Dialog} from "../dialog";
 import {UploadFileRequestBody} from "../../../models/upload-file-request-body";
 import {HttpService} from "../../../services/http.service";
-import {AppManagerService} from "../../../services/app-manager.service";
 import { HttpResponse } from "@angular/common/http";
 import {ImageInfoResponseBody} from "../../../models/image-info-response-body";
-import {NavigationService} from "../../../services/navigation.service";
 import {FileUploadViewModel} from "../../../models/file-upload-view-model";
 import {UploadState} from "../../../models/enum/upload-state";
+import {
+  ConfirmationDialogComponent
+} from "../confirmation-dialog/confirmation-dialog.component";
 
 
 @Component({
@@ -15,7 +16,7 @@ import {UploadState} from "../../../models/enum/upload-state";
   templateUrl: './import-data-dialog.component.html',
   styleUrls: ['./import-data-dialog.component.css', '../dialog.css']
 })
-export class ImportDataDialogComponent extends Dialog implements OnInit {
+export class ImportDataDialogComponent extends Dialog {
   private readonly supportedImageTypes: Set<string> = new Set<string>([
     'image/jpeg',
     'image/png',
@@ -39,27 +40,48 @@ export class ImportDataDialogComponent extends Dialog implements OnInit {
   private uploadCompletionPromise: Promise<void> | undefined;
   private resolveUploadCompletion: (() => void) | undefined;
   fileUploadVms: FileUploadViewModel[] = [];
+  isDragging: boolean = false;
   @Input() projectId!: string;
 
   @Output() imagesUploaded = new EventEmitter<ImageInfoResponseBody[]>();
+  @Output() importClosed = new EventEmitter<void>();
 
-  constructor(private httpService: HttpService, public navService: NavigationService,
-              private appManagerService: AppManagerService) {
+  constructor(private httpService: HttpService) {
     super();
-  }
-
-  ngOnInit(): void {
-    // this.projectId = this.appManagerService.getData('projectId');
-    // if (this.projectId)
-    //   this.getProjectDataAsync(this.projectId).then();
   }
 
   onFileSelected(event: Event): void {
     const input: HTMLInputElement = event.target as HTMLInputElement;
-    Array.from(input.files ?? []).filter((file: File) => this.isSupportedImage(file)).forEach((file: File) => {
+    this.queueFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    const dropZone: HTMLElement = event.currentTarget as HTMLElement;
+    const nextTarget: Node | null = event.relatedTarget as Node | null;
+    if (!nextTarget || !dropZone.contains(nextTarget)) {
+      this.isDragging = false;
+    }
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+    this.queueFiles(Array.from(event.dataTransfer?.files ?? []));
+  }
+
+  private queueFiles(files: File[]): void {
+    files.filter((file: File) => this.isSupportedImage(file)).forEach((file: File) => {
       this.fileUploadVms.push(new FileUploadViewModel(file));
     });
-    input.value = '';
     void this.uploadImageAsync();
   }
 
@@ -105,11 +127,16 @@ export class ImportDataDialogComponent extends Dialog implements OnInit {
     const uploadImageRequestBody = new UploadFileRequestBody(this.projectId);
     try {
       const resp: HttpResponse<ImageInfoResponseBody[]> =
-        await this.httpService.uploadImageAsync(uploadImageRequestBody, fileUploadVm.file);
+        await this.httpService.uploadImageAsync(
+          uploadImageRequestBody,
+          fileUploadVm.file,
+          (progress: number) => fileUploadVm.uploadProgress = Math.min(progress, 95)
+        );
       if (resp.status !== 200 || !resp.body) {
         throw new Error('Image upload failed.');
       }
       this.imagesUploaded.emit(resp.body);
+      fileUploadVm.uploadProgress = 100;
       fileUploadVm.uploadState = UploadState.UPLOADED;
     } catch (error) {
       fileUploadVm.uploadState = UploadState.FAILED;
@@ -131,12 +158,84 @@ export class ImportDataDialogComponent extends Dialog implements OnInit {
 
   retryUpload(fileUploadVm: FileUploadViewModel): void {
     if (fileUploadVm.uploadState !== UploadState.FAILED) return;
+    fileUploadVm.uploadProgress = 0;
     fileUploadVm.uploadState = UploadState.PENDING;
     void this.uploadImageAsync();
   }
 
+  removeUpload(fileUploadVm: FileUploadViewModel): void {
+    if (fileUploadVm.uploadState === UploadState.UPLOADING) return;
+    const index: number = this.fileUploadVms.indexOf(fileUploadVm);
+    if (index === -1) return;
+    fileUploadVm.dispose();
+    this.fileUploadVms.splice(index, 1);
+  }
+
+  get pendingUploadCount(): number {
+    return this.countUploads(UploadState.PENDING);
+  }
+
+  get activeUploadCountForDisplay(): number {
+    return this.countUploads(UploadState.UPLOADING);
+  }
+
+  get uploadedCount(): number {
+    return this.countUploads(UploadState.UPLOADED);
+  }
+
+  get failedUploadCount(): number {
+    return this.countUploads(UploadState.FAILED);
+  }
+
+  get uploadSummary(): string {
+    const summary: string[] = [];
+    if (this.activeUploadCountForDisplay) summary.push(`${this.activeUploadCountForDisplay} uploading`);
+    if (this.pendingUploadCount) summary.push(`${this.pendingUploadCount} queued`);
+    if (this.uploadedCount) summary.push(`${this.uploadedCount} uploaded`);
+    if (this.failedUploadCount) summary.push(`${this.failedUploadCount} failed`);
+    return summary.join(' · ');
+  }
+
+  get overallProgress(): number {
+    if (!this.fileUploadVms.length) return 0;
+    const totalProgress: number = this.fileUploadVms.reduce((total: number, item: FileUploadViewModel) => {
+      if (item.uploadState === UploadState.UPLOADED || item.uploadState === UploadState.FAILED) {
+        return total + 100;
+      }
+      return total + item.uploadProgress;
+    }, 0);
+    return Math.round(totalProgress / this.fileUploadVms.length);
+  }
+
+  get uploadsInProgress(): boolean {
+    return this.hasOutstandingUploads();
+  }
+
+  get queueComplete(): boolean {
+    return this.fileUploadVms.length > 0 && !this.uploadsInProgress;
+  }
+
+  requestClose(confirmDialog: ConfirmationDialogComponent): void {
+    if (this.uploadsInProgress) {
+      confirmDialog.showDialog();
+      return;
+    }
+    this.closeAndRefresh();
+  }
+
+  closeAndRefresh(): void {
+    this.hideDialog();
+    this.importClosed.emit();
+  }
+
+  private countUploads(state: UploadState): number {
+    return this.fileUploadVms.filter((item: FileUploadViewModel) => item.uploadState === state).length;
+  }
+
   private resetDialog(): void {
+    this.fileUploadVms.forEach((item: FileUploadViewModel) => item.dispose());
     this.fileUploadVms = [];
+    this.isDragging = false;
   }
 
   override hideDialog(): void {

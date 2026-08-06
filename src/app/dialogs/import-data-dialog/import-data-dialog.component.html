@@ -1,24 +1,74 @@
 <div class="dialog-container container-dark" *ngIf="visible">
-  <div id="parent">
-    <!--Toolbar-->
-    <div id="toolbar">
-      <h4 id="title">Import Data</h4>
-      <button id="exit-button" (click)="hideDialog(); navService.gotoProjectImagesPageAsync(projectId)">Exit</button>
+  <section class="import-dialog" role="dialog" aria-modal="true" aria-labelledby="import-title"
+           [attr.aria-busy]="uploadsInProgress">
+    <header class="dialog-header">
+      <div>
+        <h2 id="import-title">Import images</h2>
+        <span *ngIf="fileUploadVms.length">{{ fileUploadVms.length }} selected</span>
+      </div>
+      <button type="button" class="icon-button" title="Close" aria-label="Close"
+              (click)="requestClose(closeUploadsDialog)">
+        <img src="assets/images/svgs/close-md-svgrepo-com.svg" alt="">
+      </button>
+    </header>
+
+    <div class="dialog-body">
+      <div class="drop-zone" [class.compact]="fileUploadVms.length" [class.dragging]="isDragging"
+           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <img class="upload-icon" src="assets/images/svgs/import-svgrepo-com.svg" alt="">
+        <div class="drop-copy">
+          <strong>{{ fileUploadVms.length ? 'Add more images' : 'Drop images here' }}</strong>
+          <span>JPG, PNG, WebP, GIF, BMP or TIFF</span>
+        </div>
+        <input #fileInput type="file" multiple
+               accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tif,.tiff"
+               (change)="onFileSelected($event)">
+        <button type="button" class="button secondary" (click)="fileInput.click()">
+          {{ fileUploadVms.length ? 'Add images' : 'Choose images' }}
+        </button>
+      </div>
+
+      <section class="queue" *ngIf="fileUploadVms.length">
+        <div class="queue-header">
+          <div>
+            <strong>Upload queue</strong>
+            <span>{{ uploadSummary }}</span>
+          </div>
+          <strong>{{ overallProgress }}%</strong>
+        </div>
+        <div class="overall-progress" aria-hidden="true">
+          <span [style.width.%]="overallProgress"></span>
+        </div>
+
+        <div class="upload-list">
+          <app-file-upload *ngFor="let fileUploadVm of fileUploadVms"
+                           [fileUploadVm]="fileUploadVm"
+                           (retry)="retryUpload(fileUploadVm)"
+                           (remove)="removeUpload(fileUploadVm)">
+          </app-file-upload>
+        </div>
+      </section>
     </div>
-    <!--Body-->
-    <div id="select-files-window" [style.display]="fileUploadVms.length > 0? 'none':'flex'">
-      <h3>Drag & drop files here</h3>
-      <h3>or click to browse</h3>
-      <input #fileInput type="file" multiple
-             accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tif,.tiff"
-             (change)="onFileSelected($event)" style="display: none;"/>
-      <button id="upload-button" (click)="fileInput.click()">Upload Images</button>
-    </div>
-    <div id="upload-window" [style.display]="fileUploadVms.length > 0? '':'none'">
-      <app-file-upload *ngFor="let fileUploadVm of fileUploadVms"
-                       [fileUploadVm]="fileUploadVm"
-                       (retry)="retryUpload(fileUploadVm)">
-      </app-file-upload>
-    </div>
-  </div>
+
+    <footer class="dialog-footer">
+      <span class="footer-status" *ngIf="queueComplete">
+        {{ failedUploadCount ? 'Uploads finished with errors' : 'All images uploaded' }}
+      </span>
+      <span class="footer-status" *ngIf="uploadsInProgress">Uploads continue while this dialog is open</span>
+      <div class="footer-actions">
+        <button type="button" class="button secondary" (click)="requestClose(closeUploadsDialog)">Close</button>
+        <button type="button" class="button primary" [disabled]="!queueComplete" (click)="closeAndRefresh()">Done</button>
+      </div>
+    </footer>
+  </section>
 </div>
+
+<app-confirmation-dialog #closeUploadsDialog
+                         title="Uploads in progress"
+                         message="Closing will hide upload status. Files already uploading will continue in the background."
+                         state="warning"
+                         okText="Close"
+                         cancelText="Keep open"
+                         defaultButton="cancel"
+                         (ok)="closeAndRefresh()">
+</app-confirmation-dialog>

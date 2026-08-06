@@ -5,7 +5,7 @@
     <div class="top-l">
       <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
       <nav class="crumbs" aria-label="Breadcrumb">
-        <span>Projects</span>
+        <button type="button" class="cr-link" (click)="navService.gotoProjectPageAsync()">Projects</button>
         <span class="sep">/</span>
         <button *ngIf="projectInfo" type="button" class="cr-link"
                 (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">

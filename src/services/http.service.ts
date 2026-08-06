@@ -108,16 +108,24 @@ export class HttpService {
   //   });
   // }
 
-  async uploadImageAsync(project: RequestBody, image: File): Promise<HttpResponse<Array<ImageInfoResponseBody>>> {
+  async uploadImageAsync(project: RequestBody, image: File,
+                         onProgress?: (progress: number) => void): Promise<HttpResponse<Array<ImageInfoResponseBody>>> {
     const formData: FormData = new FormData();
     formData.append('image', image, image.name);
     formData.append('imageDetails', JSON.stringify(project));
+    const request = new HttpRequest<FormData>('POST', Uris.uploadImageUrl, formData, {
+      reportProgress: true
+    });
 
     return new Promise<HttpResponse<ImageInfoResponseBody[]>>((resolve, reject) => {
-      this.http.post<ImageInfoResponseBody[]>(Uris.uploadImageUrl, formData,
-        {observe: 'response'}).subscribe({
-        next: response => {
-          resolve(response);
+      this.http.request<ImageInfoResponseBody[]>(request).subscribe({
+        next: event => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            onProgress?.((event.loaded / event.total) * 100);
+          }
+          if (event.type === HttpEventType.Response) {
+            resolve(event);
+          }
         },
         error: error => {
           reject(error);

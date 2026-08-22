@@ -1,0 +1,36 @@
+<div class="upload-row">
+  <img class="preview" [src]="fileUploadVm.previewUrl" alt="">
+
+  <div class="file-details">
+    <div class="file-heading">
+      <strong [title]="fileUploadVm.file.name">{{ fileUploadVm.file.name }}</strong>
+      <span>{{ formattedFileSize }}</span>
+    </div>
+    <div class="progress-track" aria-hidden="true">
+      <span [style.width.%]="fileUploadVm.uploadProgress"
+            [class.failed]="fileUploadVm.uploadState === UploadState.FAILED"
+            [class.complete]="fileUploadVm.uploadState === UploadState.UPLOADED"></span>
+    </div>
+  </div>
+
+  <div class="state">
+    <span class="queued" *ngIf="fileUploadVm.uploadState === UploadState.PENDING">Queued</span>
+    <span class="uploading" *ngIf="fileUploadVm.uploadState === UploadState.UPLOADING">
+      {{ fileUploadVm.uploadProgress }}%
+    </span>
+    <img class="check" src="assets/images/svgs/check-svgrepo-com.svg"
+         *ngIf="fileUploadVm.uploadState === UploadState.UPLOADED" alt="Uploaded">
+    <span class="failed-label" *ngIf="fileUploadVm.uploadState === UploadState.FAILED">Failed</span>
+  </div>
+
+  <div class="row-actions">
+    <button type="button" class="icon-button retry" title="Retry upload" aria-label="Retry upload"
+            *ngIf="fileUploadVm.uploadState === UploadState.FAILED" (click)="retry.emit()">
+      <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg" alt="">
+    </button>
+    <button type="button" class="icon-button" title="Remove file" aria-label="Remove file"
+            *ngIf="canRemove" (click)="remove.emit()">
+      <img src="assets/images/svgs/close-md-svgrepo-com.svg" alt="">
+    </button>
+  </div>
+</div>

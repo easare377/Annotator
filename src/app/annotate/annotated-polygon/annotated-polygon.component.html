@@ -1,0 +1,11 @@
+<div class="annotation-row"
+     (pointerenter)="setHighlighted(true)"
+     (pointerleave)="setHighlighted(false)">
+  <span class="index">[{{ displayIndex }}]</span>
+  <span class="dot" [style.background-color]="classColor"></span>
+  <span class="name" [title]="className">{{ className }}</span>
+  <button type="button" class="clear" title="Clear annotation" aria-label="Clear annotation"
+          (click)="onClear($event)">
+    &times;
+  </button>
+</div>

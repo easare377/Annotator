@@ -1,0 +1,15 @@
+<div id="parent" (click)="radio.checked = true">
+  <!--Radio button-->
+  <div id="radio-container">
+    <input #radio name="export-type" type="radio">
+  </div>
+  <!--Export type-->
+  <div id="export-data-type">
+    <div id="export-type">
+      {{typeText}}
+    </div>
+    <div id="export-description">
+      {{typeDescription}}
+    </div>
+  </div>
+</div>

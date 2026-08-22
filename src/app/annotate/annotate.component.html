@@ -1,38 +1,334 @@
-<div id="parent">
-  <!--Side Panel-->
-  <div id="left-panel">
-
-  </div>
-  <!--Main Window-->
-  <div id="main-window">
-    <!--Account Menu-->
-    <div id="account-menu">
-
+<div class="ann">
+  <!-- Top bar -->
+  <header class="top">
+    <!-- Breadcrumbs -->
+    <div class="top-l">
+      <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <button type="button" class="cr-link" (click)="navService.gotoProjectPageAsync()">Projects</button>
+        <span class="sep">/</span>
+        <button *ngIf="projectInfo" type="button" class="cr-link"
+                (click)="navService.gotoProjectImagesPageAsync(projectInfo.projectId)">
+          {{ projectInfo.name }}
+        </button>
+        <span class="sep">/</span>
+        <span class="cr-cur">Annotate</span>
+      </nav>
     </div>
-    <!--Annotation Window-->
-    <div id="annotation-window">
-      <div id="title-image-window">
-        <h4>Select PolygonViewModel</h4>
-        <div id="image-window">
-          <app-multi-polygon
-          (polygonClicked)="assignDialog.hideDialog();assignDialog.polygonVm = $event;assignDialog.showDialog()"
-          [zoomFactor]="10"></app-multi-polygon>
-        </div>
-      </div>
-      <!--Detail Window-->
-      <div id="detail-window">
-        <!--Selection Details-->
-        <div>
-          <div>
 
-          </div>
-
-        </div>
-      </div>
+    <!-- Save actions -->
+    <div class="actions">
+      <button type="button" class="btn sec" [disabled]="updatingPolygonClasses"
+              (click)="saveObjectClassesAsync()">
+        <img *ngIf="!updatingPolygonClasses" src="assets/images/svgs/update-alt-2-svgrepo-com.svg" alt="">
+        <span class="spinner btn-spin" *ngIf="updatingPolygonClasses"></span>
+        {{ updatingPolygonClasses ? 'Saving' : 'Update' }}
+      </button>
+      <button type="button" class="btn pri" [disabled]="updatingPolygonClasses"
+              (click)="!updatingPolygonClasses ? saveObjectClassesAsync() : undefined">
+        <img src="assets/images/svgs/save-svgrepo-com.svg" alt="">
+        Save & Exit
+      </button>
     </div>
-  </div>
-  <!-- Dialogs -->
-  <div>
-    <app-assign-class-dialog #assignDialog></app-assign-class-dialog>
-  </div>
+  </header>
+
+  <!-- Annotation workspace -->
+  <main class="ws" *ngIf="currentImageInfo as image; else noImageSelected">
+    <!-- Image rail -->
+    <aside class="rail" aria-label="Project images">
+      <div class="head">
+        <span>Images</span>
+        <span class="count">{{ imageInfoVms.length }}</span>
+      </div>
+      <div class="imgs">
+        <app-image-navigation *ngFor="let imageInfo of imageInfoVms" [imageInfo]="imageInfo"
+                              [active]="image === imageInfo"
+                              (click)="navService.gotoAnnotateImagesAsync(projectId, imageInfo.imageId)">
+        </app-image-navigation>
+      </div>
+    </aside>
+
+    <!-- Canvas stage -->
+    <section class="stage">
+      <!-- Canvas toolbar -->
+      <div class="tools">
+        <!-- History controls -->
+        <div class="grp">
+          <button type="button" class="ico" title="Undo" aria-label="Undo"
+                  [disabled]="!canUndoClassification"
+                  (click)="undoClassification()">
+            <img src="assets/images/svgs/undo-svgrepo-com.svg" alt="">
+          </button>
+          <button type="button" class="ico" title="Redo" aria-label="Redo"
+                  [disabled]="!canRedoClassification"
+                  (click)="redoClassification()">
+            <img src="assets/images/svgs/redo-svgrepo-com.svg" alt="">
+          </button>
+        </div>
+
+        <div class="bar"></div>
+
+        <!-- Zoom controls -->
+        <div class="grp">
+          <button type="button" class="ico" title="Zoom Out" aria-label="Zoom Out"
+                  [disabled]="image.zoomLevel <= 100"
+                  (click)="image.zoomLevel > 100 ? multiPolygon.zoomOut() : undefined">
+            <img src="assets/images/svgs/zoom-out-svgrepo-com.svg" alt="">
+          </button>
+          <span class="zoom">{{ image.zoomLevel }}%</span>
+          <button type="button" class="ico" title="Zoom In" aria-label="Zoom In"
+                  [disabled]="image.zoomLevel >= 1000"
+                  (click)="image.zoomLevel < 1000 ? multiPolygon.zoomIn() : undefined">
+            <img src="assets/images/svgs/zoom-in-svgrepo-com.svg" alt="">
+          </button>
+          <button type="button" class="ico" title="Fit Image" aria-label="Fit Image"
+                  [disabled]="image.zoomLevel <= 100"
+                  (click)="image.zoomLevel > 100 ? multiPolygon.zoom(100) : undefined">
+            <img src="assets/images/svgs/zoom-fit-svgrepo-com.svg" alt="">
+          </button>
+          <!-- Pan tool -->
+          <button type="button" class="mode" [class.active]="panModeEnabled" title="Pan" aria-label="Pan"
+            [attr.aria-pressed]="panModeEnabled" (click)="togglePanMode()">
+            <img src="assets/images/svgs/pan-svgrepo-com.svg" alt="">
+            <span>Pan</span>
+          </button>
+        </div>
+
+        <div class="bar"></div>
+
+        <!-- Prompt tools -->
+        <div class="prompt-tools" role="group" aria-label="SAM prompt tools">
+          <!-- Positive point -->
+          <button type="button" class="prompt-tool positive"
+                  [class.active]="currentPromptTool === PromptTool.POSITIVE_POINT"
+                  title="Positive point" aria-label="Positive point"
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.POSITIVE_POINT"
+                  (click)="togglePromptTool(PromptTool.POSITIVE_POINT)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M12 8v8"></path>
+              <path d="M8 12h8"></path>
+            </svg>
+            <span>Positive</span>
+          </button>
+          <!-- Negative point -->
+          <button type="button" class="prompt-tool negative"
+                  [class.active]="currentPromptTool === PromptTool.NEGATIVE_POINT"
+                  title="Negative point" aria-label="Negative point"
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.NEGATIVE_POINT"
+                  (click)="togglePromptTool(PromptTool.NEGATIVE_POINT)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M8 12h8"></path>
+            </svg>
+            <span>Negative</span>
+          </button>
+          <!-- Bounding box -->
+          <button type="button" class="prompt-tool bbox"
+                  [class.active]="currentPromptTool === PromptTool.BBOX"
+                  title="Bounding box" aria-label="Bounding box"
+                  [attr.aria-pressed]="currentPromptTool === PromptTool.BBOX"
+                  (click)="togglePromptTool(PromptTool.BBOX)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 9V4h5"></path>
+              <path d="M15 4h5v5"></path>
+              <path d="M20 15v5h-5"></path>
+              <path d="M9 20H4v-5"></path>
+            </svg>
+            <span>Box</span>
+          </button>
+          <!-- Refine mask (placeholder, no functionality yet) -->
+          <button type="button" class="prompt-tool" title="Refine mask"
+                  aria-label="Refine mask" aria-pressed="false" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7l8-4 8 4-8 4-8-4Z"></path>
+              <path d="M4 12l8 4 8-4"></path>
+              <path d="M4 17l8 4 8-4"></path>
+            </svg>
+            <span>Refine</span>
+          </button>
+        </div>
+
+        <div class="prompt-actions" role="group" aria-label="Prompt actions">
+          <button type="button" class="ico" title="Undo prompt" aria-label="Undo prompt"
+                  [disabled]="!hasPrompts" (click)="undoPrompt()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 7 4 12l5 5"></path>
+              <path d="M20 17a7 7 0 0 0-7-7H4"></path>
+            </svg>
+          </button>
+          <button type="button" class="ico" title="Clear prompts" aria-label="Clear prompts"
+                  [disabled]="!hasPrompts" (click)="clearPrompts()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="m19 6-1 14H6L5 6"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="bar"></div>
+      </div>
+
+      <!-- Image canvas -->
+      <div class="canvas" [attr.aria-busy]="generatingPolygons"
+           (pointermove)="updateStatFade($event, stat)" (pointerleave)="statFaded = false">
+        <!-- Polygon editor -->
+        <app-multi-polygon #multiPolygon [imageInfo]="image" [thickness]="2" [zoomFactor]="10"
+                           [panEnabled]="panModeEnabled"
+                           [promptTool]="currentPromptTool"
+                           (polygonClicked)="handlePolygonClicked($event, assignDialog)"
+                           (objectClassAssigned)="handleObjectClassAssigned($event)">
+        </app-multi-polygon>
+
+        <!-- Mask generation overlay -->
+        <div class="mask-generation-overlay" *ngIf="generatingPolygons" role="status" aria-live="polite">
+          <span class="spinner mask-generation-spinner" aria-hidden="true"></span>
+          <span>Generating masks</span>
+        </div>
+
+        <!-- Canvas status -->
+        <div #stat class="stat" [class.fade]="statFaded">
+          <span>image.jpg{{ image.originalFileName }}</span>
+          <span>{{ imageInfoVms.indexOf(image) + 1 }} / {{ imageInfoVms.length }}</span>
+          <span>{{ image.polygonVms ? image.polygonVms.length : 0 }} polygons</span>
+        </div>
+
+      </div>
+
+      <!-- Mask actions -->
+      <div class="mask-action-bar">
+        <!-- Clear masks -->
+        <button type="button" class="clear-mask-btn"
+                (click)="clearMasksDialog.showDialog()"
+                [disabled]="!image.polygonVms || generatingPolygons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7l8-4 8 4-8 4-8-4Z"></path>
+            <path d="M4 12l8 4 8-4"></path>
+            <path d="m16 17 5 5"></path>
+            <path d="m21 17-5 5"></path>
+          </svg>
+          <span>Clear Masks</span>
+        </button>
+        <!-- Generate masks -->
+        <button type="button" class="generate-mask-btn" [disabled]="generatingPolygons"
+                (click)="saveThenGeneratePolygonsAsync(image)">
+          <svg *ngIf="!generatingPolygons" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 3 1.15 3.1L16 7.5l-2.85 1.4L12 12l-1.15-3.1L8 7.5l2.85-1.4L12 3Z"></path>
+            <path d="m18.5 12 .75 2 1.75.75-1.75.75-.75 2-.75-2-1.75-.75 1.75-.75.75-2Z"></path>
+            <path d="M4 13.5h8v6H4z"></path>
+            <path d="M7 13.5v6"></path>
+            <path d="M10 13.5v6"></path>
+          </svg>
+          <span class="spinner generate-spin" *ngIf="generatingPolygons"></span>
+          <span>{{ generatingPolygons ? 'Generating' : 'Generate Masks' }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Inspector panel -->
+    <aside class="insp" aria-label="Annotation details">
+      <!-- Object classes -->
+      <section class="sec-block">
+        <div class="head">
+          <span>Object Classes</span>
+          <span class="count">{{ objectClassVms.length }}</span>
+        </div>
+
+        <div class="active" *ngIf="currentObjectClassVm; else noActiveClass">
+          <span class="sw" [style.background-color]="currentObjectClassVm.color"></span>
+          <span>{{ currentObjectClassVm.className }}</span>
+        </div>
+        <ng-template #noActiveClass>
+          <div class="note">No class selected</div>
+        </ng-template>
+
+        <div class="classes">
+          <app-object-class #objectClass *ngFor="let objectClassVm of objectClassVms"
+                            [objectClassVm]="objectClassVm"
+                            [annotationCount]="getObjectClassAnnotationCount(objectClassVm)"
+                            [active]="objectClassVm === currentObjectClassVm"
+                            (pointerenter)="highlightObjectClassPolygons(objectClassVm)"
+                            (pointerleave)="clearObjectClassPolygonHighlight()"
+                            (click)="toggleObjectClassSelection(objectClassVm)">
+          </app-object-class>
+        </div>
+      </section>
+
+      <!-- Annotated objects -->
+      <section class="sec-block">
+        <div class="head">
+          <span>Annotated Objects</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="count">{{ image.annotatedPolygonVms.length }}</span>
+            <button *ngIf="image.annotatedPolygonVms.length" type="button" class="ico"
+                    aria-label="Clear all annotations"
+                    title="Clear all annotations"
+                    (click)="clearAnnotationsDialog.showDialog()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <path d="M3 6h18"></path>
+                <path d="M8 6V4h8v2"></path>
+                <path d="M19 6l-1 14H6L5 6"></path>
+                <path d="M10 11v5"></path>
+                <path d="M14 11v5"></path>
+              </svg>
+            </button>
+          </span>
+        </div>
+
+        <div class="objects" *ngIf="image.polygonVms && image.annotatedPolygonVms.length; else noAnnotations">
+          <app-annotated-polygon *ngFor="let polygonInfo of image.annotatedPolygonVms"
+                                 [index]="image.annotatedPolygonVms.indexOf(polygonInfo)"
+                                 [polygonVm]="polygonInfo"
+                                 (clearAnnotation)="clearPolygonAnnotation($event)">
+          </app-annotated-polygon>
+        </div>
+        <ng-template #noAnnotations>
+          <div class="note">No annotated objects yet</div>
+        </ng-template>
+      </section>
+    </aside>
+
+    <!-- Assign class dialog -->
+    <app-assign-class-dialog #assignDialog [objectClassVms]="objectClassVms"
+                             (objectClassSelected)="assignClassFromDialog(assignDialog.polygonVm, $event)">
+    </app-assign-class-dialog>
+    <app-confirmation-dialog #clearAnnotationsDialog
+                             title="Clear annotations"
+                             message="Are you sure you want to clear all annotations for this image?"
+                             state="critical"
+                             okText="OK"
+                             cancelText="Cancel"
+                             defaultButton="cancel"
+                             (ok)="clearAllImageAnnotations()">
+    </app-confirmation-dialog>
+    <app-confirmation-dialog #clearMasksDialog
+                             title="Clear masks"
+                             message="Are you sure you want to remove all empty masks for this image?"
+                             state="warning"
+                             okText="Clear"
+                             cancelText="Cancel"
+                             defaultButton="cancel"
+                             (ok)="clearEmptyPolygonsAsync(image)">
+    </app-confirmation-dialog>
+  </main>
+
+  <!-- Empty state -->
+  <ng-template #noImageSelected>
+    <div class="empty">
+      <img class="empty-ico" src="assets/images/svgs/polygon-matic-icon.svg" alt="">
+      <span>Select an image to start annotating</span>
+    </div>
+  </ng-template>
 </div>

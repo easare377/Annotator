@@ -1,29 +1,93 @@
 import {ObjectClassViewModel} from "./object-class-view-model";
+import {Point} from "./point";
+import {BBox} from "./bbox";
 
 export class PolygonViewModel {
   private readonly _id: string;
-  private readonly _points: Array<Array<number>>;
+  private readonly _truePoints: Array<Point>;
+  private readonly _trueInnerPolygons: Array<Array<Point>>;
+  private _scaledPoints: Array<Point>;
+  private _scaledInnerPolygons: Array<Array<Point>>;
+  private readonly _bbox: BBox;
   // private _className: string | undefined;
   private _objectClassVm: ObjectClassViewModel | undefined
   private _color: string;
   private _mouseOver: boolean = false;
+  private _dimmed: boolean = false;
+  private _displayPath: Path2D;
+  private _displayBbox: BBox;
+  private readonly _area: number;
+  private _displayArea: number;
   public onMouseOver: Function | undefined;
-  public onClick:Function | undefined;
+  public onClick: Function | undefined;
+  public onClassSet: Function | undefined;
+  public onDrawPolygon: Function | undefined;
 
-  constructor(id: string,points: Array<Array<number>>, color: string = '#FF0000FF') {
+  constructor(id: string, points: Array<Point>, color: string, innerPolygons: Array<Array<Point>> = []) {
     this._id = id;
-    this._points = points;
+    this._truePoints = points;
+    this._trueInnerPolygons = innerPolygons;
+    this._scaledPoints = points;
+    this._scaledInnerPolygons = innerPolygons;
+    this._displayPath = this.createPath(points, innerPolygons);
+    this._displayBbox = this.computeBbox(points);
+    this._area = this.computeArea(points, innerPolygons);
+    this._displayArea = this._area;
     this._color = color;
+    this._bbox = this.computeBbox(points);
   }
 
   get id(): string {
     return this._id;
   }
 
-  get points(): Array<Array<number>> {
-    return this._points;
+  get truePoints(): Array<Point> {
+    return this._truePoints;
   }
 
+  get trueInnerPolygons(): Array<Array<Point>> {
+    return this._trueInnerPolygons;
+  }
+
+  get scaledPoints(): Array<Point> {
+    return this._scaledPoints;
+  }
+
+  set scaledPoints(value: Array<Point>) {
+    this.setScaledGeometry(value, this._scaledInnerPolygons);
+  }
+
+  get scaledInnerPolygons(): Array<Array<Point>> {
+    return this._scaledInnerPolygons;
+  }
+
+  setScaledGeometry(points: Array<Point>, innerPolygons: Array<Array<Point>>): void {
+    this._scaledPoints = points;
+    this._scaledInnerPolygons = innerPolygons;
+    this._displayPath = this.createPath(points, innerPolygons);
+    this._displayBbox = this.computeBbox(points);
+    this._displayArea = this.computeArea(points, innerPolygons);
+  }
+
+  get displayPath(): Path2D {
+    return this._displayPath;
+  }
+
+  get displayBbox(): BBox {
+    return this._displayBbox;
+  }
+
+  get area(): number {
+    return this._area;
+  }
+
+  get displayArea(): number {
+    return this._displayArea;
+  }
+
+  get bbox(): BBox {
+    return this._bbox;
+  }
 
   get color(): string {
     return this._color;
@@ -40,6 +104,9 @@ export class PolygonViewModel {
 
   set objectClassVm(value: ObjectClassViewModel | undefined) {
     this._objectClassVm = value;
+    if (this.onClassSet){
+      this.onClassSet();
+    }
   }
 
   get mouseOver(): boolean {
@@ -48,5 +115,72 @@ export class PolygonViewModel {
 
   set mouseOver(value: boolean) {
     this._mouseOver = value;
+  }
+
+  get dimmed(): boolean {
+    return this._dimmed;
+  }
+
+  set dimmed(value: boolean) {
+    this._dimmed = value;
+  }
+
+  computeBbox(points: Array<Point>): BBox {
+    let xMin: number = points[0].x;
+    let xMax: number = points[0].x;
+    let yMin: number = points[0].y;
+    let yMax: number = points[0].y;
+    points.forEach((point: Point) => {
+      if (point.x < xMin) {
+        xMin = point.x;
+      }
+      if (point.x > xMax) {
+        xMax = point.x;
+      }
+      if (point.y < yMin) {
+        yMin = point.y;
+      }
+      if (point.y > yMax) {
+        yMax = point.y;
+      }
+    });
+    return BBox.fromBbox(xMin, yMin, xMax, yMax);
+  }
+
+  private createPath(points: Array<Point>, innerPolygons: Array<Array<Point>> = []): Path2D {
+    const path = new Path2D();
+    this.addRingToPath(path, points);
+    innerPolygons.forEach((innerPolygon: Array<Point>) => this.addRingToPath(path, innerPolygon));
+    return path;
+  }
+
+  private addRingToPath(path: Path2D, points: Array<Point>): void {
+    if (!points.length) return;
+    path.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach((point: Point) => path.lineTo(point.x, point.y));
+    path.closePath();
+  }
+
+  private computeArea(points: Array<Point>, innerPolygons: Array<Array<Point>> = []): number {
+    const outerArea: number = this.computeRingArea(points);
+    const innerArea: number = innerPolygons.reduce((sum: number, innerPolygon: Array<Point>) =>
+      sum + this.computeRingArea(innerPolygon), 0);
+    return Math.max(0, outerArea - innerArea);
+  }
+
+  private computeRingArea(points: Array<Point>): number {
+    if (points.length < 3) return 0;
+    let area: number = 0;
+    points.forEach((point: Point, index: number) => {
+      const nextPoint: Point = points[(index + 1) % points.length];
+      area += point.x * nextPoint.y - point.y * nextPoint.x;
+    });
+    return Math.abs(area) / 2;
+  }
+
+  drawPolygon(): void{
+    if (this.onDrawPolygon){
+      this.onDrawPolygon();
+    }
   }
 }

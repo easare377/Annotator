@@ -10,78 +10,78 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TrailComponent } from './trail/trail.component';
 import { CanvasAreaDrawComponent } from './canvas-area-draw/canvas-area-draw.component';
 import { SidenavComponent } from './sidenav/sidenav.component';
-import { MultiPolygonComponent } from './multi-polygon/multi-polygon.component';
+import { MultiPolygonComponent } from './annotate/multi-polygon/multi-polygon.component';
 import {NgOptimizedImage} from "@angular/common";
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign-class-dialog.component';
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
 import { CustomScrollDirective } from './custom-scroll.directive';
-import { CreateProjectComponent } from './create-project/create-project.component';
+import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
-import { ProjectsComponent } from './projects/projects.component';
+import {AnnotatedPolygonComponent} from "./annotate/annotated-polygon/annotated-polygon.component";
+import {ObjectClassComponent} from "./object-class/object-class.component";
+import {ImageNavigationComponent} from "./image-navigation/image-navigation.component";
+import {LabelingSetupComponent} from "./dialogs/create-project-dialog/labeling-setup/labeling-setup.component";
+import { ToggleButtonComponent } from './toggle-button/toggle-button.component';
+import { ViewProjectComponent } from './view-project/view-project.component';
+import {ProjectsComponent} from "./projects/projects.component";
+import { ProjectImagesComponent } from './project-images/project-images.component';
+import { ImageDataTableComponent } from './project-images/image-data-table/image-data-table.component';
+import { CreateProjectSetupComponent } from './dialogs/create-project-dialog/create-project-setup/create-project-setup.component';
+import { UploadImagesSetupComponent } from './dialogs/create-project-dialog/upload-images-setup/upload-images-setup.component';
+import { AddedObjectClassComponent } from './dialogs/create-project-dialog/labeling-setup/added-object-class/added-object-class.component';
+import { ImportDataDialogComponent } from './dialogs/import-data-dialog/import-data-dialog.component';
+import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/file-upload.component';
+import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialog/generate-polygon-dialog.component';
+import { ExportDataProgressDialogComponent } from './dialogs/export-data-progress-dialog/export-data-progress-dialog.component';
+import { BoundingBoxComponent } from './annotate/bounding-box/bounding-box.component';
+import { ExportDataDialogComponent } from './dialogs/export-data-dialog/export-data-dialog.component';
+import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-data-type/export-data-type.component';
+import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
+import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confirmation-dialog.component';
 
-// import { PinchZoomModule} from 'ngx-pinch-zoom';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTabsModule } from '@angular/material/tabs';
-import { LabelingSetupComponent } from './create-project/labeling-setup/labeling-setup.component';
-import { ColorPickerModule } from 'ngx-color-picker';
-import { ColorPickerComponent } from './create-project/labeling-setup/color-picker/color-picker.component';
 
 
 
-
-
-
-
-
-
-
-@NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    TrailComponent,
-    CanvasAreaDrawComponent,
-    SidenavComponent,
-    MultiPolygonComponent,
-    AssignClassDialogComponent,
-    AnnotateComponent,
-    CustomScrollDirective,
-    CreateProjectComponent,
-    SignUpComponent,
-    ProjectsComponent,
-    LabelingSetupComponent,
-    ColorPickerComponent,
-    
-  
-
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    NgOptimizedImage,
-    HttpClientModule,
-    ClickOutsideDirective,
-    ReactiveFormsModule,  
-    MatToolbarModule,
-    MatButtonModule,
-    MatInputModule,
-    MatCardModule,
-    MatChipsModule,
-    MatTabsModule,
-    ColorPickerModule,
-    
-
-    
-
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        HeaderComponent,
+        TrailComponent,
+        CanvasAreaDrawComponent,
+        SidenavComponent,
+        MultiPolygonComponent,
+        AssignClassDialogComponent,
+        AnnotateComponent,
+        CustomScrollDirective,
+        CreateProjectDialogComponent,
+        SignUpComponent,
+        AnnotatedPolygonComponent,
+        ObjectClassComponent,
+        ImageNavigationComponent,
+        LabelingSetupComponent,
+        ToggleButtonComponent,
+        ViewProjectComponent,
+        ProjectsComponent,
+        ProjectImagesComponent,
+        ImageDataTableComponent,
+        CreateProjectSetupComponent,
+        UploadImagesSetupComponent,
+        AddedObjectClassComponent,
+        ImportDataDialogComponent,
+        FileUploadComponent,
+        GeneratePolygonDialogComponent,
+        ExportDataProgressDialogComponent,
+        BoundingBoxComponent,
+        ExportDataDialogComponent,
+        ExportDataTypeComponent,
+        CreateProjectComponent,
+        ConfirmationDialogComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        NgOptimizedImage,
+        ClickOutsideDirective,
+        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }

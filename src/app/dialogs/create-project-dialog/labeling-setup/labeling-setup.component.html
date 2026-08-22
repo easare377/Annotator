@@ -1,0 +1,20 @@
+<div id="parent" *ngIf="visible">
+<!--  <div class="card-header">-->
+<!--    <h2>Add Label Names</h2>-->
+<!--    <p>Use new line as a separator to add multiple labels</p>-->
+<!--  </div>-->
+  <div class="card-content">
+    <input #className  id="projectName" type="text" placeholder="Class name"/>
+    <textarea #description placeholder="Description"></textarea>
+    <button (click)="addLabel(className.value, description.value) ;className.value = ''; description.value = '';">Add</button>
+  </div>
+  <div id="added-classes">
+<!--    <app-added-object-class></app-added-object-class>-->
+    <div *ngFor="let objectClassVm of projectSetupVm.objectClasses">
+      <app-added-object-class [objectClassVm]="objectClassVm"
+      (remove)="removeLabel(objectClassVm)">
+      </app-added-object-class>
+    </div>
+  </div>
+</div>
+

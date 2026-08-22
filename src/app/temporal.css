@@ -1,0 +1,100 @@
+#account-menu{
+  display: flex;
+  /*flex-direction: row;*/
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  padding: 10px;
+  /*background: black;*/
+  width: 100%;
+  border-bottom: 1px solid #e6e6e6;
+  gap: 10px;
+}
+
+#account-menu-left{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+}
+
+#icon{
+  height: 20px;
+  /*width: 30px;*/
+}
+
+#navigation > ul{
+  display: flex;
+  flex-direction: row;
+  list-style-type:none;
+  padding:0;
+  margin:0;
+}
+
+/*#navigation > ul > li::before{*/
+/*  content: '>';*/
+/*}*/
+#navigation > ul > li{
+  display: flex;
+  height: 30px;
+  /*width: 70px;*/
+  /*background-color: #dcdcdc;*/
+  border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.hl{
+  height: 60%;
+  border-left: 2px solid #e6e6e6;
+}
+
+#annotation-controls{
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 10px;
+  /*padding: 0 10px;*/
+}
+
+#annotation-controls > button{
+  height: 40px;
+  min-width: 100px;
+  color: white;
+  border-radius: 20px;
+  border: none;
+}
+
+/*#update-button{*/
+/*  background-color: #5A00EE;*/
+/*}*/
+
+/*#save-button{*/
+/*  background-color: #c209c1;*/
+/*}*/
+
+
+button {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.progress-button{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #5A00EE;
+  padding: 10px;
+  gap: 5px;
+}
+
+.progress-button > img {
+  height: 20px;
+  width: 20px;
+  filter: brightness(0) saturate(100%) invert(100%) sepia(1%) saturate(7496%)
+  hue-rotate(5deg) brightness(105%) contrast(101%)
+}

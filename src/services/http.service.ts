@@ -1,20 +1,41 @@
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, firstValueFrom} from 'rxjs';
 import {ProjectInfoRequestBody} from "../models/project-info-request-body";
 import {Uris} from "../models/uris";
 import {RequestBody} from "../models/request-body";
 import {ProjectInfoResponseBody} from "../models/project-info-response-body";
-import {error} from "@angular/compiler-cli/src/transformers/util";
-import {ImageInfoBase} from "../models/image-info-base";
-import {ImageInfoResponseBody} from "../models/image-info-response-body";
-import {map} from "rxjs/operators";
-import {CreatedProjectResponseBody} from "../models/created-project-response-body";
-import {ImageInfoRequestBody} from "../models/imageInfo-request-body";
 import {PolygonInfoRequestBody} from "../models/polygon-info-request-body";
 import {PolygonInfoResponseBody} from "../models/polygon-info-response-body";
 import {ProjectDataResponseBody} from "../models/project-data-response-body";
 import { ClearEmptyPolygonsRequestBody } from '../models/clear-empty-polygons-request-body';
+
+export interface ImageUploadDetails {
+  fileName: string;
+  width: number;
+  height: number;
+}
+
+export interface ImageUploadLink {
+  imageId: string;
+  storageKey: string;
+  uploadUrl: string;
+  method: string;
+}
+
+export interface GeneratedImageUpload {
+  imageId: string;
+  uploadLink: ImageUploadLink;
+}
+
+export interface GenerateImageUploadLinksResponse {
+  uploads: GeneratedImageUpload[];
+}
+
+export interface OriginalImageUploadResponse {
+  imageId: string;
+  storageKey: string;
+  bytesUploaded: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -86,39 +107,51 @@ export class HttpService {
     });
   }
 
-  // uploadImage(image: File): Observable<any> {
-  //   const formData: FormData = new FormData();
-  //   formData.append('image', image, image.name);
-  //   return this.http.post(Uris.uploadImageUrl, formData);
-  // }
+  async generateUploadImageLinksAsync(
+    projectId: string,
+    imageDetails: ImageUploadDetails[]
+  ): Promise<HttpResponse<GenerateImageUploadLinksResponse>> {
+    const requestBody = {
+      projectId,
+      images: imageDetails.map((details: ImageUploadDetails) => ({
+        imageDetails: details
+      }))
+    };
 
-  // async uploadImageAsync(image: File): Promise<any> {
-  //   const formData: FormData = new FormData();
-  //   formData.append('image', image, image.name);
-  //
-  //   return new Promise<any>((resolve, reject) => {
-  //     this.http.post(Uris.uploadImageUrl, formData).subscribe({
-  //       next: response => {
-  //         resolve(response);
-  //       },
-  //       error: error => {
-  //         reject(error);
-  //       }
-  //     });
-  //   });
-  // }
-
-  async uploadImageAsync(project: RequestBody, image: File,
-                         onProgress?: (progress: number) => void): Promise<HttpResponse<Array<ImageInfoResponseBody>>> {
-    const formData: FormData = new FormData();
-    formData.append('image', image, image.name);
-    formData.append('imageDetails', JSON.stringify(project));
-    const request = new HttpRequest<FormData>('POST', Uris.uploadImageUrl, formData, {
-      reportProgress: true
+    return new Promise<HttpResponse<GenerateImageUploadLinksResponse>>((resolve, reject) => {
+      this.http.post<GenerateImageUploadLinksResponse>(
+        `${Uris.baseUrl}/api/projects/data/generate-upload-image-link`,
+        requestBody,
+        {observe: 'response', headers: this.getRequestHeaders()}
+      ).subscribe({
+        next: response => resolve(response),
+        error: error => reject(error)
+      });
     });
+  }
 
-    return new Promise<HttpResponse<ImageInfoResponseBody[]>>((resolve, reject) => {
-      this.http.request<ImageInfoResponseBody[]>(request).subscribe({
+  async uploadImageAsync(
+    uploadLink: ImageUploadLink,
+    image: File,
+    onProgress?: (progress: number) => void
+  ): Promise<HttpResponse<OriginalImageUploadResponse>> {
+    const method: string = uploadLink.method.toUpperCase();
+    let requestBody: FormData | File = image;
+    if (method === 'POST') {
+      const formData: FormData = new FormData();
+      formData.append('image', image, image.name);
+      requestBody = formData;
+    }
+
+    const request = new HttpRequest<FormData | File>(
+      method,
+      uploadLink.uploadUrl,
+      requestBody,
+      {reportProgress: true}
+    );
+
+    return new Promise<HttpResponse<OriginalImageUploadResponse>>((resolve, reject) => {
+      this.http.request<OriginalImageUploadResponse>(request).subscribe({
         next: event => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
             onProgress?.((event.loaded / event.total) * 100);
@@ -127,9 +160,20 @@ export class HttpService {
             resolve(event);
           }
         },
-        error: error => {
-          reject(error);
-        }
+        error: error => reject(error)
+      });
+    });
+  }
+
+  async completeImageUploadAsync(imageId: string): Promise<HttpResponse<string>> {
+    return new Promise<HttpResponse<string>>((resolve, reject) => {
+      this.http.post<string>(
+        `${Uris.baseUrl}/api/projects/data/complete-image-upload`,
+        {imageId},
+        {observe: 'response', headers: this.getRequestHeaders()}
+      ).subscribe({
+        next: response => resolve(response),
+        error: error => reject(error)
       });
     });
   }

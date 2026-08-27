@@ -1,7 +1,12 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Dialog} from "../dialog";
-import {UploadFileRequestBody} from "../../../models/upload-file-request-body";
-import {HttpService} from "../../../services/http.service";
+import {
+  GeneratedImageUpload,
+  GenerateImageUploadLinksResponse,
+  HttpService,
+  ImageUploadDetails,
+  OriginalImageUploadResponse
+} from "../../../services/http.service";
 import { HttpResponse } from "@angular/common/http";
 import {ImageInfoResponseBody} from "../../../models/image-info-response-body";
 import {FileUploadViewModel} from "../../../models/file-upload-view-model";
@@ -39,6 +44,7 @@ export class ImportDataDialogComponent extends Dialog {
   private activeUploadCount: number = 0;
   private uploadCompletionPromise: Promise<void> | undefined;
   private resolveUploadCompletion: (() => void) | undefined;
+  private readonly generatedUploads: Map<FileUploadViewModel, GeneratedImageUpload> = new Map();
   fileUploadVms: FileUploadViewModel[] = [];
   isDragging: boolean = false;
   @Input() projectId!: string;
@@ -79,10 +85,14 @@ export class ImportDataDialogComponent extends Dialog {
   }
 
   private queueFiles(files: File[]): void {
-    files.filter((file: File) => this.isSupportedImage(file)).forEach((file: File) => {
-      this.fileUploadVms.push(new FileUploadViewModel(file));
-    });
+    const queuedUploads: FileUploadViewModel[] = files
+      .filter((file: File) => this.isSupportedImage(file))
+      .map((file: File) => new FileUploadViewModel(file));
+    if (!queuedUploads.length) return;
+
+    this.fileUploadVms.push(...queuedUploads);
     void this.uploadImageAsync();
+    void this.prepareUploadBatch(queuedUploads);
   }
 
   private isSupportedImage(file: File): boolean {
@@ -109,7 +119,9 @@ export class ImportDataDialogComponent extends Dialog {
   private startPendingUploads(): void {
     while (this.activeUploadCount < this.maxConcurrentUploads) {
       const fileUploadVm: FileUploadViewModel | undefined =
-        this.fileUploadVms.find((item: FileUploadViewModel) => item.uploadState === UploadState.PENDING);
+        this.fileUploadVms.find((item: FileUploadViewModel) =>
+          item.uploadState === UploadState.PENDING && this.generatedUploads.has(item)
+        );
       if (!fileUploadVm) break;
 
       fileUploadVm.uploadState = UploadState.UPLOADING;
@@ -123,19 +135,93 @@ export class ImportDataDialogComponent extends Dialog {
     this.completeQueueWhenIdle();
   }
 
-  private async uploadFileAsync(fileUploadVm: FileUploadViewModel): Promise<void> {
-    const uploadImageRequestBody = new UploadFileRequestBody(this.projectId);
+  private async prepareUploadBatch(fileUploadVms: FileUploadViewModel[]): Promise<void> {
     try {
-      const resp: HttpResponse<ImageInfoResponseBody[]> =
+      const imageDetails: ImageUploadDetails[] = await Promise.all(
+        fileUploadVms.map((fileUploadVm: FileUploadViewModel) =>
+          this.getImageUploadDetails(fileUploadVm)
+        )
+      );
+      const response: HttpResponse<GenerateImageUploadLinksResponse> =
+        await this.httpService.generateUploadImageLinksAsync(
+          this.projectId,
+          imageDetails
+        );
+      const uploads: GeneratedImageUpload[] | undefined = response.body?.uploads;
+      if (!response.ok || !uploads || uploads.length !== fileUploadVms.length) {
+        throw new Error('Failed to generate image upload links.');
+      }
+
+      if (uploads.some((upload: GeneratedImageUpload) =>
+        upload.imageId !== upload.uploadLink.imageId
+      )) {
+        throw new Error('A generated image upload link is invalid.');
+      }
+      uploads.forEach((upload: GeneratedImageUpload, index: number) => {
+        this.generatedUploads.set(fileUploadVms[index], upload);
+      });
+      this.startPendingUploads();
+    } catch (error) {
+      fileUploadVms.forEach((fileUploadVm: FileUploadViewModel) => {
+        this.generatedUploads.delete(fileUploadVm);
+        if (fileUploadVm.uploadState === UploadState.PENDING) {
+          fileUploadVm.uploadState = UploadState.FAILED;
+        }
+      });
+      console.error(error);
+      this.completeQueueWhenIdle();
+    }
+  }
+
+  private getImageUploadDetails(fileUploadVm: FileUploadViewModel): Promise<ImageUploadDetails> {
+    return new Promise<ImageUploadDetails>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve({
+        fileName: fileUploadVm.file.name,
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      });
+      image.onerror = () => reject(
+        new Error(`Unable to read image dimensions for ${fileUploadVm.file.name}.`)
+      );
+      image.src = fileUploadVm.previewUrl;
+    });
+  }
+
+  private async uploadFileAsync(fileUploadVm: FileUploadViewModel): Promise<void> {
+    try {
+      const generatedUpload: GeneratedImageUpload | undefined =
+        this.generatedUploads.get(fileUploadVm);
+      if (!generatedUpload) {
+        throw new Error('No upload link is available for this image.');
+      }
+
+      const uploadResponse: HttpResponse<OriginalImageUploadResponse> =
         await this.httpService.uploadImageAsync(
-          uploadImageRequestBody,
+          generatedUpload.uploadLink,
           fileUploadVm.file,
           (progress: number) => fileUploadVm.uploadProgress = Math.min(progress, 95)
         );
-      if (resp.status !== 200 || !resp.body) {
+      if (!uploadResponse.ok) {
         throw new Error('Image upload failed.');
       }
-      this.imagesUploaded.emit(resp.body);
+      if (
+        uploadResponse.body &&
+        uploadResponse.body.imageId !== generatedUpload.imageId
+      ) {
+        throw new Error('The uploaded image ID does not match its upload link.');
+      }
+
+      fileUploadVm.uploadProgress = 95;
+      const completionResponse: HttpResponse<string> =
+        await this.httpService.completeImageUploadAsync(generatedUpload.imageId);
+      if (
+        !completionResponse.ok ||
+        completionResponse.body !== generatedUpload.imageId
+      ) {
+        throw new Error('Image upload finalization failed.');
+      }
+
       fileUploadVm.uploadProgress = 100;
       fileUploadVm.uploadState = UploadState.UPLOADED;
     } catch (error) {
@@ -161,12 +247,16 @@ export class ImportDataDialogComponent extends Dialog {
     fileUploadVm.uploadProgress = 0;
     fileUploadVm.uploadState = UploadState.PENDING;
     void this.uploadImageAsync();
+    if (!this.generatedUploads.has(fileUploadVm)) {
+      void this.prepareUploadBatch([fileUploadVm]);
+    }
   }
 
   removeUpload(fileUploadVm: FileUploadViewModel): void {
     if (fileUploadVm.uploadState === UploadState.UPLOADING) return;
     const index: number = this.fileUploadVms.indexOf(fileUploadVm);
     if (index === -1) return;
+    this.generatedUploads.delete(fileUploadVm);
     fileUploadVm.dispose();
     this.fileUploadVms.splice(index, 1);
   }
@@ -235,6 +325,7 @@ export class ImportDataDialogComponent extends Dialog {
   private resetDialog(): void {
     this.fileUploadVms.forEach((item: FileUploadViewModel) => item.dispose());
     this.fileUploadVms = [];
+    this.generatedUploads.clear();
     this.isDragging = false;
   }
 

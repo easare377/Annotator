@@ -1,5 +1,4 @@
-import {Component, Input, OnInit, Output} from '@angular/core';
-import {HttpService} from "../../../../services/http.service";
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'app-export-data-type',
@@ -9,5 +8,6 @@ import {HttpService} from "../../../../services/http.service";
 export class ExportDataTypeComponent{
   @Input() typeText!: string;
   @Input() typeDescription!: string;
-  @Output() checked: boolean = false;
+  @Input() disabled: boolean = false;
+  @Output() selected = new EventEmitter<void>();
 }

@@ -1,30 +1,76 @@
-#parent{
+.export-data-type {
   display: flex;
-  /*height: 100px;*/
-  flex-direction: row;
-  /*justify-content: start;*/
-  /*align-items: start;*/
-  cursor: pointer;
-}
-
-#radio{
-  display: flex;
-  width: 30px;
+  width: 100%;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
 
-#export-data-type > div{
-  /*background-color: #007bff;*/
+.export-data-type:hover,
+.export-data-type:focus-visible {
+  border-color: #93c5fd;
+  background: #f8fbff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.export-data-copy {
+  min-width: 0;
+}
+
+.export-type,
+.export-description {
   display: flex;
-  justify-content: left;
-  text-align: start;
 }
 
-#export-type{
+.export-type {
+  color: #172033;
+  font-size: 14px;
   font-weight: bold;
+  letter-spacing: 0.02em;
 }
 
-#export-description{
-  color: grey;
+.export-description {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
+.export-action {
+  display: grid;
+  width: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #2563eb;
+}
+
+.export-action svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.export-data-type:disabled {
+  border-color: #e5e7eb;
+  background: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.coming-soon {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}

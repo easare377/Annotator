@@ -1,23 +1,63 @@
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.export-dialog {
+  width: min(560px, calc(100vw - 32px));
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+  text-align: left;
 }
 
-h5{
-  text-align: start;
-}
-
-#export-message{
+.export-dialog-header {
   display: flex;
-  justify-content: left;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-#export-type-list{
+.export-dialog-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 20px;
+}
+
+.export-dialog-header p,
+.export-message {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.close-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus-visible {
+  background: #f1f5f9;
+  color: #172033;
+}
+
+.export-message {
+  padding: 14px 20px 0;
+}
+
+.export-type-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  padding: 14px 20px 20px;
 }

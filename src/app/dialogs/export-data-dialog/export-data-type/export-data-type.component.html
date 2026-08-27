@@ -1,15 +1,16 @@
-<div id="parent" (click)="radio.checked = true">
-  <!--Radio button-->
-  <div id="radio-container">
-    <input #radio name="export-type" type="radio">
-  </div>
-  <!--Export type-->
-  <div id="export-data-type">
-    <div id="export-type">
+<button type="button" class="export-data-type" [disabled]="disabled" (click)="selected.emit()">
+  <span class="export-data-copy">
+    <span class="export-type">
       {{typeText}}
-    </div>
-    <div id="export-description">
+    </span>
+    <span class="export-description">
       {{typeDescription}}
-    </div>
-  </div>
-</div>
+    </span>
+  </span>
+  <span class="export-action" aria-hidden="true">
+    <span *ngIf="disabled" class="coming-soon">Coming soon</span>
+    <svg *ngIf="!disabled" viewBox="0 0 24 24">
+      <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 21h14"></path>
+    </svg>
+  </span>
+</button>

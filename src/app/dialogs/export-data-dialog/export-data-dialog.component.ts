@@ -13,4 +13,9 @@ export class ExportDataDialogComponent extends Dialog{
   @Input() objectClasses!: ObjectClassResponseBody[]
   @Output() onExportData = new EventEmitter<ExportType>();
   protected readonly ExportType = ExportType;
+
+  exportData(exportType: ExportType): void {
+    this.onExportData.emit(exportType);
+    this.hideDialog();
+  }
 }

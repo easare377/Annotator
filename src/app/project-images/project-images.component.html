@@ -13,6 +13,15 @@
 
     <!-- Project actions -->
     <div class="actions">
+      <button type="button" class="btn ghost" [disabled]="isLoadingProjectData || !projectInfo"
+              (click)="projectSettingsDialog.showDialog()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.5v-.1A1.7 1.7 0 0 0 8.4 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4 15a1.7 1.7 0 0 0-.6-1A1.7 1.7 0 0 0 2.3 13.6H2V9.5h.3A1.7 1.7 0 0 0 4 8.4a1.7 1.7 0 0 0-.34-1.88l-.06-.06L6.46 3.6l.06.06A1.7 1.7 0 0 0 8.4 4a1.7 1.7 0 0 0 1-.6A1.7 1.7 0 0 0 9.8 2.3V2h4.1v.3A1.7 1.7 0 0 0 15 4a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8.4a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.3v4.1h-.3a1.7 1.7 0 0 0-1.7 1.1Z"></path>
+        </svg>
+        <span>Settings</span>
+      </button>
       <button type="button" class="btn ghost" [disabled]="isLoadingProjectData" (click)="refreshProjectDataAsync()">
         <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg" alt="">
         <span>Refresh</span>
@@ -213,7 +222,10 @@
     </section>
   </main>
 
-  <!-- Import and export dialogs -->
+  <!-- Project dialogs -->
+  <app-project-settings-dialog #projectSettingsDialog [projectInfo]="projectInfo"
+                               [objectClasses]="objectClasses">
+  </app-project-settings-dialog>
   <app-import-data-dialog [projectId]="projectId" #importDataDialog
                           (importClosed)="refreshProjectDataAsync()">
   </app-import-data-dialog>

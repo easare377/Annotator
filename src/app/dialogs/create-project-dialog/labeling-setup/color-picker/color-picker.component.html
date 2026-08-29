@@ -1,1 +1,18 @@
-<p>color-picker works!</p>
+<label class="color-picker" [title]="tooltip">
+  <svg class="picker-icon"
+       viewBox="0 -0.5 17 17"
+       fill="currentColor"
+       aria-hidden="true">
+    <g transform="translate(1 0)">
+      <path d="M15.308 4.434c.912-.911.81-2.495-.229-3.534C14.038-.139 12.455-.242 11.545.67l-1.181 1.183 3.764 3.764 1.18-1.183Z"></path>
+      <path d="m5.468 14.276 6.147-6.148.772.772 1.584-1.586-5.309-5.309-1.585 1.584.773.773-6.148 6.146L.02 15.201l.754.754 4.694-1.679Zm3.448-8.848 1.635 1.636-6.262 6.26-2.594.96.959-2.596 6.262-6.26Z"></path>
+    </g>
+  </svg>
+
+  <input class="color-input"
+         type="color"
+         [value]="color"
+         [attr.aria-label]="ariaLabel"
+         [title]="tooltip"
+         (input)="onColorInput($event)">
+</label>

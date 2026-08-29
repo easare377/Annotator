@@ -91,7 +91,7 @@ export class CreateProjectDialogComponent extends Dialog implements OnInit {
 
   async createProject(createProjectVm: CreateProjectViewModel, projectSetupVm: ProjectSetupViewModel):
     Promise<void> {
-    const projectName: string = createProjectVm.name;
+    const projectName: string = createProjectVm.name.trim();
     const description: string | null = createProjectVm.description;
     const annotationType: AnnotationType | undefined = projectSetupVm.annotationType
     // const objectClasses: ObjectClassBase[] = [];

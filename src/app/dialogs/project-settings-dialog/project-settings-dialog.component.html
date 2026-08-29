@@ -1,0 +1,230 @@
+<div class="dialog-container container-dark" *ngIf="visible">
+  <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="project-settings-title">
+    <header class="dialog-header">
+      <div>
+        <div class="eyebrow">Project configuration</div>
+        <h2 id="project-settings-title">Settings</h2>
+        <p>{{ projectInfo?.name || 'Project' }}</p>
+      </div>
+      <div class="header-actions">
+        <span class="preview-badge">UI preview</span>
+        <button type="button" class="close-button" aria-label="Close project settings" (click)="hideDialog()">
+          &times;
+        </button>
+      </div>
+    </header>
+
+    <div class="settings-layout">
+      <nav class="settings-nav" aria-label="Project settings sections">
+        <button type="button" [class.active]="activeSection === 'general'" (click)="selectSection('general')">
+          General
+        </button>
+        <button type="button" [class.active]="activeSection === 'annotation'" (click)="selectSection('annotation')">
+          Annotation
+        </button>
+        <button type="button" [class.active]="activeSection === 'classes'" (click)="selectSection('classes')">
+          Object classes
+          <span>{{ objectClasses.length }}</span>
+        </button>
+        <button type="button" class="danger-nav" [class.active]="activeSection === 'danger'"
+                (click)="selectSection('danger')">
+          Danger zone
+        </button>
+      </nav>
+
+      <div class="settings-content">
+        <section *ngIf="activeSection === 'general'" class="settings-section">
+          <div class="section-heading">
+            <div>
+              <h3>General</h3>
+              <p>Basic information used to identify this project.</p>
+            </div>
+            <span class="status-pill">Not connected</span>
+          </div>
+
+          <div class="field-grid">
+            <label class="field full">
+              <span>Project name</span>
+              <input type="text" [value]="projectInfo?.name || ''" readonly>
+              <small>Name editing requires the project settings API.</small>
+            </label>
+
+            <label class="field full">
+              <span>Description</span>
+              <textarea rows="4" [value]="projectDescription" readonly
+                        placeholder="No project description"></textarea>
+              <small>Describe the dataset, labeling goal, or project scope.</small>
+            </label>
+
+            <div class="thumbnail-setting full">
+              <div class="thumbnail-preview" aria-label="Project thumbnail placeholder">
+                <span>{{ projectInitials }}</span>
+              </div>
+              <div class="thumbnail-copy">
+                <strong>Project thumbnail</strong>
+                <p>Upload a square JPG or PNG to make the project easier to recognize.</p>
+                <div class="inline-actions">
+                  <button type="button" class="button secondary" disabled>Choose image</button>
+                  <button type="button" class="text-button" disabled>Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="metadata full">
+              <div>
+                <span>Created</span>
+                <strong *ngIf="projectInfo?.dateCreated; else noCreatedDate">
+                  {{ projectInfo?.dateCreated | date: 'mediumDate' }}
+                  <small>{{ projectInfo?.dateCreated | date: 'shortTime' }}</small>
+                </strong>
+                <ng-template #noCreatedDate><strong>Not available</strong></ng-template>
+              </div>
+              <div>
+                <span>Last modified</span>
+                <strong>Not available</strong>
+                <small>Not included in the current project response.</small>
+              </div>
+            </div>
+          </div>
+
+          <footer class="section-footer">
+            <span>Changes are disabled in this preview.</span>
+            <button type="button" class="button primary" disabled>Save general settings</button>
+          </footer>
+        </section>
+
+        <section *ngIf="activeSection === 'annotation'" class="settings-section">
+          <div class="section-heading">
+            <div>
+              <h3>Annotation</h3>
+              <p>Choose how annotations should appear while labeling images.</p>
+            </div>
+            <span class="status-pill local">Local preference</span>
+          </div>
+
+          <div class="setting-card">
+            <div class="setting-copy">
+              <strong>Default annotation view</strong>
+              <p>This preference will be stored per device when NeDB integration is added.</p>
+            </div>
+            <div class="segmented" aria-label="Default annotation view" aria-disabled="true">
+              <button type="button" class="active" disabled>Polygons</button>
+              <button type="button" disabled>Bounding boxes</button>
+            </div>
+          </div>
+
+          <div class="opacity-grid">
+            <label class="setting-card opacity-setting">
+              <span class="setting-copy">
+                <strong>Polygon opacity</strong>
+                <p>Transparent fill applied to classified polygons.</p>
+              </span>
+              <span class="range-value">60%</span>
+              <input type="range" min="0" max="100" value="60" disabled>
+            </label>
+            <label class="setting-card opacity-setting">
+              <span class="setting-copy">
+                <strong>Bounding-box opacity</strong>
+                <p>Transparent fill applied to classified boxes.</p>
+              </span>
+              <span class="range-value">60%</span>
+              <input type="range" min="0" max="100" value="60" disabled>
+            </label>
+          </div>
+
+          <footer class="section-footer">
+            <span>Local persistence is intentionally not connected.</span>
+            <button type="button" class="button primary" disabled>Save annotation settings</button>
+          </footer>
+        </section>
+
+        <section *ngIf="activeSection === 'classes'" class="settings-section classes-section">
+          <div class="section-heading">
+            <div>
+              <h3>Object classes</h3>
+              <p>Manage labels and preview their numeric export mapping.</p>
+            </div>
+            <button type="button" class="button primary" disabled>Add class</button>
+          </div>
+
+          <div class="class-list" *ngIf="objectClasses.length; else noClasses">
+            <div class="class-row class-header" aria-hidden="true">
+              <span></span><span>Class</span><span>Export value</span><span>Actions</span>
+            </div>
+            <div class="class-row" *ngFor="let objectClass of objectClasses; trackBy: trackObjectClass">
+              <button type="button" class="drag-handle" disabled aria-label="Reorder class">&#8942;&#8942;</button>
+              <div class="class-details">
+                <span class="class-color" [style.background-color]="objectClass.color"></span>
+                <div>
+                  <strong>{{ objectClass.className }}</strong>
+                  <small>{{ objectClass.description || 'No description' }}</small>
+                </div>
+              </div>
+              <div class="export-value">
+                <span>{{ objectClass.classIndex }}</span>
+                <small>{{ objectClass.color }}</small>
+              </div>
+              <div class="row-actions">
+                <button type="button" class="text-button" disabled>Edit</button>
+                <button type="button" class="text-button remove" disabled
+                        title="Class usage validation is not connected">Remove</button>
+              </div>
+            </div>
+          </div>
+          <ng-template #noClasses>
+            <div class="empty-state">No object classes have been configured.</div>
+          </ng-template>
+
+          <div class="mapping-card">
+            <div class="mapping-heading">
+              <div>
+                <strong>Export mapping preview</strong>
+                <p>Numeric values are used for segmentation masks; names are used by label-based formats.</p>
+              </div>
+              <span>{{ objectClasses.length }} classes</span>
+            </div>
+            <div class="mapping-table" *ngIf="objectClasses.length">
+              <div class="mapping-row mapping-header">
+                <span>Value</span><span>Color</span><span>Export label</span>
+              </div>
+              <div class="mapping-row" *ngFor="let objectClass of objectClasses; trackBy: trackObjectClass">
+                <strong>{{ objectClass.classIndex }}</strong>
+                <span class="mapping-color"><i [style.background-color]="objectClass.color"></i>{{ objectClass.color }}</span>
+                <span>{{ objectClass.className }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="protection-note">
+            <strong>Removal protection</strong>
+            <span>Classes assigned to annotations must be replaced or unassigned before they can be removed.</span>
+          </div>
+        </section>
+
+        <section *ngIf="activeSection === 'danger'" class="settings-section">
+          <div class="section-heading">
+            <div>
+              <h3>Danger zone</h3>
+              <p>Destructive project actions will live here.</p>
+            </div>
+          </div>
+
+          <div class="danger-card">
+            <div>
+              <strong>Delete this project</strong>
+              <p>Permanently remove the project, its images, annotations, and generated exports.</p>
+            </div>
+            <label class="field">
+              <span>Enter the project name to confirm</span>
+              <input type="text" [placeholder]="projectInfo?.name || 'Project name'" disabled>
+            </label>
+            <div class="danger-actions">
+              <small>Deletion is not connected in this UI preview.</small>
+              <button type="button" class="button destructive" disabled>Delete project</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>

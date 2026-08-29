@@ -5,6 +5,12 @@ import {BBox} from "../models/bbox";
 
 export abstract class Utils {
 
+  private static readonly DISTINCT_COLOR_SEEDS: readonly string[] = [
+    '#0072B2', '#E69F00', '#009E73', '#CC79A7', '#D55E00',
+    '#56B4E9', '#F0E442', '#5E60CE', '#EF476F', '#06D6A0',
+    '#8338EC', '#FB5607', '#118AB2', '#9C6644', '#264653'
+  ];
+
   static generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
       const r = Math.random() * 16 | 0, // Get a random 0-15
@@ -20,6 +26,119 @@ export abstract class Utils {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+  }
+
+  /**
+   * Selects a vivid color that is perceptually separated from the supplied colors.
+   * Candidate colors are compared in CIE Lab space, which more closely reflects
+   * how different colors appear to people than raw RGB distance.
+   */
+  static generateDistinctColor(existingColors: readonly string[] = []): string {
+    const usedColors: string[] = existingColors
+      .map((color: string): string | null => Utils.normalizeHexColor(color))
+      .filter((color: string | null): color is string => color !== null);
+    const usedColorSet: Set<string> = new Set(usedColors);
+    const candidates: string[] = Utils.getDistinctColorCandidates()
+      .filter((color: string): boolean => !usedColorSet.has(color));
+
+    if (candidates.length === 0) {
+      return Utils.generateRandomColor();
+    }
+    if (usedColors.length === 0) {
+      return candidates[0];
+    }
+
+    const usedLabColors: Array<[number, number, number]> = usedColors
+      .map((color: string): [number, number, number] => Utils.hexToLab(color));
+    let bestColor: string = candidates[0];
+    let bestMinimumDistance: number = -1;
+
+    candidates.forEach((candidate: string): void => {
+      const candidateLab: [number, number, number] = Utils.hexToLab(candidate);
+      const minimumDistance: number = Math.min(
+        ...usedLabColors.map((usedLab: [number, number, number]): number =>
+          Utils.labDistance(candidateLab, usedLab)
+        )
+      );
+
+      if (minimumDistance > bestMinimumDistance) {
+        bestMinimumDistance = minimumDistance;
+        bestColor = candidate;
+      }
+    });
+
+    return bestColor;
+  }
+
+  private static getDistinctColorCandidates(): string[] {
+    const candidates: Set<string> = new Set(Utils.DISTINCT_COLOR_SEEDS);
+    const saturations: readonly number[] = [0.68, 0.82];
+    const lightnesses: readonly number[] = [0.4, 0.54, 0.66];
+
+    for (let hue: number = 0; hue < 360; hue += 10) {
+      saturations.forEach((saturation: number): void => {
+        lightnesses.forEach((lightness: number): void => {
+          const rgb: {r: number, g: number, b: number} = Utils.hslToRgb(
+            hue / 360,
+            saturation,
+            lightness
+          );
+          candidates.add(Utils.rgbToHex(rgb.r, rgb.g, rgb.b));
+        });
+      });
+    }
+
+    return Array.from(candidates);
+  }
+
+  private static normalizeHexColor(color: string): string | null {
+    const normalizedColor: string = color.trim().toUpperCase();
+
+    if (/^#[0-9A-F]{6}$/.test(normalizedColor)) {
+      return normalizedColor;
+    }
+    if (/^#[0-9A-F]{3}$/.test(normalizedColor)) {
+      return '#' + Array.from(normalizedColor.slice(1))
+        .map((character: string): string => character.repeat(2))
+        .join('');
+    }
+
+    return null;
+  }
+
+  private static hexToLab(color: string): [number, number, number] {
+    const {r, g, b}: {r: number, g: number, b: number} = Utils.hexToRgb(color);
+    const toLinearRgb = (channel: number): number => {
+      const normalizedChannel: number = channel / 255;
+      return normalizedChannel <= 0.04045
+        ? normalizedChannel / 12.92
+        : Math.pow((normalizedChannel + 0.055) / 1.055, 2.4);
+    };
+    const red: number = toLinearRgb(r);
+    const green: number = toLinearRgb(g);
+    const blue: number = toLinearRgb(b);
+    const x: number = (red * 0.4124 + green * 0.3576 + blue * 0.1805) / 0.95047;
+    const y: number = red * 0.2126 + green * 0.7152 + blue * 0.0722;
+    const z: number = (red * 0.0193 + green * 0.1192 + blue * 0.9505) / 1.08883;
+    const toLabAxis = (axis: number): number => axis > 0.008856
+      ? Math.cbrt(axis)
+      : 7.787 * axis + 16 / 116;
+    const labX: number = toLabAxis(x);
+    const labY: number = toLabAxis(y);
+    const labZ: number = toLabAxis(z);
+
+    return [116 * labY - 16, 500 * (labX - labY), 200 * (labY - labZ)];
+  }
+
+  private static labDistance(
+    first: [number, number, number],
+    second: [number, number, number]
+  ): number {
+    return Math.hypot(
+      first[0] - second[0],
+      first[1] - second[1],
+      first[2] - second[2]
+    );
   }
 
   /**

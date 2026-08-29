@@ -1,11 +1,42 @@
 .container {
-  max-width: 800px;
-  height: 600px;
+  display: flex;
+  width: min(960px, calc(100vw - 24px));
+  height: min(680px, calc(100vh - 24px));
+  max-width: none;
+  min-height: 0;
+  box-sizing: border-box;
+  flex-direction: column;
   margin: 0 auto;
   padding: 20px;
+  overflow: hidden;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-title,
+.progress-bar-container {
+  flex: none;
+}
+
+.dialog-title {
+  margin-top: 0;
+}
+
+.container > .progress-bar-container {
+  margin-bottom: 22px;
+}
+
+.step-content {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 1px;
+  overflow-y: auto;
+}
+
+.step-content > * {
+  display: block;
+  width: 100%;
 }
 
 h2 {
@@ -68,14 +99,24 @@ h2 {
 
 .form-buttons {
   display: flex;
+  align-items: center;
+  flex: none;
+  gap: 12px;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
-.form-buttons > div{
+.navigation-buttons {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  margin-left: auto;
   gap: 10px;
+}
+
+.form-buttons .btn {
+  flex: none;
+  margin-top: 0;
+  white-space: nowrap;
 }
 
 .btn {
@@ -86,6 +127,11 @@ h2 {
   font-weight: bold;
   text-align: center;
   transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -155,4 +201,21 @@ h2 {
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .container {
+    width: min(100vw - 12px, 960px);
+    height: min(100vh - 12px, 680px);
+    padding: 14px;
+  }
+
+  .form-buttons,
+  .navigation-buttons {
+    gap: 8px;
+  }
+
+  .form-buttons .btn {
+    padding: 9px 12px;
+  }
 }

@@ -1,20 +1,77 @@
-<div id="parent" *ngIf="visible">
-<!--  <div class="card-header">-->
-<!--    <h2>Add Label Names</h2>-->
-<!--    <p>Use new line as a separator to add multiple labels</p>-->
-<!--  </div>-->
-  <div class="card-content">
-    <input #className  id="projectName" type="text" placeholder="Class name"/>
-    <textarea #description placeholder="Description"></textarea>
-    <button (click)="addLabel(className.value, description.value) ;className.value = ''; description.value = '';">Add</button>
-  </div>
-  <div id="added-classes">
-<!--    <app-added-object-class></app-added-object-class>-->
-    <div *ngFor="let objectClassVm of projectSetupVm.objectClasses">
-      <app-added-object-class [objectClassVm]="objectClassVm"
-      (remove)="removeLabel(objectClassVm)">
-      </app-added-object-class>
-    </div>
+<div class="labeling-setup" *ngIf="visible">
+  <div class="labeling-layout">
+    <section class="details-card editor-card" aria-labelledby="class-editor-heading">
+      <header class="card-heading">
+        <div>
+          <h6 id="class-editor-heading">Add a class</h6>
+          <p>Define a label that can be applied to an annotation.</p>
+        </div>
+      </header>
+
+      <div class="settings-field">
+        <div class="field-label">
+          <label for="className">Class name <span aria-hidden="true">*</span></label>
+        </div>
+        <input #className
+               id="className"
+               type="text"
+               autocomplete="off"
+               aria-describedby="class-name-help"
+               placeholder=""
+               (input)="onClassNameInput($event)">
+        <small id="class-name-help" class="field-help"
+               [class.error-message]="hasReachedClassLimit || isDuplicateClassName(className.value)">
+          {{ hasReachedClassLimit
+            ? 'This project has reached the 255-class limit.'
+            : isDuplicateClassName(className.value)
+              ? 'A class with this name already exists.'
+              : 'Must start with a letter. Spaces and separators are not allowed.' }}
+        </small>
+      </div>
+
+      <div class="settings-field">
+        <div class="field-label">
+          <label for="classDescription">Description <span class="optional">Optional</span></label>
+        </div>
+        <textarea #description
+                  id="classDescription"
+                  rows="2"
+                  placeholder="Description"></textarea>
+      </div>
+
+      <div class="settings-field add-action">
+        <button type="button"
+                class="add-button"
+                [disabled]="!canAddClassName(className.value)"
+                (click)="addLabel(className.value, description.value); className.value = ''; description.value = '';">
+          Add class
+        </button>
+      </div>
+    </section>
+    <!--Classes-->
+    <section class="details-card classes-card" aria-labelledby="class-list-heading">
+      <header class="card-heading class-list-heading">
+        <div>
+          <h6 id="class-list-heading">Classes</h6>
+          <p>Labels included in this project.</p>
+        </div>
+        <span class="class-count">{{ projectSetupVm.objectClasses.length }}</span>
+      </header>
+
+      <div #addedClasses class="added-classes" *ngIf="projectSetupVm.objectClasses.length; else emptyClasses">
+        <div *ngFor="let objectClassVm of projectSetupVm.objectClasses">
+          <app-added-object-class [objectClassVm]="objectClassVm"
+                                  (remove)="removeLabel(objectClassVm)">
+          </app-added-object-class>
+        </div>
+      </div>
+
+      <ng-template #emptyClasses>
+        <div class="empty-state">
+          <strong>No classes added</strong>
+          <span>Add your first class using the form.</span>
+        </div>
+      </ng-template>
+    </section>
   </div>
 </div>
-

@@ -1,16 +1,51 @@
 <div *ngIf="visible">
-    <div class="form-group">
-      <label for="projectName">Project Name *</label>
+  <section class="details-card" aria-labelledby="project-details-heading">
+    <!-- <header class="details-heading">
+      <div>
+        <span>General</span>
+        <h6 id="project-details-heading">Project details</h6>
+        <p>Give this annotation project a recognizable name and description.</p>
+      </div>
+      <span class="required-note">* Required</span>
+    </header> -->
+
+    <div class="settings-field" [class.has-error]="projectNameError">
+      <div class="field-label">
+        <label for="projectName">Project name <span aria-hidden="true">*</span></label>
+      </div>
       <input id="projectName"
              type="text"
-             placeholder="New Project Name" [(ngModel)]="createProjectVm.name"/>
-      <div>
-        <small class="text-danger">Name is required</small>
+             autocomplete="off"
+             [attr.maxlength]="projectNameMaxLength"
+             [attr.aria-invalid]="projectNameError !== null"
+             aria-describedby="project-name-help"
+             placeholder=""
+             [(ngModel)]="createProjectVm.name"
+             (input)="onProjectNameInput($event)"
+             (blur)="normalizeProjectName()">
+      <div id="project-name-help" class="field-help" [class.error-message]="projectNameError">
+        <!-- <small *ngIf="projectNameError; else projectNameHint">{{ projectNameError }}</small> -->
+        <!-- <ng-template #projectNameHint>
+          <small>Letters, numbers, spaces, hyphens, and underscores. Outer spaces are removed.</small>
+        </ng-template> -->
       </div>
     </div>
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea id="description" placeholder="Optional description of your project" [(ngModel)]="createProjectVm.description">
-    </textarea>
+
+    <div class="settings-field" [class.has-error]="descriptionError">
+      <div class="field-label">
+        <label for="description">Description <span class="optional">Optional</span></label>
+        <span>{{ descriptionLength }}/{{ descriptionMaxLength }}</span>
+      </div>
+      <textarea id="description"
+                rows="5"
+                [attr.maxlength]="descriptionMaxLength"
+                [attr.aria-invalid]="descriptionError !== null"
+                aria-describedby="project-description-help"
+                placeholder="Description"
+                [(ngModel)]="createProjectVm.description"></textarea>
+      <!-- <div id="project-description-help" class="field-help" [class.error-message]="descriptionError">
+        <small>{{ descriptionError || 'Leave this empty if the project does not need a description.' }}</small>
+      </div> -->
     </div>
+  </section>
 </div>

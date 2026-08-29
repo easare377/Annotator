@@ -1,6 +1,6 @@
 export class ObjectClassBase {
   private readonly _className: string; // Name of the class
-  private readonly _color: string; // Color associated with the class
+  private _color: string; // Color associated with the class
   private _description: string | undefined;
 
   constructor(className: string, color: string, description?: string) {
@@ -25,6 +25,9 @@ export class ObjectClassBase {
     return this._color;
   }
 
+  set color(value: string) {
+    this._color = value;
+  }
 
   get description(): string | undefined {
     return this._description;

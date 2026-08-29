@@ -1,23 +1,105 @@
-#added-class{
-  display: flex;
-  height: 30px;
-  justify-content: space-between;
-  border-radius: 4px;
-  /*background-color: red;*/
+.class-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  padding: 0 0 0 5px;
-  color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+  min-height: 58px;
+  box-sizing: border-box;
+  border: 1px solid #dfe5ee;
+  border-radius: 8px;
+  padding: 6px 6px 6px 12px;
+  background: #fff;
+  text-align: left;
+  transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+
+.class-row:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+}
+
+.class-row:focus-within {
+  border-color: #93b4f5;
+}
+
+.class-details {
+  min-width: 0;
+}
+
+.class-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.class-color {
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  flex: none;
+  border: 1px solid rgba(15, 23, 42, .15);
+  border-radius: 4px;
+}
+
+.class-name,
+.class-description {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.class-name {
+  min-width: 0;
+  color: #172033;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.class-description {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.remove-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  padding: 0;
+  background: transparent;
   cursor: pointer;
+  transition: background-color .15s;
 }
 
-#close{
-  height: 30px;
-  width: 30px;
-  background-color: white;
+.remove-button:hover {
+  background: #fee2e2;
 }
 
-#close > img{
-  width: 20px;
-  height: 20px;
+.remove-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.remove-icon {
+  width: 18px;
+  height: 18px;
+  opacity: .7;
+}
+
+.remove-button:hover .remove-icon {
+  opacity: 1;
 }

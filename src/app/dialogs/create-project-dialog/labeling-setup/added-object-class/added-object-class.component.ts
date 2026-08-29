@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ObjectClassBase} from "../../../../../models/object-class-base";
 
 @Component({
@@ -6,10 +6,7 @@ import {ObjectClassBase} from "../../../../../models/object-class-base";
   templateUrl: './added-object-class.component.html',
   styleUrl: './added-object-class.component.css'
 })
-export class AddedObjectClassComponent implements OnInit{
-  @Input() objectClassVm!: ObjectClassBase;
-  @Output() remove = new EventEmitter();
-
-  ngOnInit(): void {
-  }
+export class AddedObjectClassComponent {
+  @Input({required: true}) objectClassVm!: ObjectClassBase;
+  @Output() remove = new EventEmitter<void>();
 }

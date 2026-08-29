@@ -31,6 +31,7 @@ import { ImageDataTableComponent } from './project-images/image-data-table/image
 import { CreateProjectSetupComponent } from './dialogs/create-project-dialog/create-project-setup/create-project-setup.component';
 import { UploadImagesSetupComponent } from './dialogs/create-project-dialog/upload-images-setup/upload-images-setup.component';
 import { AddedObjectClassComponent } from './dialogs/create-project-dialog/labeling-setup/added-object-class/added-object-class.component';
+import { ColorPickerComponent } from './dialogs/create-project-dialog/labeling-setup/color-picker/color-picker.component';
 import { ImportDataDialogComponent } from './dialogs/import-data-dialog/import-data-dialog.component';
 import { FileUploadComponent } from './dialogs/import-data-dialog/file-upload/file-upload.component';
 import { GeneratePolygonDialogComponent } from './dialogs/generate-polygon-dialog/generate-polygon-dialog.component';
@@ -40,6 +41,7 @@ import { ExportDataDialogComponent } from './dialogs/export-data-dialog/export-d
 import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-data-type/export-data-type.component';
 import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
 import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confirmation-dialog.component';
+import { ProjectSettingsDialogComponent } from './dialogs/project-settings-dialog/project-settings-dialog.component';
 
 
 
@@ -68,6 +70,7 @@ import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confi
         CreateProjectSetupComponent,
         UploadImagesSetupComponent,
         AddedObjectClassComponent,
+        ColorPickerComponent,
         ImportDataDialogComponent,
         FileUploadComponent,
         GeneratePolygonDialogComponent,
@@ -77,6 +80,7 @@ import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confi
         ExportDataTypeComponent,
         CreateProjectComponent,
         ConfirmationDialogComponent,
+        ProjectSettingsDialogComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

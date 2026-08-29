@@ -22,6 +22,7 @@ import {BBox} from "../../../models/bbox";
 import {PromptsViewModel} from "../../../models/prompts-view-model";
 import {ImageCacheService} from "../../../services/image-cache.service";
 import {PromptTool} from "../../../models/enum/prompt-tool";
+import {AnnotationDisplayMode} from "../../../models/enum/annotation-display-mode";
 
 /**
  * Component to display and interact with multiple polygons overlaid on an image.
@@ -86,6 +87,9 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
    */
   @Input() promptTool: PromptTool = PromptTool.NONE;
 
+  /** Visual representation of existing annotations. */
+  @Input() annotationDisplayMode: AnnotationDisplayMode = AnnotationDisplayMode.POLYGONS;
+
   /**
    * Event emitted when a polygon is clicked.
    */
@@ -126,6 +130,9 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       if (this.imgCanvas){
         this.onDocumentLoaded();
       }
+    }
+    if (changes['annotationDisplayMode'] && this.image && this.hasRenderedImage) {
+      this.queueRender(this.imageInfo.zoomLevel, this.imagePosition);
     }
   }
 
@@ -254,7 +261,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
   }
 
   private redrawCurrentPolygons(canvas: HTMLCanvasElement): void {
-    this.renderer.renderPolygons(canvas, this.currentPolygonVms, this.imageInfo.scaledSize, this.thickness);
+    this.renderer.renderPolygons(
+      canvas,
+      this.currentPolygonVms,
+      this.imageInfo.scaledSize,
+      this.thickness,
+      this.annotationDisplayMode
+    );
   }
 
   redrawPrompts(): void {
@@ -334,7 +347,13 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
       );
       this.setupPolygonVms(p, this.polygonCanvas.nativeElement, this.imageInfo);
     });
-    this.renderer.renderPolygons(this.polygonCanvas.nativeElement, croppedPolygons, this.imageInfo.scaledSize, this.thickness);
+    this.renderer.renderPolygons(
+      this.polygonCanvas.nativeElement,
+      croppedPolygons,
+      this.imageInfo.scaledSize,
+      this.thickness,
+      this.annotationDisplayMode
+    );
     this.redrawPrompts();
   }
 
@@ -467,7 +486,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     const hPosition: Point | undefined =
       this.renderer.computePointerImagePosition(event, this.imageInfo.scaledSize, rect);
     if (!hPosition) return;
-    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
+    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(
+      canvas,
+      this.currentPolygonVms,
+      hPosition,
+      this.annotationDisplayMode
+    );
     if (polygon && polygon.onClick) {
       polygon.onClick(); // Call the polygon's onClick function if the click is inside it
     }
@@ -493,7 +517,12 @@ export class MultiPolygonComponent implements AfterViewInit, OnChanges, OnDestro
     }
 
     // Check each polygon to see if the mouse is over it
-    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(canvas, this.currentPolygonVms, hPosition);
+    const polygon: PolygonViewModel | undefined = this.renderer.findPolygonAtPoint(
+      canvas,
+      this.currentPolygonVms,
+      hPosition,
+      this.annotationDisplayMode
+    );
     let hoverChanged: boolean = false;
     this.currentPolygonVms.forEach((p: PolygonViewModel) => {
       const shouldHover: boolean = p === polygon;

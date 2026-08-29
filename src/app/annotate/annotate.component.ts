@@ -28,6 +28,7 @@ import { PromptTool } from "../../models/enum/prompt-tool";
 import { PointType } from '../../models/enum/point-type';
 import { Prompts } from '../../models/prompts';
 import { ClearEmptyPolygonsRequestBody } from '../../models/clear-empty-polygons-request-body';
+import { AnnotationDisplayMode } from '../../models/enum/annotation-display-mode';
 
 interface ClassificationChange {
   polygonId: string;
@@ -47,6 +48,7 @@ interface ClassificationHistoryAction {
 })
 export class AnnotateComponent implements OnInit {
   protected readonly PromptTool = PromptTool;
+  protected readonly AnnotationDisplayMode = AnnotationDisplayMode;
   public projectId!: string;
   public imageInfoVms: ImageInfoViewModel[];
   public currentImageInfo: ImageInfoViewModel | undefined;
@@ -58,6 +60,7 @@ export class AnnotateComponent implements OnInit {
   public updatingPolygonClasses = false;
   public panModeEnabled = false;
   public currentPromptTool: PromptTool = PromptTool.NONE;
+  public annotationDisplayMode: AnnotationDisplayMode = AnnotationDisplayMode.POLYGONS;
   public statFaded = false;
   public projectName: string | undefined;
   public projectInfo: ProjectInfoResponseBody | undefined;
@@ -368,6 +371,10 @@ export class AnnotateComponent implements OnInit {
     if (this.panModeEnabled) {
       this.currentPromptTool = PromptTool.NONE;
     }
+  }
+
+  setAnnotationDisplayMode(displayMode: AnnotationDisplayMode): void {
+    this.annotationDisplayMode = displayMode;
   }
 
   undoPrompt(): void {

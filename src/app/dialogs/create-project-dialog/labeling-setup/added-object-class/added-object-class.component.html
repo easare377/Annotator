@@ -1,6 +1,35 @@
-<div id="added-class" [style.background-color]="objectClassVm.color" [title]="objectClassVm.description">
-  <span>{{objectClassVm.className}}</span>
-  <span id="close" (click)="remove.emit()">
-    <img id="close-img" src="assets/images/svgs/close-md-svgrepo-com.svg" alt="remove">
-  </span>
-</div>
+<article class="class-row">
+  <div class="class-details">
+    <div class="class-title">
+      <span class="class-color"
+            [style.background-color]="objectClassVm.color"
+            aria-hidden="true">
+      </span>
+      <strong class="class-name">{{ objectClassVm.className }}</strong>
+    </div>
+    <span class="class-description"
+          *ngIf="objectClassVm.description"
+          [title]="objectClassVm.description">
+      {{ objectClassVm.description }}
+    </span>
+  </div>
+
+  <div class="row-actions">
+    <app-color-picker [color]="objectClassVm.color"
+                      tooltip="Pick color"
+                      [ariaLabel]="'Pick color for ' + objectClassVm.className"
+                      (colorChange)="objectClassVm.color = $event">
+    </app-color-picker>
+
+    <button type="button"
+            class="remove-button"
+            title="Remove class"
+            [attr.aria-label]="'Remove class ' + objectClassVm.className"
+            (click)="remove.emit()">
+      <img class="remove-icon"
+           src="assets/images/svgs/close-md-svgrepo-com.svg"
+           alt=""
+           aria-hidden="true">
+    </button>
+  </div>
+</article>

@@ -6,6 +6,7 @@ import {Utils} from "../app/utils";
 import {BBox} from "../models/bbox";
 import {PromptsViewModel} from "../models/prompts-view-model";
 import {PointType} from "../models/enum/point-type";
+import {AnnotationDisplayMode} from "../models/enum/annotation-display-mode";
 
 export interface ImageViewport {
   scale: number;
@@ -179,18 +180,32 @@ export class PolygonCanvasRendererService {
   }
 
   renderPolygon(canvas: HTMLCanvasElement, polygon: PolygonViewModel, imageSize: Size, thickness: number,
-                clearFirst: boolean = true): void {
+                clearFirst: boolean = true,
+                displayMode: AnnotationDisplayMode = AnnotationDisplayMode.POLYGONS): void {
     const style = this.getPolygonStyle(polygon, thickness);
+    if (displayMode === AnnotationDisplayMode.BOUNDING_BOXES) {
+      this.drawBoundingBox(
+        canvas,
+        polygon.displayBbox,
+        imageSize,
+        style.color,
+        style.opacity,
+        style.thickness,
+        style.fill
+      );
+      return;
+    }
     if (clearFirst) {
       this.clearPolygonFill(canvas, polygon.displayPath, imageSize);
     }
     this.drawPolygon(canvas, polygon.displayPath, imageSize, style.color, style.opacity, style.thickness, style.fill);
   }
 
-  renderPolygons(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], imageSize: Size, thickness: number): void {
+  renderPolygons(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], imageSize: Size, thickness: number,
+                 displayMode: AnnotationDisplayMode = AnnotationDisplayMode.POLYGONS): void {
     this.clearCanvas(canvas);
     this.getRenderOrderedPolygons(polygons).forEach((polygon: PolygonViewModel) => {
-      this.renderPolygon(canvas, polygon, imageSize, thickness, false);
+      this.renderPolygon(canvas, polygon, imageSize, thickness, false, displayMode);
     });
   }
 
@@ -294,7 +309,13 @@ export class PolygonCanvasRendererService {
     );
   }
 
-  findPolygonAtPoint(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], point: Point): PolygonViewModel | undefined {
+  findPolygonAtPoint(canvas: HTMLCanvasElement, polygons: PolygonViewModel[], point: Point,
+                     displayMode: AnnotationDisplayMode = AnnotationDisplayMode.POLYGONS): PolygonViewModel | undefined {
+    if (displayMode === AnnotationDisplayMode.BOUNDING_BOXES) {
+      return this.getHitTestOrderedPolygons(polygons).find((polygon: PolygonViewModel) =>
+        this.isPointInsideBbox(point, polygon.displayBbox)
+      );
+    }
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if (!ctx) return undefined;
     for (const p of this.getHitTestOrderedPolygons(polygons)) {
@@ -361,6 +382,40 @@ export class PolygonCanvasRendererService {
     ctx.setLineDash(draft ? [6 * pixelRatio, 4 * pixelRatio] : []);
     ctx.fillRect(x, y, width, height);
     ctx.strokeRect(x, y, width, height);
+    ctx.restore();
+  }
+
+  private drawBoundingBox(canvas: HTMLCanvasElement, bbox: BBox, imageSize: Size,
+                          colorHex: string, opacity: number, thickness: number, fill: boolean): void {
+    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+    if (!ctx) return;
+    const viewport: ImageViewport = this.computeImageViewport(
+      new Size(canvas.width, canvas.height),
+      imageSize
+    );
+    if (viewport.scale === 0) return;
+    const opacityHex: string = Utils.convertOpacityToHex(opacity);
+    const colorWithOpacity: string = colorHex.length === 7 ? colorHex + opacityHex : colorHex;
+    ctx.save();
+    ctx.translate(viewport.offsetX, viewport.offsetY);
+    ctx.scale(viewport.scale, viewport.scale);
+    if (fill) {
+      ctx.fillStyle = colorWithOpacity;
+      ctx.fillRect(
+        bbox.xMin,
+        bbox.yMin,
+        bbox.xMax - bbox.xMin,
+        bbox.yMax - bbox.yMin
+      );
+    }
+    ctx.strokeStyle = colorWithOpacity;
+    ctx.lineWidth = (thickness * this.getCanvasPixelRatio(canvas)) / viewport.scale;
+    ctx.strokeRect(
+      bbox.xMin,
+      bbox.yMin,
+      bbox.xMax - bbox.xMin,
+      bbox.yMax - bbox.yMin
+    );
     ctx.restore();
   }
 

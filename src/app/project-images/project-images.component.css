@@ -87,7 +87,8 @@
   cursor: pointer;
 }
 
-.btn img {
+.btn img,
+.btn svg {
   width: 17px;
   height: 17px;
 }

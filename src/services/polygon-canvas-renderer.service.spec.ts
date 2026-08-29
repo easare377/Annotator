@@ -4,6 +4,7 @@ import { PolygonCanvasRendererService } from './polygon-canvas-renderer.service'
 import {PolygonViewModel} from '../models/polygon-view-model';
 import {Point} from '../models/point';
 import {Size} from '../models/size';
+import {AnnotationDisplayMode} from '../models/enum/annotation-display-mode';
 
 describe('PolygonCanvasRendererService', () => {
   let service: PolygonCanvasRendererService;
@@ -73,6 +74,24 @@ describe('PolygonCanvasRendererService', () => {
 
     expect(orderedPolygons).toEqual([smallPolygon, mediumPolygon, largePolygon]);
     expect(polygons).toEqual([largePolygon, mediumPolygon, smallPolygon]);
+  });
+
+  it('should hit-test the visible bounding box in bounding-box mode', () => {
+    const triangle = new PolygonViewModel('triangle', [
+      new Point(0, 0),
+      new Point(100, 0),
+      new Point(0, 100)
+    ], '#3b82f6');
+    const canvas = document.createElement('canvas');
+
+    const result = service.findPolygonAtPoint(
+      canvas,
+      [triangle],
+      new Point(80, 80),
+      AnnotationDisplayMode.BOUNDING_BOXES
+    );
+
+    expect(result).toBe(triangle);
   });
 
   function createSquare(id: string, x: number, y: number, size: number): PolygonViewModel {

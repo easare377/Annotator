@@ -1,6 +1,6 @@
 <div id="parent" class="dialog-container container-dark" *ngIf="visible">
   <div class="container">
-    <h5>Create Project</h5>
+    <h5 class="dialog-title">Create Project</h5>
     <!--    <div class="tabs">-->
     <!--    </div>-->
     <!-- Progress Bar -->
@@ -20,29 +20,27 @@
         <p>Get Started</p>
       </div>
     </div>
-    <!--Create Project-->
-    <div>
+    <div class="step-content">
+      <!--Create Project-->
       <app-create-project-setup #createProjectSetup [visible]="currentStep === 1"></app-create-project-setup>
-    </div>
-    <!--Project Setup-->
-    <div>
+      <!--Project Setup-->
       <app-labeling-setup #labelingSetup [visible]="currentStep === 2"></app-labeling-setup>
-    </div>
-    <!--Upload Images Setup-->
-    <div>
+      <!--Upload Images Setup-->
       <app-upload-images-setup #uploadImagesSetup [visible]="currentStep === 3"></app-upload-images-setup>
     </div>
+
     <div class="form-buttons">
       <button class="btn btn-danger delete-button" (click)="hideDialog()">Cancel</button>
-      <div>
+      <div class="navigation-buttons">
         <button class="btn btn-success save-button" *ngIf="currentStep !== 1"
           (click)="currentStep = currentStep - 1">Back</button>
-        <button class="btn btn-success save-button" (click)="currentStep !== maxSteps? currentStep = currentStep + 1:
+        <button class="btn btn-success save-button"
+          [disabled]="currentStep === 1 && !createProjectSetup.isValid"
+          (click)="currentStep !== maxSteps? currentStep = currentStep + 1:
               createProject(createProjectSetup.createProjectVm, labelingSetup.projectSetupVm)">
           {{currentStep !== maxSteps ? 'Next' : 'Create Project' }}
         </button>
       </div>
     </div>
-
   </div>
 </div>

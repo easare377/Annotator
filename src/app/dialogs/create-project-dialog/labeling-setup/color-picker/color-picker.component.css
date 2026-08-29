@@ -1,0 +1,52 @@
+:host {
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+
+.color-picker {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 7px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+.color-picker:hover {
+  background: #e8f1ff;
+}
+
+.color-picker:focus-within {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.picker-icon {
+  width: 18px;
+  height: 18px;
+  color: #000;
+  opacity: .7;
+  transition: opacity .15s;
+}
+
+.color-picker:hover .picker-icon {
+  opacity: 1;
+}
+
+.color-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}

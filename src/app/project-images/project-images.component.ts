@@ -13,11 +13,10 @@ import {ProjectDataResponseBody} from "../../models/project-data-response-body";
 import {ObjectClassResponseBody} from "../../models/object-class-response-body";
 import {ImageUrls} from "../../models/image-urls";
 import {ProjectInfoResponseBody} from "../../models/project-info-response-body";
-
-type ImageStatus = 'not-detected' | 'detected' | 'incomplete' | 'annotated';
-type ImageFilter = 'all' | ImageStatus;
-type SortOption = 'dateModified' | 'dateAdded' | 'filename' | 'progress';
-type ViewMode = 'grid' | 'table';
+import {ProjectImageSortBy} from "../../models/enum/project-image-sort-by";
+import {ProjectImageStatus} from "../../models/enum/project-image-status";
+import {ProjectImageViewMode} from "../../models/enum/project-image-view-mode";
+import {AppSettingsService} from "../../services/app-settings.service";
 
 @Component({
   selector: 'app-project-images',
@@ -26,6 +25,9 @@ type ViewMode = 'grid' | 'table';
 })
 
 export class ProjectImagesComponent extends BaseComponent implements OnInit {
+  protected readonly ProjectImageSortBy = ProjectImageSortBy;
+  protected readonly ProjectImageStatus = ProjectImageStatus;
+  protected readonly ProjectImageViewMode = ProjectImageViewMode;
   projectId!: string;
   imageInfoVms: ImageInfoViewModel[] = new Array<ImageInfoViewModel>;
   objectClasses: ObjectClassResponseBody[] = []
@@ -33,18 +35,25 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
   selectedImage: ImageInfoViewModel | undefined;
   selectedImageIds: Set<string> = new Set<string>();
   searchTerm: string = '';
-  statusFilter: ImageFilter = 'all';
-  sortBy: SortOption = 'dateModified';
-  viewMode: ViewMode = 'grid';
+  statusFilter: ProjectImageStatus = ProjectImageStatus.ALL;
+  sortBy: ProjectImageSortBy = ProjectImageSortBy.DATE_MODIFIED;
+  viewMode: ProjectImageViewMode = ProjectImageViewMode.GRID;
   isLoadingProjectData: boolean = false;
   hasLoadError: boolean = false;
 
   constructor(private httpService: HttpService, private route: ActivatedRoute,
-              private appManagerService: AppManagerService, private navService: NavigationService) {
+              private appManagerService: AppManagerService, private navService: NavigationService,
+              private appSettings: AppSettingsService) {
     super();
   }
 
   ngOnInit(): void {
+    // Restore the user's local browser preferences before loading project data.
+    const preferences = this.appSettings.getProjectImagePreferences();
+    this.sortBy = preferences.sortBy;
+    this.viewMode = preferences.viewMode;
+    this.statusFilter = preferences.statusFilter;
+
     this.route.queryParams.subscribe(async params => {
       this.projectId = params['pid'];
       if (!this.projectId) {
@@ -114,7 +123,8 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
     return this.imageInfoVms
       .filter(imageInfo => {
         const matchesSearch: boolean = !term || imageInfo.originalFileName.toLowerCase().includes(term);
-        const matchesStatus: boolean = this.statusFilter === 'all' || this.getImageStatus(imageInfo) === this.statusFilter;
+        const matchesStatus: boolean = this.statusFilter === ProjectImageStatus.ALL
+          || this.getImageStatus(imageInfo) === this.statusFilter;
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => this.compareImages(a, b));
@@ -129,11 +139,13 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
   }
 
   get annotatedImages(): number {
-    return this.imageInfoVms.filter(imageInfo => this.getImageStatus(imageInfo) === 'annotated').length;
+    return this.imageInfoVms
+      .filter(imageInfo => this.getImageStatus(imageInfo) === ProjectImageStatus.ANNOTATED).length;
   }
 
   get incompleteImages(): number {
-    return this.imageInfoVms.filter(imageInfo => this.getImageStatus(imageInfo) === 'incomplete').length;
+    return this.imageInfoVms
+      .filter(imageInfo => this.getImageStatus(imageInfo) === ProjectImageStatus.INCOMPLETE).length;
   }
 
   get selectedCount(): number {
@@ -159,17 +171,20 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
     this.ensureVisibleSelection();
   }
 
-  setStatusFilter(value: ImageFilter): void {
+  setStatusFilter(value: ProjectImageStatus): void {
     this.statusFilter = value;
+    this.storePreferences();
     this.ensureVisibleSelection();
   }
 
-  setSortBy(value: SortOption): void {
+  setSortBy(value: ProjectImageSortBy): void {
     this.sortBy = value;
+    this.storePreferences();
   }
 
-  setViewMode(value: ViewMode): void {
+  setViewMode(value: ProjectImageViewMode): void {
     this.viewMode = value;
+    this.storePreferences();
   }
 
   selectImage(imageInfo: ImageInfoViewModel): void {
@@ -220,22 +235,22 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
     return this.selectedImage?.imageId === imageInfo.imageId;
   }
 
-  getImageStatus(imageInfo: ImageInfoViewModel): ImageStatus {
-    if (!imageInfo.polygonVms) return 'not-detected';
+  getImageStatus(imageInfo: ImageInfoViewModel): ProjectImageStatus {
+    if (!imageInfo.polygonVms) return ProjectImageStatus.NOT_DETECTED;
     const polygonCount: number = imageInfo.polygonVms.length;
     const annotatedCount: number = imageInfo.annotatedPolygonVms.length;
-    if (polygonCount > 0 && annotatedCount >= polygonCount) return 'annotated';
-    if (annotatedCount > 0) return 'incomplete';
-    return 'detected';
+    if (polygonCount > 0 && annotatedCount >= polygonCount) return ProjectImageStatus.ANNOTATED;
+    if (annotatedCount > 0) return ProjectImageStatus.INCOMPLETE;
+    return ProjectImageStatus.DETECTED;
   }
 
   getImageStatusLabel(imageInfo: ImageInfoViewModel): string {
     switch (this.getImageStatus(imageInfo)) {
-      case 'annotated':
+      case ProjectImageStatus.ANNOTATED:
         return 'Annotated';
-      case 'incomplete':
+      case ProjectImageStatus.INCOMPLETE:
         return 'In progress';
-      case 'detected':
+      case ProjectImageStatus.DETECTED:
         return 'Ready';
       default:
         return 'Not detected';
@@ -257,13 +272,21 @@ export class ProjectImagesComponent extends BaseComponent implements OnInit {
     this.selectedImage = visibleImages[0] ?? this.imageInfoVms[0];
   }
 
+  private storePreferences(): void {
+    this.appSettings.storeProjectImagePreferences(
+      this.sortBy,
+      this.viewMode,
+      this.statusFilter
+    );
+  }
+
   private compareImages(a: ImageInfoViewModel, b: ImageInfoViewModel): number {
     switch (this.sortBy) {
-      case 'dateAdded':
+      case ProjectImageSortBy.DATE_ADDED:
         return this.getTimeValue(b.dateAdded) - this.getTimeValue(a.dateAdded);
-      case 'filename':
+      case ProjectImageSortBy.FILENAME:
         return a.originalFileName.localeCompare(b.originalFileName);
-      case 'progress':
+      case ProjectImageSortBy.PROGRESS:
         return this.getAnnotationProgress(b) - this.getAnnotationProgress(a);
       default:
         return this.getTimeValue(b.dateModified) - this.getTimeValue(a.dateModified);

@@ -1,3 +1,4 @@
+import { authInterceptor } from '../services/auth.interceptor';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -12,7 +13,7 @@ import { CanvasAreaDrawComponent } from './canvas-area-draw/canvas-area-draw.com
 import { SidenavComponent } from './sidenav/sidenav.component';
 import { MultiPolygonComponent } from './annotate/multi-polygon/multi-polygon.component';
 import {NgOptimizedImage} from "@angular/common";
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { AssignClassDialogComponent } from './dialogs/assign-class-dialog/assign-class-dialog.component';
 import { AnnotateComponent } from './annotate/annotate.component';
 import {ClickOutsideDirective} from "./click-outside.directive";
@@ -42,6 +43,9 @@ import { ExportDataTypeComponent } from './dialogs/export-data-dialog/export-dat
 import { CreateProjectComponent } from './dialogs/create-project/create-project.component';
 import { ConfirmationDialogComponent } from './dialogs/confirmation-dialog/confirmation-dialog.component';
 import { ProjectSettingsDialogComponent } from './dialogs/project-settings-dialog/project-settings-dialog.component';
+import { TopbarComponent } from './topbar/topbar.component';
+import { TopbarActionDirective } from './topbar/topbar-action.directive';
+import { UserDropdownComponent } from './user-dropdown/user-dropdown.component';
 
 
 
@@ -81,11 +85,14 @@ import { ProjectSettingsDialogComponent } from './dialogs/project-settings-dialo
         CreateProjectComponent,
         ConfirmationDialogComponent,
         ProjectSettingsDialogComponent,
+        TopbarComponent,
+        TopbarActionDirective,
+        UserDropdownComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         FormsModule,
         NgOptimizedImage,
         ClickOutsideDirective,
-        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        ReactiveFormsModule], providers: [provideHttpClient(withInterceptorsFromDi(), withInterceptors([authInterceptor]))] })
 export class AppModule { }

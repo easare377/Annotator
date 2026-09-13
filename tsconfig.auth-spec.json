@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/services/app-settings.service.spec.ts",
+    "src/services/auth*.spec.ts",
+    "src/app/sign-up/sign-up.component.spec.ts",
+    "src/app/topbar/*.spec.ts",
+    "src/app/user-dropdown/*.spec.ts"
+  ]
+}

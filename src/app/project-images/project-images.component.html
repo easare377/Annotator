@@ -1,45 +1,41 @@
 <div class="pi">
-  <!-- Top bar -->
-  <header class="top">
-    <!-- Project breadcrumb -->
-    <div class="brand">
-      <img src="assets/images/svgs/polygon-matic-icon.svg" alt="">
-      <div class="crumb">
+  <app-topbar>
+    <nav topbarBreadcrumbs class="crumb" aria-label="Breadcrumb">
         <button type="button" (click)="goToProjects()">Projects</button>
         <span>/</span>
         <strong>{{ projectInfo?.name || 'Project Images' }}</strong>
-      </div>
-    </div>
+    </nav>
 
-    <!-- Project actions -->
-    <div class="actions">
-      <button type="button" class="btn ghost" [disabled]="isLoadingProjectData || !projectInfo"
+    <div topbarActions>
+      <button type="button" topbarAction [disabled]="isLoadingProjectData || !projectInfo"
+              aria-label="Project settings"
               (click)="projectSettingsDialog.showDialog()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.5v-.1A1.7 1.7 0 0 0 8.4 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4 15a1.7 1.7 0 0 0-.6-1A1.7 1.7 0 0 0 2.3 13.6H2V9.5h.3A1.7 1.7 0 0 0 4 8.4a1.7 1.7 0 0 0-.34-1.88l-.06-.06L6.46 3.6l.06.06A1.7 1.7 0 0 0 8.4 4a1.7 1.7 0 0 0 1-.6A1.7 1.7 0 0 0 9.8 2.3V2h4.1v.3A1.7 1.7 0 0 0 15 4a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8.4a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.3v4.1h-.3a1.7 1.7 0 0 0-1.7 1.1Z"></path>
         </svg>
-        <span>Settings</span>
+        <span class="topbar-action-label">Settings</span>
       </button>
-      <button type="button" class="btn ghost" [disabled]="isLoadingProjectData" (click)="refreshProjectDataAsync()">
+      <button type="button" topbarAction [disabled]="isLoadingProjectData" aria-label="Refresh project"
+              (click)="refreshProjectDataAsync()">
         <img src="assets/images/svgs/refresh-cw-alt-3-svgrepo-com.svg" alt="">
-        <span>Refresh</span>
+        <span class="topbar-action-label">Refresh</span>
       </button>
-      <button type="button" class="btn ghost" (click)="importDataDialog.showDialog()">
+      <button type="button" topbarAction aria-label="Import data" (click)="importDataDialog.showDialog()">
         <img src="assets/images/svgs/import-svgrepo-com.svg" alt="">
-        <span>Import</span>
+        <span class="topbar-action-label">Import</span>
       </button>
-      <button type="button" class="btn main" (click)="exportData.showDialog()">
+      <button type="button" topbarAction="primary" aria-label="Export data" (click)="exportData.showDialog()">
         <img src="assets/images/svgs/export-svgrepo-com.svg" alt="">
-        <span>Export</span>
+        <span class="topbar-action-label">Export</span>
       </button>
     </div>
-  </header>
+  </app-topbar>
 
   <main class="page">
     <!-- Project image summary -->
-    <section class="summary">
+    <!-- <section class="summary">
       <div>
         <span>Total</span>
         <strong>{{ totalImages }}</strong>
@@ -56,7 +52,7 @@
         <span>In Progress</span>
         <strong>{{ incompleteImages }}</strong>
       </div>
-    </section>
+    </section> -->
 
     <!-- Search, filters, sorting, and view controls -->
     <section class="tools">
@@ -69,27 +65,29 @@
       <label>
         <span>Status</span>
         <select [ngModel]="statusFilter" (ngModelChange)="setStatusFilter($event)">
-          <option value="all">All</option>
-          <option value="not-detected">Not detected</option>
-          <option value="detected">Ready</option>
-          <option value="incomplete">In progress</option>
-          <option value="annotated">Annotated</option>
+          <option [ngValue]="ProjectImageStatus.ALL">All</option>
+          <option [ngValue]="ProjectImageStatus.NOT_DETECTED">Not detected</option>
+          <option [ngValue]="ProjectImageStatus.DETECTED">Ready</option>
+          <option [ngValue]="ProjectImageStatus.INCOMPLETE">In progress</option>
+          <option [ngValue]="ProjectImageStatus.ANNOTATED">Annotated</option>
         </select>
       </label>
 
       <label>
         <span>Sort</span>
         <select [ngModel]="sortBy" (ngModelChange)="setSortBy($event)">
-          <option value="dateModified">Last modified</option>
-          <option value="dateAdded">Date added</option>
-          <option value="filename">Filename</option>
-          <option value="progress">Progress</option>
+          <option [ngValue]="ProjectImageSortBy.DATE_MODIFIED">Last modified</option>
+          <option [ngValue]="ProjectImageSortBy.DATE_ADDED">Date added</option>
+          <option [ngValue]="ProjectImageSortBy.FILENAME">Filename</option>
+          <option [ngValue]="ProjectImageSortBy.PROGRESS">Progress</option>
         </select>
       </label>
 
       <div class="view" role="group" aria-label="View mode">
-        <button type="button" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">Grid</button>
-        <button type="button" [class.active]="viewMode === 'table'" (click)="setViewMode('table')">Table</button>
+        <button type="button" [class.active]="viewMode === ProjectImageViewMode.GRID"
+                (click)="setViewMode(ProjectImageViewMode.GRID)">Grid</button>
+        <button type="button" [class.active]="viewMode === ProjectImageViewMode.TABLE"
+                (click)="setViewMode(ProjectImageViewMode.TABLE)">Table</button>
       </div>
     </section>
 
@@ -125,7 +123,7 @@
         </div>
 
         <!-- Image grid -->
-        <div class="grid" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'grid'">
+        <div class="grid" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === ProjectImageViewMode.GRID">
           <article class="card" *ngFor="let image of filteredImages" [class.sel-card]="isSelectedImage(image)"
                    (click)="selectImage(image)">
             <label class="sel" (click)="$event.stopPropagation()">
@@ -150,7 +148,7 @@
         </div>
 
         <!-- Image table -->
-        <div class="table-wrap" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === 'table'">
+        <div class="table-wrap" *ngIf="!isLoadingProjectData && !hasLoadError && filteredImages.length && viewMode === ProjectImageViewMode.TABLE">
           <table>
             <thead>
             <tr>

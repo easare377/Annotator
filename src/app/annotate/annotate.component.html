@@ -1,10 +1,6 @@
 <div class="ann">
-  <!-- Top bar -->
-  <header class="top">
-    <!-- Breadcrumbs -->
-    <div class="top-l">
-      <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
-      <nav class="crumbs" aria-label="Breadcrumb">
+  <app-topbar>
+      <nav topbarBreadcrumbs class="crumbs" aria-label="Breadcrumb">
         <button type="button" class="cr-link" (click)="navService.gotoProjectPageAsync()">Projects</button>
         <span class="sep">/</span>
         <button *ngIf="projectInfo" type="button" class="cr-link"
@@ -14,23 +10,23 @@
         <span class="sep">/</span>
         <span class="cr-cur">Annotate</span>
       </nav>
-    </div>
 
-    <!-- Save actions -->
-    <div class="actions">
-      <button type="button" class="btn sec" [disabled]="updatingPolygonClasses"
+    <div topbarActions>
+      <button type="button" topbarAction [disabled]="updatingPolygonClasses"
+              aria-label="Update annotations"
               (click)="saveObjectClassesAsync()">
         <img *ngIf="!updatingPolygonClasses" src="assets/images/svgs/update-alt-2-svgrepo-com.svg" alt="">
         <span class="spinner btn-spin" *ngIf="updatingPolygonClasses"></span>
-        {{ updatingPolygonClasses ? 'Saving' : 'Update' }}
+        <span class="topbar-action-label">{{ updatingPolygonClasses ? 'Saving' : 'Update' }}</span>
       </button>
-      <button type="button" class="btn pri" [disabled]="updatingPolygonClasses"
+      <button type="button" topbarAction="primary" [disabled]="updatingPolygonClasses"
+              aria-label="Save annotations and exit"
               (click)="!updatingPolygonClasses ? saveObjectClassesAsync() : undefined">
         <img src="assets/images/svgs/save-svgrepo-com.svg" alt="">
-        Save & Exit
+        <span class="topbar-action-label">Save & Exit</span>
       </button>
     </div>
-  </header>
+  </app-topbar>
 
   <!-- Annotation workspace -->
   <main class="ws" *ngIf="currentImageInfo as image; else noImageSelected">

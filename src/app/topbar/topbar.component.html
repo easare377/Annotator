@@ -1,0 +1,19 @@
+<header class="app-topbar">
+  <div class="app-topbar-leading">
+    <a class="app-topbar-brand" routerLink="/" aria-label="Open projects">
+      <img src="assets/images/svgs/polygon-matic-icon.svg" alt="">
+    </a>
+    <span class="app-topbar-divider" aria-hidden="true"></span>
+    <div class="app-topbar-breadcrumbs">
+      <ng-content select="[topbarBreadcrumbs]"></ng-content>
+    </div>
+  </div>
+
+  <div class="app-topbar-trailing">
+    <div class="app-topbar-actions">
+      <ng-content select="[topbarActions]"></ng-content>
+    </div>
+    <span class="app-topbar-divider app-topbar-action-divider" aria-hidden="true"></span>
+    <app-user-dropdown></app-user-dropdown>
+  </div>
+</header>

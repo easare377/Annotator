@@ -29,6 +29,7 @@ import { PointType } from '../../models/enum/point-type';
 import { Prompts } from '../../models/prompts';
 import { ClearEmptyPolygonsRequestBody } from '../../models/clear-empty-polygons-request-body';
 import { AnnotationDisplayMode } from '../../models/enum/annotation-display-mode';
+import { AppSettingsService } from '../../services/app-settings.service';
 
 interface ClassificationChange {
   polygonId: string;
@@ -69,7 +70,8 @@ export class AnnotateComponent implements OnInit {
   @ViewChild(MultiPolygonComponent) private multiPolygon: MultiPolygonComponent | undefined;
 
   constructor(public httpService: HttpService, public navService: NavigationService,
-    public appManagerService: AppManagerService, private route: ActivatedRoute) {
+    public appManagerService: AppManagerService, private route: ActivatedRoute,
+    private appSettings: AppSettingsService) {
     // super(httpService, navService,appManagerService);
     this.imageInfoVms = [];
     this.objectClassVms = new Array<ObjectClassViewModel>();
@@ -94,6 +96,9 @@ export class AnnotateComponent implements OnInit {
 
       if (this.projectId !== projectId || this.imageInfoVms.length === 0) {
         this.projectId = projectId;
+        // Restore annotation display state for this project and browser session.
+        this.annotationDisplayMode = this.appSettings
+          .getAnnotatePreferences(projectId).annotationDisplayMode;
         this.initializeData();
         await this.getProjectDataAsync(projectId);
       }
@@ -375,6 +380,7 @@ export class AnnotateComponent implements OnInit {
 
   setAnnotationDisplayMode(displayMode: AnnotationDisplayMode): void {
     this.annotationDisplayMode = displayMode;
+    this.appSettings.storeAnnotatePreferences(this.projectId, displayMode);
   }
 
   undoPrompt(): void {

@@ -1,18 +1,17 @@
 <div class="projects-page">
-  <header class="topbar">
-    <div class="top-left">
-      <img class="brand" src="assets/images/svgs/polygon-matic-icon.svg" alt="Polygon Matic">
-      <div class="divider"></div>
-      <nav class="crumbs" aria-label="Breadcrumb">
-        <span class="current">Projects</span>
-      </nav>
-    </div>
+  <app-topbar>
+    <nav topbarBreadcrumbs aria-label="Breadcrumb">
+      <span class="current">Projects</span>
+    </nav>
 
-    <button type="button" class="create-btn" (click)="createProjectDialog.showDialog()">
-      <img src="assets/images/svgs/create-icon.svg" alt="">
-      <span>Create Project</span>
-    </button>
-  </header>
+    <div topbarActions>
+      <button type="button" topbarAction="primary" aria-label="Create project"
+              (click)="createProjectDialog.showDialog()">
+        <img src="assets/images/svgs/create-icon.svg" alt="">
+        <span class="topbar-action-label">Create Project</span>
+      </button>
+    </div>
+  </app-topbar>
 
   <main class="content">
     <section class="page-head">

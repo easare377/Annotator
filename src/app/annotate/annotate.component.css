@@ -7,22 +7,8 @@
     overflow: hidden
 }
 
-.top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 0 16px;
-    background: #fff;
-    border-bottom: 1px solid #dfe4ec
-}
-
-.top-l,
-.actions,
-.crumbs,
 .grp,
 .mode,
-.btn,
 .detect-btn,
 .active,
 .stat {
@@ -30,26 +16,8 @@
     align-items: center
 }
 
-.top-l {
-    min-width: 0;
-    gap: 12px
-}
-
-.actions,
 .grp {
     gap: 8px
-}
-
-.brand {
-    width: 28px;
-    height: 28px
-}
-
-.crumbs {
-    min-width: 0;
-    gap: 8px;
-    color: #6b7280;
-    font-size: 14px
 }
 
 .sep {
@@ -69,7 +37,6 @@
     cursor: pointer
 }
 
-.btn,
 .detect-btn {
     height: 36px;
     justify-content: center;
@@ -81,23 +48,6 @@
     cursor: pointer
 }
 
-.btn img {
-    width: 18px;
-    height: 18px
-}
-
-.pri {
-    background: #2563eb;
-    color: #fff
-}
-
-.sec {
-    background: #fff;
-    color: #172033;
-    border-color: #cfd6e3
-}
-
-.btn:disabled,
 .detect-btn:disabled {
     opacity: .65;
     cursor: default

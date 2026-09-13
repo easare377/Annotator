@@ -1,69 +1,76 @@
-<div class="signup-container">
-    <div class="tabs">
-      <button class="tab" [class.active]="activeTab === 'signUp'" (click)="setActiveTab('signUp')">SIGN UP</button>
-      <button class="tab" [class.active]="activeTab === 'logIn'" (click)="setActiveTab('logIn')">LOG IN</button>
+<main class="auth-page">
+  <!-- Product story -->
+  <section class="story" aria-label="About Annotator">
+    <a class="brand" routerLink="/"><span class="brand-mark" aria-hidden="true">A</span> Annotator</a>
+    <div class="story-content">
+      <p class="eyebrow">FROM PIXELS TO POSSIBILITIES</p>
+      <h1>Great datasets<br>start with detail.</h1>
+      <p class="story-description">Turn your images into training data.<br>Organize, annotate, and bring every detail into focus.</p>
+      <!-- Annotation preview -->
+      <div class="preview" role="img" aria-label="Illustration of an aerial field with colored polygon annotations">
+        <div class="preview-bar"><span><i></i> Field survey</span><span>ANNOTATION PREVIEW</span></div>
+        <svg viewBox="0 0 520 290" aria-hidden="true">
+          <defs><pattern id="rows" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-22)"><rect width="12" height="12" fill="#657858"/><path d="M0 0V12" stroke="#7f906d" stroke-width="5"/></pattern></defs>
+          <rect width="520" height="290" fill="#acb58a"/><path d="M0 0H315L240 140 0 190Z" fill="url(#rows)"/><path d="M337 0H520V173L272 145Z" fill="#869471"/><path d="M0 212L236 164 179 290H0Z" fill="#778164"/><path d="M265 169L520 199V290H210Z" fill="#b9a984"/><path d="M320 -10L196 300M-10 201L250 154 530 187" fill="none" stroke="#ded6bc" stroke-width="15"/>
+          <path d="M22 20H285L227 126 22 164Z" fill="#59dcb52b" stroke="#69f0c3" stroke-width="2"/><path d="M351 21H499V151L297 131Z" fill="#9b93ff33" stroke="#c4b5fd" stroke-width="2"/>
+          <g fill="#fff" stroke="#42bf94" stroke-width="2"><circle cx="22" cy="20" r="4"/><circle cx="285" cy="20" r="4"/><circle cx="227" cy="126" r="4"/><circle cx="22" cy="164" r="4"/></g>
+          <rect x="44" y="68" width="93" height="27" rx="5" fill="#163f35"/><text x="57" y="86" fill="#caffeb" font-size="12">Vegetation</text><rect x="354" y="65" width="126" height="27" rx="5" fill="#3d3565"/><text x="366" y="83" fill="#eee8ff" font-size="12">Field boundary</text>
+        </svg>
+      </div>
+      <!-- Workflow overview -->
+      <div class="workflow"><span>01 <b>Upload</b></span><span class="line"></span><span>02 <b>Annotate</b></span><span class="line"></span><span>03 <b>Export</b></span></div>
     </div>
-    <form *ngIf="activeTab === 'signUp'" [formGroup]="signInForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <input type="email" placeholder="example@mail.com" class="form-control" formControlName="gmail"
-          [class.invalid]="signInForm.get('gmail')?.invalid &&
-          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)"
-          
-          />
-          <!-- <mat-icon class="placeholder" (click)="myFunction()">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon> -->
-          <!-- <div class="input-group-append">
-            <span class="input-group-text">
-              <i
-                class="fa"
-                [ngClass]="{
-                  'fa-eye-slash': !fieldTextType,
-                  'fa-eye': fieldTextType
-                }"
-                (click)="toggleFieldTextType()"
-              ></i>
-            </span>
-          </div> -->
-          <span class="error" *ngIf="signInForm.get('gmail')?.hasError('required') &&
-          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)">This field is required</span>
-          <span class="error" *ngIf="signInForm.get('gmail')?.hasError('pattern') &&
-          (signInForm.get('gmail')?.dirty || signInForm.get('gmail')?.touched || isSubmitted)">Enter valid Email</span>
-       
+    <p class="story-bottom">A focused workspace for better annotations.</p>
+  </section>
+
+  <!-- Authentication panel -->
+  <section class="form-panel" aria-labelledby="auth-heading">
+    <a class="mobile-brand" routerLink="/">▧ Annotator</a>
+    <div class="auth-form">
+      <p class="eyebrow form-eyebrow">YOUR ANNOTATION WORKSPACE</p>
+      <h2 id="auth-heading">{{ mode === 'signup' ? 'Create your account' : 'Welcome back' }}</h2>
+      <p class="subtitle">{{ mode === 'signup' ? 'Start organizing and annotating your images.' : 'Log in to pick up where you left off.' }}</p>
+      <!-- Google authentication -->
+      <div class="google-area" [class.busy]="submitting" [attr.inert]="submitting ? '' : null">
+        <div #googleButton [hidden]="googleState !== 'ready'"></div>
+        <button *ngIf="googleState !== 'ready'" class="google-placeholder" disabled><span aria-hidden="true">G</span> Continue with Google</button>
       </div>
-      <div class="form-group">
-        <input   type='password' placeholder="PASSWORD" class="form-control" formControlName="password" 
-        [class.invalid]="signInForm.get('password')?.invalid &&
-          (signInForm.get('password')?.dirty || signInForm.get('password')?.touched || isSubmitted)"
-        />
-        <span class="error" *ngIf="signInForm.get('password')?.hasError('required') &&
-        (signInForm.get('password')?.dirty || signInForm.get('password')?.touched || isSubmitted)">This field is required</span>
-        <span class="error" *ngIf="signInForm.get('password')?.hasError('pattern')"> Invalid</span>
-      </div>
-
-      <button id="createButton" type="submit"  class="btn-primary">CREATE ACCOUNT</button>
-    </form>
-    <!-- <div id="message">
-      <h3>Password must contain the following:</h3>
-      <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
-      <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
-      <p id="number" class="invalid">A <b>number</b></p>
-      <p id="length" class="invalid">Minimum <b>8 characters</b></p>
-    </div> -->
-
-
-
-
-    <form *ngIf="activeTab === 'logIn'">
-        <div class="form-group">
-          <input type="email" placeholder="EMAIL" class="form-control" />
+      <p class="google-note" *ngIf="googleState === 'unavailable'">Google sign-in is currently unavailable. Continue with email.</p>
+      <div class="divider"><span>or continue with email</span></div>
+      <div *ngIf="error" class="form-error" role="alert">{{ error }} <button *ngIf="!ready" type="button" (click)="initialize()">Try again</button></div>
+      <!-- Email authentication -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" [attr.aria-busy]="submitting" novalidate>
+        <!-- Account name -->
+        <div class="name-row" *ngIf="mode === 'signup'">
+          <div class="name-field">
+            <label for="auth-first-name">First name</label>
+            <input #firstNameInput id="auth-first-name" type="text" autocomplete="given-name" maxlength="150" placeholder="First name" formControlName="firstName" [readOnly]="submitting" [class.invalid]="invalid('firstName')" [attr.aria-invalid]="invalid('firstName')" aria-describedby="first-name-error">
+            <p id="first-name-error" class="field-error" *ngIf="invalid('firstName')">Enter your first name.</p>
+          </div>
+          <div class="name-field">
+            <label for="auth-surname">Last name</label>
+            <input #surnameInput id="auth-surname" type="text" autocomplete="family-name" maxlength="150" placeholder="Last name" formControlName="surname" [readOnly]="submitting" [class.invalid]="invalid('surname')" [attr.aria-invalid]="invalid('surname')" aria-describedby="surname-error">
+            <p id="surname-error" class="field-error" *ngIf="invalid('surname')">Enter your last name.</p>
+          </div>
         </div>
-        <div class="form-group">
-          <input type="password" placeholder="PASSWORD" class="form-control" />
-        </div>
-  
-        <button type="submit" class="btn-primary">LOGIN</button>
+        <label for="auth-email">Email</label>
+        <input #emailInput id="auth-email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" formControlName="email" [readOnly]="submitting" [class.invalid]="invalid('email')" [attr.aria-invalid]="invalid('email')" aria-describedby="email-error">
+        <p id="email-error" class="field-error" *ngIf="invalid('email')">{{ form.controls.email.hasError('required') ? 'Enter your email address.' : 'Enter a valid email address.' }}</p>
+        <label for="auth-password">Password</label>
+        <div class="password-field"><input #passwordInput id="auth-password" [type]="showPassword ? 'text' : 'password'" [autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'" placeholder="Enter your password" formControlName="password" [readOnly]="submitting" [class.invalid]="invalid('password')" [attr.aria-invalid]="invalid('password')" aria-describedby="password-hint password-error"><button type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button></div>
+        <p id="password-hint" class="hint" *ngIf="mode === 'signup'">Use 8 or more characters. Avoid common passwords, all numbers, or your email.</p>
+        <p id="password-error" class="field-error" *ngIf="invalid('password')">{{ form.controls.password.hasError('required') ? 'Enter your password.' : 'Use at least 8 characters.' }}</p>
+        <ng-container *ngIf="mode === 'signup'">
+          <label for="auth-confirmation-password">Confirm password</label>
+          <input #confirmationPasswordInput id="auth-confirmation-password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="Re-enter your password" formControlName="confirmationPassword" [readOnly]="submitting" [class.invalid]="invalid('confirmationPassword') || passwordsDoNotMatch()" [attr.aria-invalid]="invalid('confirmationPassword') || passwordsDoNotMatch()" aria-describedby="confirmation-password-error">
+          <p id="confirmation-password-error" class="field-error" *ngIf="invalid('confirmationPassword') || passwordsDoNotMatch()">{{ form.controls.confirmationPassword.hasError('required') ? 'Confirm your password.' : 'Passwords do not match.' }}</p>
+        </ng-container>
+        <button class="submit" type="submit" [disabled]="submitting || !ready">{{ submitting ? (mode === 'signup' ? 'Creating account…' : 'Logging in…') : (mode === 'signup' ? 'Create account' : 'Log in') }}<span *ngIf="!submitting" aria-hidden="true">→</span></button>
+        <span class="sr-only" role="status">{{ submitting ? 'Please wait while we sign you in.' : '' }}</span>
       </form>
-    
-
-  </div>
-  
-
+      <!-- Authentication mode switch -->
+      <p class="switch" *ngIf="!submitting">{{ mode === 'signup' ? 'Already have an account?' : 'New to Annotator?' }} <a [routerLink]="mode === 'signup' ? '/login' : '/signup'" [queryParams]="{ returnUrl: returnUrl }">{{ mode === 'signup' ? 'Log in' : 'Create an account' }}</a></p>
+    </div>
+    <p class="form-bottom">Your images. Your annotations. One workspace.</p>
+  </section>
+</main>

@@ -74,7 +74,10 @@
               "buildTarget": "my-app:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -100,6 +103,19 @@
             "scripts": [
               "/src/assets/js/angular-canvas-area-draw.js"
             ]
+          },
+          "configurations": {
+            "auth": {
+              "tsConfig": "tsconfig.auth-spec.json",
+              "scripts": [],
+              "include": [
+                "src/services/app-settings.service.spec.ts",
+                "src/services/auth*.spec.ts",
+                "src/app/sign-up/sign-up.component.spec.ts",
+                "src/app/topbar/*.spec.ts",
+                "src/app/user-dropdown/*.spec.ts"
+              ]
+            }
           }
         }
       }
